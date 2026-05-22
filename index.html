@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏盒子 - Game Box</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <header class="main-header">
+        <div class="header-content">
+            <h1 class="logo">
+                <span class="logo-icon">🎮</span>
+                <span class="logo-text">游戏盒子</span>
+            </h1>
+            <p class="subtitle">精选休闲小游戏合集</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="games-section">
+                <div class="section-header">
+                    <h2>🎯 游戏列表</h2>
+                    <p class="section-desc">选择你喜欢的游戏，点击封面开始游玩</p>
+                </div>
+
+                <div class="games-grid" id="games-grid">
+                    <a href="games/memory-match/index.html" class="game-card" data-game="memory-match">
+                        <div class="game-cover">
+                            <div class="cover-bg cover-memory"></div>
+                            <div class="cover-icon">🎴</div>
+                            <div class="cover-overlay">
+                                <span class="play-btn">▶ 开始游戏</span>
+                            </div>
+                        </div>
+                        <div class="game-info">
+                            <h3 class="game-title">翻牌配对</h3>
+                            <p class="game-desc">经典记忆配对游戏，考验你的记忆力</p>
+                            <div class="game-tags">
+                                <span class="tag tag-easy">休闲</span>
+                                <span class="tag tag-memory">记忆</span>
+                                <span class="tag tag-new">热门</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <div class="game-card game-card-locked" data-game="coming-soon-1">
+                        <div class="game-cover">
+                            <div class="cover-bg cover-coming"></div>
+                            <div class="cover-icon">🎯</div>
+                            <div class="coming-soon-badge">
+                                <span>🚧 敬请期待</span>
+                            </div>
+                        </div>
+                        <div class="game-info">
+                            <h3 class="game-title">更多游戏</h3>
+                            <p class="game-desc">新游戏正在开发中...</p>
+                            <div class="game-tags">
+                                <span class="tag tag-soon">即将上线</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="game-card game-card-locked" data-game="coming-soon-2">
+                        <div class="game-cover">
+                            <div class="cover-bg cover-coming2"></div>
+                            <div class="cover-icon">🧩</div>
+                            <div class="coming-soon-badge">
+                                <span>🚧 敬请期待</span>
+                            </div>
+                        </div>
+                        <div class="game-info">
+                            <h3 class="game-title">更多游戏</h3>
+                            <p class="game-desc">新游戏正在开发中...</p>
+                            <div class="game-tags">
+                                <span class="tag tag-soon">即将上线</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features-section">
+                <h2 class="section-title">✨ 平台特色</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>即点即玩</h3>
+                        <p>无需下载安装，打开网页即可开始游戏</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>全平台支持</h3>
+                        <p>电脑、平板、手机均可流畅运行</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>精心挑选</h3>
+                        <p>精选优质小游戏，休闲又益智</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔄</div>
+                        <h3>持续更新</h3>
+                        <p>更多好玩的游戏正在陆续加入中</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>© 2024 游戏盒子 Game Box | 用 ❤️ 打造</p>
+            <p class="footer-link">
+                <a href="https://github.com/Magipoet/game_box" target="_blank">GitHub 仓库</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,2922 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="api-base" content="">
+    <title>记忆配对游戏</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+    width: 100%;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #333;
+    font-size: 2.5rem;
+    margin: 0 0 25px 0;
+    text-align: center;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.stat-item {
+    text-align: center;
+    position: relative;
+}
+
+.stat-item .label {
+    display: block;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.stat-item .value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-item.level-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.level-btn {
+    padding: 6px 16px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.level-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+.current-level {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.level-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 140px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.level-dropdown.hidden {
+    display: none;
+}
+
+.level-option {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.level-option:hover {
+    background: #f0f0f8;
+}
+
+.level-option.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.level-option.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: #999;
+}
+
+.level-option.locked:hover {
+    background: white;
+}
+
+.game-board {
+    display: grid;
+    gap: 12px;
+    justify-content: center;
+    margin: 0 auto 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+.card {
+    aspect-ratio: 1;
+    perspective: 1000px;
+    cursor: pointer;
+    min-width: 60px;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card.matched .card-inner {
+    transform: rotateY(180deg);
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: rotateY(180deg) scale(1); }
+    50% { transform: rotateY(180deg) scale(1.1); }
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-back {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.card-front {
+    background: white;
+    transform: rotateY(180deg);
+    border: 3px solid #667eea;
+}
+
+footer {
+    text-align: center;
+}
+
+.btn {
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+}
+
+.btn-danger:hover {
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalIn 0.3s ease;
+    position: relative;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-content h2 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 25px;
+}
+
+.modal-content h3 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.win-stats {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.win-stats p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.win-stats span {
+    font-weight: bold;
+    color: #667eea;
+}
+
+.next-level-info {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
+.next-level-info p {
+    color: white;
+    margin: 0;
+}
+
+.next-level-info.hidden {
+    display: none;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-buttons .btn {
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+.modal-buttons .btn.hidden {
+    display: none;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 35px;
+    height: 35px;
+    line-height: 1;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+}
+
+.btn-secondary:hover {
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    margin-left: 10px;
+}
+
+.btn-reset:hover {
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+}
+
+.new-record {
+    color: #ffc107;
+    font-weight: bold;
+    font-size: 18px;
+    margin-top: 10px;
+    animation: pulseRecord 1s infinite;
+}
+
+@keyframes pulseRecord {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.header-title h1 {
+    margin: 0;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: 20px;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.icon-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: scale(1.1);
+}
+
+.help-content {
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.help-content p {
+    color: #555;
+    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.help-content strong {
+    color: #333;
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.theme-item {
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 12px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.theme-item:hover {
+    background: #f5f5f8;
+}
+
+.theme-item.active {
+    border-color: #667eea;
+    background: #f0f0f8;
+}
+
+.theme-preview {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 8px;
+    height: 40px;
+}
+
+.theme-card {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+}
+
+.theme-name {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.theme-preview-classic .theme-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.theme-preview-forest .theme-card {
+    background: linear-gradient(135deg, #4a7c3f 0%, #8bb37f 100%);
+}
+
+.theme-preview-sunset .theme-card {
+    background: linear-gradient(135deg, #b87a8a 0%, #c8956e 100%);
+}
+
+.theme-preview-ocean .theme-card {
+    background: linear-gradient(135deg, #5a8fb5 0%, #7eb3c9 100%);
+}
+
+.theme-preview-dark .theme-card {
+    background: linear-gradient(135deg, #434343 0%, #000000 100%);
+}
+
+body.theme-classic {
+    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-border: #667eea;
+    --primary-color: #667eea;
+}
+
+body.theme-forest {
+    --bg-gradient: linear-gradient(135deg, #4a7c3f 0%, #8bb37f 100%);
+    --card-bg: linear-gradient(135deg, #4a7c3f 0%, #8bb37f 100%);
+    --card-border: #4a7c3f;
+    --primary-color: #4a7c3f;
+}
+
+body.theme-sunset {
+    --bg-gradient: linear-gradient(135deg, #b87a8a 0%, #c8956e 100%);
+    --card-bg: linear-gradient(135deg, #b87a8a 0%, #c8956e 100%);
+    --card-border: #b87a8a;
+    --primary-color: #b87a8a;
+}
+
+body.theme-ocean {
+    --bg-gradient: linear-gradient(135deg, #5a8fb5 0%, #7eb3c9 100%);
+    --card-bg: linear-gradient(135deg, #5a8fb5 0%, #7eb3c9 100%);
+    --card-border: #5a8fb5;
+    --primary-color: #5a8fb5;
+}
+
+body.theme-dark {
+    --bg-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
+    --card-bg: linear-gradient(135deg, #434343 0%, #000000 100%);
+    --card-border: #666;
+    --primary-color: #888;
+}
+
+body {
+    background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+}
+
+.card-back {
+    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+}
+
+.card-front {
+    border-color: var(--card-border, #667eea);
+}
+
+.btn {
+    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+}
+
+.btn-secondary {
+    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    filter: brightness(0.7);
+}
+
+.level-btn {
+    border-color: var(--primary-color, #667eea);
+    color: var(--primary-color, #667eea);
+}
+
+.level-btn:hover {
+    background: var(--primary-color, #667eea);
+}
+
+.icon-btn {
+    border-color: var(--primary-color, #667eea);
+    color: var(--primary-color, #667eea);
+}
+
+.icon-btn:hover {
+    background: var(--primary-color, #667eea);
+}
+
+.theme-item.active {
+    border-color: var(--primary-color, #667eea);
+}
+
+body.theme-dark .container {
+    background: #2a2a2a;
+}
+
+body.theme-dark h1 {
+    color: #e0e0e0;
+}
+
+body.theme-dark .stat-item .label,
+body.theme-dark .current-level {
+    color: #aaa;
+}
+
+body.theme-dark .stat-item .value,
+body.theme-dark h2,
+body.theme-dark h3 {
+    color: #e0e0e0;
+}
+
+body.theme-dark .modal-content {
+    background: #2a2a2a;
+}
+
+body.theme-dark .theme-item:hover {
+    background: #3a3a3a;
+}
+
+body.theme-dark .theme-name {
+    color: #ddd;
+}
+
+body.theme-dark .game-board {
+    background: #1e1e1e;
+}
+
+.settings-modal-content {
+    max-width: 550px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.settings-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
+}
+
+.settings-tab {
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.settings-tab:hover {
+    background: #f0f0f8;
+}
+
+.settings-tab.active {
+    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    color: white;
+}
+
+.settings-panel {
+    display: none;
+}
+
+.settings-panel.active {
+    display: block;
+}
+
+.records-section {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.records-section h3 {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+}
+
+.records-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.record-item {
+    background: #f5f5f8;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.record-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+}
+
+.record-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.level-record {
+    background: #f5f5f8;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+}
+
+.level-record .level-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.level-record .level-stats {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.6;
+}
+
+.level-record .level-stats span {
+    font-weight: 700;
+    color: #333;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f5f5f8;
+    transition: all 0.3s ease;
+}
+
+.achievement-item.unlocked {
+    background: #f0f0f8;
+}
+
+.achievement-icon {
+    font-size: 28px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.achievement-item:not(.unlocked) .achievement-icon {
+    background: #ccc;
+    filter: grayscale(1);
+}
+
+.achievement-info {
+    flex: 1;
+    text-align: left;
+}
+
+.achievement-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.achievement-desc {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.4;
+}
+
+.achievement-item:not(.unlocked) .achievement-name {
+    color: #888;
+}
+
+.achievement-date {
+    font-size: 11px;
+    color: #667eea;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+body.theme-dark .settings-tab {
+    color: #aaa;
+}
+
+body.theme-dark .settings-tab:hover {
+    background: #3a3a3a;
+}
+
+body.theme-dark .record-item,
+body.theme-dark .level-record,
+body.theme-dark .achievement-item {
+    background: #3a3a3a;
+}
+
+body.theme-dark .record-label,
+body.theme-dark .achievement-desc {
+    color: #999;
+}
+
+body.theme-dark .record-value,
+body.theme-dark .level-record .level-stats span,
+body.theme-dark .achievement-name {
+    color: #e0e0e0;
+}
+
+body.theme-dark .level-record .level-name {
+    color: #bbb;
+}
+
+body.theme-dark .achievement-item.unlocked {
+    background: #3a3a5a;
+}
+
+body.theme-dark .achievement-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.achievement-notification {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    z-index: 2000;
+    animation: slideInRight 0.4s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.achievement-notif-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px 24px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    min-width: 220px;
+}
+
+.achievement-notif-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.achievement-notif-items {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sound-settings {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: center;
+}
+
+.sound-toggle {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sound-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.sound-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.sound-toggle input[type="checkbox"]:not(:checked) + .sound-label {
+    color: #999;
+}
+
+body.theme-dark .sound-label {
+    color: #ddd;
+}
+
+body.theme-dark .sound-toggle input[type="checkbox"]:not(:checked) + .sound-label {
+    color: #777;
+}
+
+body.theme-dark .sound-settings {
+    border-top-color: #444;
+}
+
+.bomb-settings {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.bomb-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.bomb-icon {
+    font-size: 18px;
+}
+
+.bomb-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.bomb-options {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.bomb-option {
+    padding: 6px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.bomb-option:hover {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.bomb-option.active {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    border-color: #ff6b6b;
+    color: white;
+}
+
+.bomb-hint {
+    font-size: 12px;
+    color: #999;
+    margin-top: 10px;
+}
+
+body.theme-dark .bomb-label {
+    color: #ddd;
+}
+
+body.theme-dark .bomb-settings {
+    border-top-color: #444;
+}
+
+body.theme-dark .bomb-option {
+    border-color: #555;
+    color: #aaa;
+}
+
+body.theme-dark .bomb-hint {
+    color: #777;
+}
+
+.card.bomb .card-front {
+    background: linear-gradient(135deg, #333 0%, #000 100%);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.card.bomb-explode .card-inner {
+    animation: bombExplode 0.6s ease;
+}
+
+@keyframes bombExplode {
+    0% { transform: rotateY(180deg) scale(1); }
+    25% { transform: rotateY(180deg) scale(1.15) rotate(-5deg); }
+    50% { transform: rotateY(180deg) scale(1.2) rotate(5deg); }
+    75% { transform: rotateY(180deg) scale(1.1) rotate(-2deg); }
+    100% { transform: rotateY(180deg) scale(1); }
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 20px;
+}
+
+.user-status-btn {
+    padding: 6px 14px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.user-status-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+body.theme-dark .user-status-btn {
+    border-color: var(--primary-color, #888);
+    color: var(--primary-color, #888);
+}
+
+body.theme-dark .user-status-btn:hover {
+    background: var(--primary-color, #888);
+    color: #2a2a2a;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+body.theme-dark .user-avatar {
+    background: var(--card-bg);
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    min-width: 160px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.user-dropdown.hidden {
+    display: none;
+}
+
+body.theme-dark .user-dropdown {
+    background: #2a2a2a;
+}
+
+.user-dropdown-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.theme-dark .user-dropdown-item {
+    color: #ddd;
+}
+
+.user-dropdown-item:hover {
+    background: #f0f0f8;
+}
+
+body.theme-dark .user-dropdown-item:hover {
+    background: #3a3a3a;
+}
+
+.login-input-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.login-input-group label {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+body.theme-dark .login-input-group label {
+    color: #ddd;
+}
+
+.login-input-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+body.theme-dark .login-input-group input {
+    background: #3a3a3a;
+    border-color: #555;
+    color: #ddd;
+}
+
+.login-input-group input:focus {
+    border-color: #667eea;
+}
+
+.login-input-group input.error {
+    border-color: #ff6b6b;
+}
+
+.login-sms-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.login-sms-row input {
+    flex: 1;
+}
+
+.sms-btn {
+    padding: 0 16px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.sms-btn:hover:not(:disabled) {
+    background: #667eea;
+    color: white;
+}
+
+.sms-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #ccc;
+    color: #999;
+}
+
+body.theme-dark .sms-btn {
+    border-color: var(--primary-color, #888);
+    color: var(--primary-color, #888);
+    background: transparent;
+}
+
+body.theme-dark .sms-btn:hover:not(:disabled) {
+    background: var(--primary-color, #888);
+    color: #2a2a2a;
+}
+
+.login-error {
+    color: #ff6b6b;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 18px;
+    text-align: center;
+}
+
+.login-footer-note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #999;
+}
+
+body.theme-dark .login-footer-note {
+    color: #888;
+}
+
+.sync-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.sync-indicator.syncing {
+    background: #ffc107;
+    animation: pulseSync 1s infinite;
+}
+
+.sync-indicator.synced {
+    background: #28a745;
+}
+
+.sync-indicator.offline {
+    background: #999;
+}
+
+@keyframes pulseSync {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>🎴 记忆配对游戏</h1>
+                <div class="header-buttons">
+                    <div class="user-area">
+                        <button id="user-status-btn" class="user-status-btn">
+                            <span id="sync-indicator" class="sync-indicator offline"></span>
+                            <span id="user-display-name">游客</span>
+                        </button>
+                        <div id="user-dropdown" class="user-dropdown hidden">
+                            <div id="login-dropdown-item" class="user-dropdown-item">🔐 登录账号</div>
+                            <div id="logout-dropdown-item" class="user-dropdown-item" style="display:none;">🚪 退出登录</div>
+                        </div>
+                    </div>
+                    <button id="help-btn" class="icon-btn" title="游戏说明">?</button>
+                    <button id="settings-btn" class="icon-btn" title="设置">⚙️</button>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="label">步数:</span>
+                    <span id="moves" class="value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">时间:</span>
+                    <span id="timer" class="value">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">配对:</span>
+                    <span id="pairs" class="value">0/3</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">最佳:</span>
+                    <span id="best-score" class="value">-</span>
+                </div>
+                <div class="stat-item level-selector">
+                    <button id="level-btn" class="level-btn">关卡 ▾</button>
+                    <span class="current-level" id="current-level-label">第1关 (3×2)</span>
+                    <div id="level-dropdown" class="level-dropdown hidden"></div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="game-board" class="game-board"></div>
+        </main>
+
+        <footer>
+            <button id="restart-btn" class="btn">🔄 新游戏</button>
+            <button id="reset-progress-btn" class="btn btn-reset">🔁 重置进度</button>
+        </footer>
+
+        <div id="help-modal" class="modal hidden">
+            <div class="modal-content">
+                <button id="close-help-modal" class="close-btn">×</button>
+                <h2>📖 游戏说明</h2>
+                <div class="help-content">
+                    <p><strong>🎯 游戏目标：</strong>将所有卡片配对完成即可通关</p>
+                    <p><strong>🎮 操作方式：</strong>点击卡片翻开，每次可翻开两张</p>
+                    <p><strong>✅ 配对成功：</strong>两张卡片图案相同则保持翻开状态</p>
+                    <p><strong>❌ 配对失败：</strong>卡片会在1秒后自动翻回</p>
+                    <p><strong>🏆 挑战目标：</strong>用最少的步数和最短的时间完成配对</p>
+                    <p><strong>🔓 解锁关卡：</strong>通关当前关卡后自动解锁下一关</p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="help-close-btn" class="btn">我知道了</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content settings-modal-content">
+                <button id="close-settings-modal" class="close-btn">×</button>
+                <h2>⚙️ 设置</h2>
+                <div class="settings-tabs">
+                    <div class="settings-tab active" data-tab="theme">🎨 主题</div>
+                    <div class="settings-tab" data-tab="records">📊 记录</div>
+                    <div class="settings-tab" data-tab="achievements">🏆 成就</div>
+                </div>
+                <div class="settings-panel active" data-panel="theme">
+                    <div class="theme-grid">
+                        <div class="theme-item" data-theme="classic">
+                            <div class="theme-preview theme-preview-classic">
+                                <div class="theme-card">?</div>
+                                <div class="theme-card">?</div>
+                            </div>
+                            <div class="theme-name">经典蓝紫</div>
+                        </div>
+                        <div class="theme-item" data-theme="forest">
+                            <div class="theme-preview theme-preview-forest">
+                                <div class="theme-card">🍃</div>
+                                <div class="theme-card">🍃</div>
+                            </div>
+                            <div class="theme-name">清新森林</div>
+                        </div>
+                        <div class="theme-item" data-theme="sunset">
+                            <div class="theme-preview theme-preview-sunset">
+                                <div class="theme-card">☀️</div>
+                                <div class="theme-card">☀️</div>
+                            </div>
+                            <div class="theme-name">温暖日落</div>
+                        </div>
+                        <div class="theme-item" data-theme="ocean">
+                            <div class="theme-preview theme-preview-ocean">
+                                <div class="theme-card">💧</div>
+                                <div class="theme-card">💧</div>
+                            </div>
+                            <div class="theme-name">深海蓝</div>
+                        </div>
+                        <div class="theme-item" data-theme="dark">
+                            <div class="theme-preview theme-preview-dark">
+                                <div class="theme-card">⭐</div>
+                                <div class="theme-card">⭐</div>
+                            </div>
+                            <div class="theme-name">暗黑模式</div>
+                        </div>
+                    </div>
+                    <div class="sound-settings">
+                        <label class="sound-toggle">
+                            <input type="checkbox" id="sound-toggle" checked>
+                            <span class="sound-label"><span id="sound-icon">🔊</span> <span id="sound-label-text">音效开启</span></span>
+                        </label>
+                    </div>
+                    <div class="bomb-settings">
+                        <div class="bomb-header">
+                            <span class="bomb-icon">💣</span>
+                            <span class="bomb-label">炸弹难度</span>
+                        </div>
+                        <div class="bomb-options" id="bomb-options">
+                            <div class="bomb-option active" data-bomb="off">关闭</div>
+                            <div class="bomb-option" data-bomb="1">💣 简单 (1对)</div>
+                            <div class="bomb-option" data-bomb="2">💣💣 中等 (2对)</div>
+                            <div class="bomb-option" data-bomb="3">💣💣💣 困难 (3对)</div>
+                        </div>
+                        <p class="bomb-hint">翻到炸弹配对则游戏失败，炸弹数量随牌数自动递增</p>
+                    </div>
+                </div>
+                <div class="settings-panel" data-panel="records">
+                    <div class="records-section">
+                        <h3>📈 总览</h3>
+                        <div class="records-grid">
+                            <div class="record-item"><span class="record-label">游戏次数</span><span class="record-value" id="record-games">0</span></div>
+                            <div class="record-item"><span class="record-label">累计时间</span><span class="record-value" id="record-time">00:00</span></div>
+                            <div class="record-item"><span class="record-label">总配对数</span><span class="record-value" id="record-pairs">0</span></div>
+                        </div>
+                    </div>
+                    <div class="records-section">
+                        <h3>🎯 各关最佳</h3>
+                        <div class="records-grid" id="records-per-level"></div>
+                    </div>
+                </div>
+                <div class="settings-panel" data-panel="achievements">
+                    <div class="achievements-grid" id="achievements-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="win-modal" class="modal hidden">
+            <div class="modal-content">
+                <button id="close-win-modal" class="close-btn">×</button>
+                <h2>🎉 恭喜通关！ 🎉</h2>
+                <div class="win-stats">
+                    <p>总步数: <span id="final-moves">0</span></p>
+                    <p>用时: <span id="final-time">00:00</span></p>
+                    <p id="new-record" class="new-record hidden">🏆 新纪录！</p>
+                </div>
+                <div id="next-level-info" class="next-level-info hidden">
+                    <p>🌟 已解锁第 <span id="unlocked-level-num"></span> 关！</p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="play-again-btn" class="btn">重玩本关</button>
+                    <button id="next-level-btn" class="btn hidden">下一关 →</button>
+                    <button id="select-level-btn" class="btn btn-secondary">选择关卡</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="bomb-modal" class="modal hidden">
+            <div class="modal-content">
+                <button id="close-bomb-modal" class="close-btn">×</button>
+                <h2>💥 炸弹爆炸！</h2>
+                <div class="win-stats">
+                    <p>你翻到了炸弹配对，游戏失败！</p>
+                    <p>总步数: <span id="bomb-moves">0</span></p>
+                    <p>用时: <span id="bomb-time">00:00</span></p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="bomb-retry-btn" class="btn">🔄 重新开始</button>
+                    <button id="bomb-close-btn" class="btn btn-secondary">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirm-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>⚠️ 确认重置</h3>
+                <p>当前进度将丢失，确定重置吗？</p>
+                <div class="modal-buttons">
+                    <button id="confirm-yes-btn" class="btn btn-danger">确定</button>
+                    <button id="confirm-no-btn" class="btn">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="login-modal" class="modal hidden">
+            <div class="modal-content">
+                <button id="close-login-modal" class="close-btn">×</button>
+                <h2>🔐 账号登录</h2>
+                <div class="login-input-group">
+                    <label>手机号</label>
+                    <input type="tel" id="login-phone" placeholder="请输入11位手机号" maxlength="11" autocomplete="tel">
+                </div>
+                <div class="login-input-group">
+                    <label>验证码</label>
+                    <div class="login-sms-row">
+                        <input type="text" id="login-code" placeholder="请输入6位验证码" maxlength="6" autocomplete="one-time-code">
+                        <button id="sms-send-btn" class="sms-btn">获取验证码</button>
+                    </div>
+                </div>
+                <div id="login-error" class="login-error"></div>
+                <div class="modal-buttons">
+                    <button id="login-confirm-btn" class="btn">登录</button>
+                    <button id="login-cancel-btn" class="btn btn-secondary">取消</button>
+                </div>
+                <div class="login-footer-note">登录后可同步游戏进度到云端，换设备也能继续玩</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const gameLevels = [
+    { rows: 2, cols: 3, pairs: 3, bomb: 0 },
+    { rows: 2, cols: 4, pairs: 4, bomb: 0 },
+    { rows: 2, cols: 5, pairs: 5, bomb: 0 },
+    { rows: 3, cols: 4, pairs: 6, bomb: 0 },
+    { rows: 4, cols: 4, pairs: 8, bomb: 0 },
+    { rows: 3, cols: 6, pairs: 9, bomb: 0 },
+    { rows: 5, cols: 6, pairs: 15, bomb: 0 },
+    { rows: 6, cols: 6, pairs: 18, bomb: 0 },
+    { rows: 2, cols: 3, pairs: 2, bomb: 1 },
+    { rows: 2, cols: 4, pairs: 3, bomb: 1 },
+    { rows: 2, cols: 5, pairs: 4, bomb: 1 },
+    { rows: 3, cols: 4, pairs: 5, bomb: 1 },
+    { rows: 4, cols: 4, pairs: 6, bomb: 2 },
+    { rows: 3, cols: 6, pairs: 7, bomb: 2 },
+    { rows: 5, cols: 6, pairs: 12, bomb: 3 },
+    { rows: 6, cols: 6, pairs: 15, bomb: 3 }
+];
+
+const cardEmojis = [
+    '🐱', '🐶', '🐼', '🦊', '🦁', '🐯', '🐨', '🐸',
+    '🐵', '🐔', '🐧', '🐦', '🦋', '🐝', '🐙', '🦀',
+    '🐠', '🐬'
+];
+
+const themes = {
+    classic: { name: '经典蓝紫', cardBack: '?' },
+    forest:  { name: '清新森林', cardBack: '🍃' },
+    sunset:  { name: '温暖日落', cardBack: '☀️' },
+    ocean:   { name: '深海蓝',   cardBack: '💧' },
+    dark:    { name: '暗黑模式', cardBack: '⭐' }
+};
+
+let currentTheme = 'classic';
+
+let soundEnabled = true;
+let bombDifficulty = 0;
+let regularPairs = 0;
+let audioCtx = null;
+
+function ensureAudio() {
+    if (!audioCtx) {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            audioCtx = null;
+        }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    return audioCtx;
+}
+
+function playSound(type) {
+    if (!soundEnabled) return;
+    const ctx = ensureAudio();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    let freq = 440, duration = 0.15, volume = 0.2, wave = 'sine';
+
+    switch (type) {
+        case 'flip':
+            freq = 320; duration = 0.08; volume = 0.15; wave = 'triangle';
+            break;
+        case 'match':
+            playSequence([
+                { f: 523, d: 0.1 }, { f: 659, d: 0.12 }, { f: 784, d: 0.18 }
+            ], 0.25);
+            return;
+        case 'wrong':
+            freq = 180; duration = 0.2; volume = 0.2; wave = 'sawtooth';
+            break;
+        case 'win':
+            playSequence([
+                { f: 523, d: 0.12 }, { f: 659, d: 0.12 }, { f: 784, d: 0.12 },
+                { f: 1047, d: 0.25 }
+            ], 0.3);
+            return;
+        case 'record':
+            playSequence([
+                { f: 784, d: 0.1 }, { f: 988, d: 0.1 }, { f: 1175, d: 0.1 },
+                { f: 1319, d: 0.25 }
+            ], 0.35);
+            return;
+        case 'click':
+            freq = 600; duration = 0.05; volume = 0.1; wave = 'square';
+            break;
+        case 'bomb':
+            playSequence([
+                { f: 120, d: 0.15 }, { f: 80, d: 0.2 }, { f: 50, d: 0.3 }
+            ], 0.4);
+            return;
+    }
+
+    osc.type = wave;
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    osc.start(now);
+    osc.stop(now + duration);
+}
+
+function playSequence(notes, volume) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    let t = ctx.currentTime;
+    notes.forEach(n => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(n.f, t);
+        gain.gain.setValueAtTime(volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + n.d);
+        osc.start(t);
+        osc.stop(t + n.d);
+        t += n.d * 0.85;
+    });
+}
+
+const achievementList = [
+    { id: 'ACH001', name: '初出茅庐', icon: '🎯', desc: '完成第1关' },
+    { id: 'ACH002', name: '记忆高手', icon: '🧠', desc: '完成第2关' },
+    { id: 'ACH003', name: '最强大脑', icon: '💪', desc: '完成第3关' },
+    { id: 'ACH004', name: '挑战者', icon: '🔥', desc: '完成第4关' },
+    { id: 'ACH005', name: '征服者', icon: '⚔️', desc: '完成第5关' },
+    { id: 'ACH006', name: '大师级', icon: '🏅', desc: '完成第6关' },
+    { id: 'ACH007', name: '传奇记忆', icon: '🌟', desc: '完成第7关' },
+    { id: 'ACH008', name: '终极挑战者', icon: '👑', desc: '完成第8关' },
+    { id: 'ACH009', name: '完美通关', icon: '✨', desc: '第1关最佳步数（6步）完成' },
+    { id: 'ACH010', name: '闪电反应', icon: '⚡', desc: '第1关10秒内完成' },
+    { id: 'ACH011', name: '零失误', icon: '🎪', desc: '任意关卡零失误完成' },
+    { id: 'ACH012', name: '坚持不懈', icon: '🔄', desc: '累计游戏100次' },
+    { id: 'ACH013', name: '速度大师', icon: '🚀', desc: '任意关卡以最佳步数完成' },
+    { id: 'ACH015', name: '炸弹初体验', icon: '💣', desc: '完成第9关（首个炸弹关）' },
+    { id: 'ACH016', name: '炸弹专家', icon: '💥', desc: '完成第12关' },
+    { id: 'ACH017', name: '拆弹大师', icon: '🛠️', desc: '完成第16关（终极炸弹关）' },
+    { id: 'ACH018', name: '炸弹零失误', icon: '🎯', desc: '炸弹关卡零失误完成' },
+    { id: 'ACH014', name: '收藏家', icon: '🏆', desc: '解锁全部成就' }
+];
+
+let currentLevel = 0;
+let cards = [];
+let lockBoard = false;
+let firstCard = null;
+let secondCard = null;
+let matchedPairs = 0;
+let moves = 0;
+let timer = null;
+let seconds = 0;
+let gameStarted = false;
+let gameWon = false;
+let bestScores = {};
+let unlockedLevels = {};
+let achievements = {};
+let gameStats = {
+    totalGames: 0,
+    totalTime: 0,
+    totalPairs: 0,
+    perLevel: {}
+};
+let misses = 0;
+let newlyUnlockedAchievements = [];
+
+let currentUser = null;
+let authToken = null;
+let isGuest = true;
+let syncPending = false;
+const API_BASE = document.querySelector('meta[name="api-base"]')?.content || '';
+const STORAGE_KEYS = {
+    progress: 'memoryGameProgress',
+    bestScores: 'memoryGameBestScores',
+    theme: 'memoryGameTheme',
+    achievements: 'memoryGameAchievements',
+    stats: 'memoryGameStats',
+    sound: 'memoryGameSound',
+    bomb: 'memoryGameBomb',
+    token: 'mg_token',
+    user: 'mg_user'
+};
+
+const gameBoard = document.getElementById('game-board');
+const movesDisplay = document.getElementById('moves');
+const timerDisplay = document.getElementById('timer');
+const pairsDisplay = document.getElementById('pairs');
+const bestScoreDisplay = document.getElementById('best-score');
+const restartBtn = document.getElementById('restart-btn');
+const resetProgressBtn = document.getElementById('reset-progress-btn');
+const winModal = document.getElementById('win-modal');
+const finalMoves = document.getElementById('final-moves');
+const finalTime = document.getElementById('final-time');
+const newRecord = document.getElementById('new-record');
+const playAgainBtn = document.getElementById('play-again-btn');
+const nextLevelBtn = document.getElementById('next-level-btn');
+const selectLevelBtn = document.getElementById('select-level-btn');
+const closeWinModalBtn = document.getElementById('close-win-modal');
+const nextLevelInfo = document.getElementById('next-level-info');
+const unlockedLevelNum = document.getElementById('unlocked-level-num');
+const confirmModal = document.getElementById('confirm-modal');
+const confirmYesBtn = document.getElementById('confirm-yes-btn');
+const confirmNoBtn = document.getElementById('confirm-no-btn');
+const levelBtn = document.getElementById('level-btn');
+const levelDropdown = document.getElementById('level-dropdown');
+const currentLevelLabel = document.getElementById('current-level-label');
+const helpBtn = document.getElementById('help-btn');
+const helpModal = document.getElementById('help-modal');
+const helpCloseBtn = document.getElementById('help-close-btn');
+const closeHelpModalBtn = document.getElementById('close-help-modal');
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const closeSettingsModalBtn = document.getElementById('close-settings-modal');
+const themeItems = document.querySelectorAll('.theme-item');
+const settingsTabs = document.querySelectorAll('.settings-tab');
+const settingsPanels = document.querySelectorAll('.settings-panel');
+const recordGamesEl = document.getElementById('record-games');
+const recordTimeEl = document.getElementById('record-time');
+const recordPairsEl = document.getElementById('record-pairs');
+const recordsPerLevelEl = document.getElementById('records-per-level');
+const achievementsGridEl = document.getElementById('achievements-grid');
+
+const loginModal = document.getElementById('login-modal');
+const closeLoginModalBtn = document.getElementById('close-login-modal');
+const loginPhoneInput = document.getElementById('login-phone');
+const loginCodeInput = document.getElementById('login-code');
+const smsSendBtn = document.getElementById('sms-send-btn');
+const loginConfirmBtn = document.getElementById('login-confirm-btn');
+const loginCancelBtn = document.getElementById('login-cancel-btn');
+const loginErrorEl = document.getElementById('login-error');
+const userStatusBtn = document.getElementById('user-status-btn');
+const userDropdown = document.getElementById('user-dropdown');
+const loginDropdownItem = document.getElementById('login-dropdown-item');
+const logoutDropdownItem = document.getElementById('logout-dropdown-item');
+const userDisplayName = document.getElementById('user-display-name');
+const syncIndicator = document.getElementById('sync-indicator');
+
+function getStorageKey(baseKey) {
+    if (isGuest || !currentUser) return baseKey;
+    var suffix = '_' + currentUser.id;
+    if (baseKey === STORAGE_KEYS.token || baseKey === STORAGE_KEYS.user) return baseKey;
+    return baseKey + suffix;
+}
+
+function updateSyncIndicator(state) {
+    syncIndicator.className = 'sync-indicator ' + state;
+}
+
+function updateUserStatusUI() {
+    if (isGuest || !currentUser) {
+        userDisplayName.textContent = '游客';
+        loginDropdownItem.style.display = 'flex';
+        logoutDropdownItem.style.display = 'none';
+        updateSyncIndicator('offline');
+    } else {
+        var phone = currentUser.phone || '';
+        var masked = phone.length === 11 ? phone.slice(0, 3) + '****' + phone.slice(7) : phone;
+        userDisplayName.textContent = masked;
+        loginDropdownItem.style.display = 'none';
+        logoutDropdownItem.style.display = 'flex';
+        updateSyncIndicator('synced');
+    }
+}
+
+function showLoginModal() {
+    loginPhoneInput.value = '';
+    loginCodeInput.value = '';
+    loginErrorEl.textContent = '';
+    loginPhoneInput.classList.remove('error');
+    loginCodeInput.classList.remove('error');
+    loginModal.classList.remove('hidden');
+    smsSendBtn.disabled = false;
+    smsSendBtn.textContent = '获取验证码';
+}
+
+function hideLoginModal() {
+    loginModal.classList.add('hidden');
+}
+
+var smsCooldown = null;
+function sendSmsCode() {
+    var phone = loginPhoneInput.value.trim();
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+        loginPhoneInput.classList.add('error');
+        loginErrorEl.textContent = '请输入正确的11位手机号';
+        return;
+    }
+    loginPhoneInput.classList.remove('error');
+    loginErrorEl.textContent = '';
+    smsSendBtn.disabled = true;
+    var countdown = 60;
+    smsSendBtn.textContent = countdown + 's 后重试';
+    smsCooldown = setInterval(function() {
+        countdown--;
+        if (countdown <= 0) {
+            clearInterval(smsCooldown);
+            smsSendBtn.disabled = false;
+            smsSendBtn.textContent = '获取验证码';
+        } else {
+            smsSendBtn.textContent = countdown + 's 后重试';
+        }
+    }, 1000);
+    if (API_BASE) {
+        fetch(API_BASE + '/api/sms/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phone })
+        }).then(function(res) { return res.json(); })
+          .then(function(data) {
+              if (data && data.success && data.devCode) {
+                  loginErrorEl.textContent = '开发模式：验证码为 ' + data.devCode;
+                  loginErrorEl.style.color = '#667eea';
+              }
+          }).catch(function() {});
+    } else {
+        console.log('[开发模式] 验证码已发送，测试码: 123456');
+        loginErrorEl.textContent = '开发模式：验证码为 123456';
+        loginErrorEl.style.color = '#667eea';
+    }
+}
+
+function loginWithCode() {
+    var phone = loginPhoneInput.value.trim();
+    var code = loginCodeInput.value.trim();
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+        loginPhoneInput.classList.add('error');
+        loginErrorEl.textContent = '请输入正确的11位手机号';
+        return;
+    }
+    if (code.length !== 6) {
+        loginCodeInput.classList.add('error');
+        loginErrorEl.textContent = '请输入6位验证码';
+        return;
+    }
+    loginErrorEl.style.color = '#ff6b6b';
+    loginErrorEl.textContent = '登录中...';
+    loginConfirmBtn.disabled = true;
+
+    function doLogin(userId, token) {
+        currentUser = { id: userId, phone: phone };
+        authToken = token;
+        isGuest = false;
+        localStorage.setItem(STORAGE_KEYS.token, token);
+        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(currentUser));
+        syncFromCloud();
+        updateUserStatusUI();
+        hideLoginModal();
+        loginConfirmBtn.disabled = false;
+    }
+
+    if (API_BASE) {
+        fetch(API_BASE + '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phone, code: code })
+        }).then(function(res) { return res.json(); })
+          .then(function(data) {
+            if (data.token && data.user) {
+                doLogin(data.user.id, data.token);
+            } else {
+                loginErrorEl.textContent = data.error || '验证码错误或已过期';
+                loginConfirmBtn.disabled = false;
+            }
+        }).catch(function() {
+            loginErrorEl.textContent = '网络错误，请重试';
+            loginConfirmBtn.disabled = false;
+        });
+    } else {
+        if (code === '123456') {
+            doLogin(phone, 'dev_token_' + phone);
+            loginErrorEl.textContent = '';
+        } else {
+            loginErrorEl.textContent = '验证码错误（开发模式请输入 123456）';
+            loginConfirmBtn.disabled = false;
+        }
+    }
+}
+
+function logout() {
+    if (!confirm('确定退出登录吗？本地数据将保留，登录后可恢复。')) return;
+    var syncPromise = syncToCloud(true);
+    var cleanup = function() {
+        currentUser = null;
+        authToken = null;
+        isGuest = true;
+        localStorage.removeItem(STORAGE_KEYS.token);
+        localStorage.removeItem(STORAGE_KEYS.user);
+        loadGameData();
+        createBoard();
+        resetStats();
+        updateDifficultyButtons();
+        updateBestScoreDisplay();
+        updateUserStatusUI();
+        userDropdown.classList.add('hidden');
+    };
+    if (syncPromise && typeof syncPromise.then === 'function') {
+        syncPromise.finally(cleanup);
+    } else {
+        cleanup();
+    }
+}
+
+function mergeGameData(localData, cloudData) {
+    if (!cloudData) return { localData: localData, merged: false };
+    var merged = {};
+    merged.unlockedLevels = Object.assign({}, cloudData.unlocked_levels || {}, localData.unlockedLevels || {});
+    merged.bestScores = {};
+    var allLevels = new Set(Object.keys(localData.bestScores || {}).concat(Object.keys(cloudData.best_scores || {})));
+    allLevels.forEach(function(lv) {
+        var localVal = localData.bestScores ? localData.bestScores[lv] : undefined;
+        var cloudVal = cloudData.best_scores ? cloudData.best_scores[lv] : undefined;
+        if (localVal !== undefined && cloudVal !== undefined) {
+            merged.bestScores[lv] = Math.min(localVal, cloudVal);
+        } else if (localVal !== undefined) {
+            merged.bestScores[lv] = localVal;
+        } else {
+            merged.bestScores[lv] = cloudVal;
+        }
+    });
+    merged.achievements = Object.assign({}, cloudData.achievements || {}, localData.achievements || {});
+    merged.gameStats = {
+        totalGames: (localData.gameStats ? localData.gameStats.totalGames : 0) + (cloudData.game_stats ? cloudData.game_stats.totalGames : 0),
+        totalTime: (localData.gameStats ? localData.gameStats.totalTime : 0) + (cloudData.game_stats ? cloudData.game_stats.totalTime : 0),
+        totalPairs: (localData.gameStats ? localData.gameStats.totalPairs : 0) + (cloudData.game_stats ? cloudData.game_stats.totalPairs : 0),
+        perLevel: Object.assign({}, (cloudData.game_stats && cloudData.game_stats.perLevel) || {}, (localData.gameStats && localData.gameStats.perLevel) || {})
+    };
+    merged.settings = cloudData.settings || localData.settings || {};
+    return { localData: merged, merged: true };
+}
+
+function collectLocalData() {
+    return {
+        unlockedLevels: unlockedLevels,
+        bestScores: bestScores,
+        achievements: achievements,
+        gameStats: gameStats,
+        settings: {
+            theme: currentTheme,
+            soundEnabled: soundEnabled,
+            bombDifficulty: bombDifficulty
+        }
+    };
+}
+
+function applyCloudData(data) {
+    if (!data) return;
+    if (data.unlocked_levels) unlockedLevels = data.unlocked_levels;
+    if (data.best_scores) bestScores = data.best_scores;
+    if (data.achievements) achievements = data.achievements;
+    if (data.game_stats) {
+        gameStats = data.game_stats;
+    }
+    if (data.settings) {
+        if (data.settings.theme && themes[data.settings.theme]) {
+            currentTheme = data.settings.theme;
+        }
+        if (data.settings.soundEnabled !== undefined) {
+            soundEnabled = data.settings.soundEnabled;
+        }
+        if (data.settings.bombDifficulty !== undefined) {
+            bombDifficulty = data.settings.bombDifficulty;
+        }
+    }
+}
+
+function toSnakeCasePayload(data) {
+    if (!data) return data;
+    return {
+        unlocked_levels: data.unlockedLevels,
+        best_scores: data.bestScores,
+        achievements: data.achievements,
+        game_stats: data.gameStats,
+        settings: data.settings
+    };
+}
+
+var syncDebounceTimer = null;
+
+function handleAuthExpired() {
+    isGuest = true;
+    currentUser = null;
+    authToken = null;
+    localStorage.removeItem(STORAGE_KEYS.token);
+    localStorage.removeItem(STORAGE_KEYS.user);
+    updateSyncIndicator('offline');
+    updateUserStatusUI();
+    console.log('[Auth] Token 已过期，已降级为游客模式');
+}
+
+function syncToCloud(isLogout) {
+    if (isGuest || !currentUser || !API_BASE) return Promise.resolve();
+    updateSyncIndicator('syncing');
+    var payload = toSnakeCasePayload(collectLocalData());
+    return fetch(API_BASE + '/api/game/data', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + authToken
+        },
+        body: JSON.stringify(payload)
+    }).then(function(res) {
+        if (res.status === 401) {
+            handleAuthExpired();
+            return;
+        }
+        updateSyncIndicator('synced');
+    }).catch(function() {
+        updateSyncIndicator('offline');
+        syncPending = true;
+    });
+}
+
+function debounceSyncToCloud(isLogout) {
+    if (isLogout) {
+        if (syncDebounceTimer) {
+            clearTimeout(syncDebounceTimer);
+            syncDebounceTimer = null;
+        }
+        syncToCloud(true);
+        return;
+    }
+    if (syncDebounceTimer) {
+        clearTimeout(syncDebounceTimer);
+    }
+    syncDebounceTimer = setTimeout(function() {
+        syncDebounceTimer = null;
+        syncToCloud(false);
+    }, 2000);
+}
+
+function syncFromCloud() {
+    if (isGuest || !currentUser || !API_BASE) return;
+    updateSyncIndicator('syncing');
+    fetch(API_BASE + '/api/game/data', {
+        headers: { 'Authorization': 'Bearer ' + authToken }
+    }).then(function(res) {
+        if (res.status === 401) {
+            handleAuthExpired();
+            throw new Error('token expired');
+        }
+        return res.json();
+      })
+      .then(function(cloudData) {
+        var localData = collectLocalData();
+        var result = mergeGameData(localData, cloudData);
+        if (result.merged) {
+            unlockedLevels = result.localData.unlockedLevels || { 0: true };
+            bestScores = result.localData.bestScores || {};
+            achievements = result.localData.achievements || {};
+            gameStats = result.localData.gameStats || { totalGames: 0, totalTime: 0, totalPairs: 0, perLevel: {} };
+            saveProgress(true);
+            localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
+            saveAchievements(true);
+            saveStats(true);
+            if (result.localData.settings) {
+                if (result.localData.settings.theme && themes[result.localData.settings.theme]) {
+                    currentTheme = result.localData.settings.theme;
+                    localStorage.setItem(getStorageKey(STORAGE_KEYS.theme), currentTheme);
+                    applyTheme(currentTheme);
+                    createBoard();
+                }
+                soundEnabled = result.localData.settings.soundEnabled !== undefined ? result.localData.settings.soundEnabled : soundEnabled;
+                localStorage.setItem(getStorageKey(STORAGE_KEYS.sound), soundEnabled ? 'true' : 'false');
+                const soundToggleEl = document.getElementById('sound-toggle');
+                const soundIconEl = document.getElementById('sound-icon');
+                const soundLabelTextEl = document.getElementById('sound-label-text');
+                if (soundToggleEl) soundToggleEl.checked = soundEnabled;
+                if (soundIconEl) soundIconEl.textContent = soundEnabled ? '🔊' : '🔇';
+                if (soundLabelTextEl) soundLabelTextEl.textContent = soundEnabled ? '音效开启' : '音效关闭';
+                bombDifficulty = result.localData.settings.bombDifficulty !== undefined ? result.localData.settings.bombDifficulty : bombDifficulty;
+                localStorage.setItem(getStorageKey(STORAGE_KEYS.bomb), bombDifficulty);
+                updateBombOptions();
+            }
+        } else if (cloudData) {
+            applyCloudData(cloudData);
+            saveProgress(true);
+            localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
+            saveAchievements(true);
+            saveStats(true);
+        }
+        syncToCloud();
+        updateSyncIndicator('synced');
+        updateUserStatusUI();
+    }).catch(function() {
+        updateSyncIndicator('offline');
+    });
+}
+
+function retrySync() {
+    if (syncPending && !isGuest && currentUser) {
+        syncPending = false;
+        syncToCloud();
+    }
+}
+
+setInterval(retrySync, 30000);
+
+function loadGameData() {
+    var savedToken = localStorage.getItem(STORAGE_KEYS.token);
+    var savedUser = localStorage.getItem(STORAGE_KEYS.user);
+    if (savedToken && savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            authToken = savedToken;
+            isGuest = false;
+        } catch(e) {
+            currentUser = null;
+            authToken = null;
+            isGuest = true;
+        }
+    }
+    updateUserStatusUI();
+
+    const savedScores = localStorage.getItem(getStorageKey(STORAGE_KEYS.bestScores));
+    if (savedScores) {
+        bestScores = JSON.parse(savedScores);
+    }
+    const savedProgress = localStorage.getItem(getStorageKey(STORAGE_KEYS.progress));
+    if (savedProgress) {
+        unlockedLevels = JSON.parse(savedProgress);
+    } else {
+        unlockedLevels = { 0: true };
+    }
+    const savedTheme = localStorage.getItem(getStorageKey(STORAGE_KEYS.theme));
+    if (savedTheme && themes[savedTheme]) {
+        currentTheme = savedTheme;
+    }
+    const savedAchievements = localStorage.getItem(getStorageKey(STORAGE_KEYS.achievements));
+    if (savedAchievements) {
+        achievements = JSON.parse(savedAchievements);
+    }
+    const savedStats = localStorage.getItem(getStorageKey(STORAGE_KEYS.stats));
+    if (savedStats) {
+        gameStats = JSON.parse(savedStats);
+    }
+    const savedSound = localStorage.getItem(getStorageKey(STORAGE_KEYS.sound));
+    if (savedSound !== null) {
+        soundEnabled = savedSound === 'true';
+    }
+    const soundToggleEl = document.getElementById('sound-toggle');
+    const soundIconEl = document.getElementById('sound-icon');
+    const soundLabelTextEl = document.getElementById('sound-label-text');
+    if (soundToggleEl) {
+        soundToggleEl.checked = soundEnabled;
+        if (soundIconEl) soundIconEl.textContent = soundEnabled ? '🔊' : '🔇';
+        if (soundLabelTextEl) soundLabelTextEl.textContent = soundEnabled ? '音效开启' : '音效关闭';
+    }
+    const savedBomb = localStorage.getItem(getStorageKey(STORAGE_KEYS.bomb));
+    if (savedBomb !== null) {
+        bombDifficulty = parseInt(savedBomb);
+    }
+    updateBombOptions();
+    applyTheme(currentTheme);
+
+    if (!isGuest && currentUser && API_BASE) {
+        fetch(API_BASE + '/api/auth/me', {
+            headers: { 'Authorization': 'Bearer ' + authToken }
+        }).then(function(res) {
+            if (res.status === 401) {
+                handleAuthExpired();
+                return;
+            }
+            setTimeout(function() { syncFromCloud(); }, 500);
+        }).catch(function() {});
+    }
+}
+
+function saveProgress(silent) {
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.progress), JSON.stringify(unlockedLevels));
+    if (!silent) debounceSyncToCloud();
+}
+
+function unlockNextLevel(level) {
+    if (level + 1 < gameLevels.length) {
+        unlockedLevels[level + 1] = true;
+        saveProgress();
+    }
+}
+
+function resetAllProgress() {
+    unlockedLevels = { 0: true };
+    saveProgress();
+    currentLevel = 0;
+}
+
+function saveBestScore(level, score) {
+    if (!bestScores[level] || score < bestScores[level]) {
+        bestScores[level] = score;
+        localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
+        debounceSyncToCloud();
+        return true;
+    }
+    return false;
+}
+
+function updateBestScoreDisplay() {
+    const best = bestScores[currentLevel];
+    bestScoreDisplay.textContent = best ? best : '-';
+}
+
+function applyTheme(themeName) {
+    document.body.className = `theme-${themeName}`;
+    updateThemeItems();
+}
+
+function setTheme(themeName) {
+    if (!themes[themeName]) return;
+    currentTheme = themeName;
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.theme), themeName);
+    applyTheme(themeName);
+    createBoard();
+    debounceSyncToCloud();
+}
+
+function updateThemeItems() {
+    themeItems.forEach(item => {
+        const themeName = item.dataset.theme;
+        item.classList.toggle('active', themeName === currentTheme);
+    });
+}
+
+function updateBombOptions() {
+    const options = document.querySelectorAll('.bomb-option');
+    options.forEach(opt => {
+        const val = opt.dataset.bomb === 'off' ? 0 : parseInt(opt.dataset.bomb);
+        opt.classList.toggle('active', val === bombDifficulty);
+    });
+}
+
+function setBombDifficulty(level) {
+    bombDifficulty = level;
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.bomb), bombDifficulty);
+    updateBombOptions();
+    debounceSyncToCloud();
+    if (gameStarted || moves > 0) {
+        showConfirmModal();
+        confirmYesBtn.onclick = () => {
+            restartGame();
+            hideConfirmModal();
+        };
+        confirmNoBtn.onclick = hideConfirmModal;
+        confirmYesBtn.textContent = '确定重置';
+        confirmModal.querySelector('h3').textContent = '⚠️ 确认重置';
+        confirmModal.querySelector('p').textContent = '当前进度将丢失，确定重置吗？';
+    } else {
+        restartGame();
+    }
+}
+
+function saveAchievements(silent) {
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.achievements), JSON.stringify(achievements));
+    if (!silent) debounceSyncToCloud();
+}
+
+function saveStats(silent) {
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.stats), JSON.stringify(gameStats));
+    if (!silent) debounceSyncToCloud();
+}
+
+function unlockAchievement(achId) {
+    if (achievements[achId]) return;
+    achievements[achId] = { unlocked: true, date: new Date().toLocaleDateString('zh-CN') };
+    newlyUnlockedAchievements.push(achId);
+    saveAchievements();
+}
+
+function checkAchievements() {
+    const level = gameLevels[currentLevel];
+
+    const levelAchievements = {
+        0: 'ACH001', 1: 'ACH002', 2: 'ACH003', 3: 'ACH004',
+        4: 'ACH005', 5: 'ACH006', 6: 'ACH007', 7: 'ACH008',
+        8: 'ACH015', 11: 'ACH016', 15: 'ACH017'
+    };
+    if (gameWon && levelAchievements[currentLevel]) {
+        unlockAchievement(levelAchievements[currentLevel]);
+    }
+    if (currentLevel === 0 && gameWon && moves <= 6) {
+        unlockAchievement('ACH009');
+    }
+    if (currentLevel === 0 && gameWon && seconds <= 10) {
+        unlockAchievement('ACH010');
+    }
+    if (gameWon && misses === 0) {
+        unlockAchievement('ACH011');
+        if (level.bomb > 0) {
+            unlockAchievement('ACH018');
+        }
+    }
+    if (gameStats.totalGames >= 100) {
+        unlockAchievement('ACH012');
+    }
+    if (gameWon && bestScores[currentLevel] && moves <= bestScores[currentLevel]) {
+        unlockAchievement('ACH013');
+    }
+
+    const allOtherAchievements = achievementList
+        .filter(a => a.id !== 'ACH014')
+        .every(a => achievements[a.id]);
+    if (allOtherAchievements) {
+        unlockAchievement('ACH014');
+    }
+}
+
+function showAchievementNotification() {
+    if (newlyUnlockedAchievements.length === 0) return;
+
+    const names = newlyUnlockedAchievements
+        .map(id => achievementList.find(a => a.id === id))
+        .filter(Boolean)
+        .map(a => `${a.icon} ${a.name}`);
+
+    newlyUnlockedAchievements = [];
+
+    const existingNotif = document.querySelector('.achievement-notification');
+    if (existingNotif) existingNotif.remove();
+
+    const notif = document.createElement('div');
+    notif.className = 'achievement-notification';
+    notif.innerHTML = `
+        <div class="achievement-notif-content">
+            <div class="achievement-notif-title">🏆 新成就解锁！</div>
+            <div class="achievement-notif-items">${names.join('<br>')}</div>
+        </div>
+    `;
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 3500);
+}
+
+function renderRecords() {
+    recordGamesEl.textContent = gameStats.totalGames;
+    const totalMins = Math.floor(gameStats.totalTime / 60).toString().padStart(2, '0');
+    const totalSecs = (gameStats.totalTime % 60).toString().padStart(2, '0');
+    recordTimeEl.textContent = `${totalMins}:${totalSecs}`;
+    recordPairsEl.textContent = gameStats.totalPairs;
+
+    recordsPerLevelEl.innerHTML = '';
+    gameLevels.forEach((level, index) => {
+        const rec = gameStats.perLevel[index];
+        const div = document.createElement('div');
+        div.className = 'level-record';
+        const bombTag = level.bomb > 0 ? ' 💣'.repeat(level.bomb) : '';
+        if (rec) {
+            div.innerHTML = `
+                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombTag}</div>
+                <div class="level-stats">最佳步数: <span>${rec.bestMoves || '-'}</span></div>
+                <div class="level-stats">完成次数: <span>${rec.completions || 0}</span></div>
+            `;
+        } else {
+            div.innerHTML = `
+                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombTag}</div>
+                <div class="level-stats">最佳步数: <span>-</span></div>
+                <div class="level-stats">完成次数: <span>0</span></div>
+            `;
+        }
+        recordsPerLevelEl.appendChild(div);
+    });
+}
+
+function renderAchievements() {
+    achievementsGridEl.innerHTML = '';
+    achievementList.forEach(ach => {
+        const unlocked = achievements[ach.id];
+        const div = document.createElement('div');
+        div.className = 'achievement-item' + (unlocked ? ' unlocked' : '');
+        div.innerHTML = `
+            <div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div>
+            <div class="achievement-info">
+                <div class="achievement-name">${ach.name}</div>
+                <div class="achievement-desc">${ach.desc}</div>
+                ${unlocked ? `<div class="achievement-date">${unlocked.date}</div>` : ''}
+            </div>
+        `;
+        achievementsGridEl.appendChild(div);
+    });
+}
+
+function switchSettingsTab(tabName) {
+    settingsTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+    settingsPanels.forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.panel === tabName);
+    });
+    if (tabName === 'records') {
+        renderRecords();
+    }
+    if (tabName === 'achievements') {
+        renderAchievements();
+    }
+}
+
+function updateGameStats() {
+    gameStats.totalGames++;
+    gameStats.totalTime += seconds;
+    gameStats.totalPairs += regularPairs;
+
+    if (!gameStats.perLevel[currentLevel]) {
+        gameStats.perLevel[currentLevel] = { completions: 0, bestMoves: null };
+    }
+    const levelStat = gameStats.perLevel[currentLevel];
+    levelStat.completions++;
+    if (!levelStat.bestMoves || moves < levelStat.bestMoves) {
+        levelStat.bestMoves = moves;
+    }
+    saveStats();
+}
+
+function initGame() {
+    loadGameData();
+    createBoard();
+    resetStats();
+    updateDifficultyButtons();
+    updateBestScoreDisplay();
+}
+
+function updateDifficultyButtons() {
+    levelDropdown.innerHTML = '';
+    gameLevels.forEach((level, index) => {
+        const option = document.createElement('div');
+        option.className = 'level-option';
+        option.dataset.level = index;
+        if (index === currentLevel) option.classList.add('active');
+        if (!unlockedLevels[index]) option.classList.add('locked');
+        if (unlockedLevels[index]) {
+            const bombTag = level.bomb > 0 ? ' 💣'.repeat(level.bomb) : '';
+            option.textContent = `第${index + 1}关 (${level.cols}×${level.rows})${bombTag}`;
+        } else {
+            const bombTag = level.bomb > 0 ? ' 💣'.repeat(level.bomb) : '';
+            option.innerHTML = `🔒 第${index + 1}关 (${level.cols}×${level.rows})${bombTag}`;
+        }
+        option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const lvl = parseInt(option.dataset.level);
+            if (!unlockedLevels[lvl]) return;
+            changeLevel(lvl);
+            closeLevelDropdown();
+        });
+        levelDropdown.appendChild(option);
+    });
+    const curLevel = gameLevels[currentLevel];
+    const curBombTag = curLevel.bomb > 0 ? ' 💣'.repeat(curLevel.bomb) : '';
+    currentLevelLabel.textContent = `第${currentLevel + 1}关 (${curLevel.cols}×${curLevel.rows})${curBombTag}`;
+}
+
+function createBoard() {
+    const level = gameLevels[currentLevel];
+    const totalCards = level.rows * level.cols;
+    const totalPairs = totalCards / 2;
+
+    let bombPairs;
+    if (level.bomb > 0) {
+        bombPairs = level.bomb;
+        regularPairs = level.pairs;
+    } else if (bombDifficulty > 0) {
+        const maxBombPairs = Math.min(bombDifficulty, Math.floor(totalCards / 10) || 1);
+        bombPairs = Math.min(maxBombPairs, totalPairs - 1);
+        regularPairs = level.pairs - bombPairs;
+    } else {
+        bombPairs = 0;
+        regularPairs = level.pairs;
+    }
+
+    gameBoard.innerHTML = '';
+    gameBoard.className = 'game-board';
+    gameBoard.style.gridTemplateColumns = `repeat(${level.cols}, minmax(auto, 150px))`;
+    
+    cards = [];
+    const emojis = cardEmojis.slice(0, regularPairs);
+    const regularCardPairs = [...emojis, ...emojis];
+    const bombCardPairs = bombPairs > 0 ? Array(bombPairs * 2).fill('💣') : [];
+    const cardPairs = [...regularCardPairs, ...bombCardPairs];
+    
+    shuffleArray(cardPairs);
+    
+    cardPairs.forEach((emoji, index) => {
+        const isBomb = emoji === '💣';
+        cards.push({
+            id: index,
+            type: emoji,
+            flipped: false,
+            matched: false,
+            isBomb: isBomb
+        });
+        
+        const card = document.createElement('div');
+        card.className = 'card' + (isBomb ? ' bomb' : '');
+        card.dataset.index = index;
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-back">${themes[currentTheme].cardBack}</div>
+                <div class="card-front">${emoji}</div>
+            </div>
+        `;
+        card.addEventListener('click', flipCard);
+        gameBoard.appendChild(card);
+    });
+    
+    pairsDisplay.textContent = `0/${regularPairs}`;
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function flipCard(e) {
+    const cardElement = e.currentTarget;
+    const index = parseInt(cardElement.dataset.index);
+    const card = cards[index];
+    
+    if (lockBoard || card.matched || card.flipped || 
+        (firstCard && firstCard.id === index)) {
+        return;
+    }
+    
+    if (!gameStarted) {
+        startTimer();
+        gameStarted = true;
+    }
+    
+    card.flipped = true;
+    cardElement.classList.add('flipped');
+    playSound('flip');
+    
+    if (!firstCard) {
+        firstCard = { element: cardElement, ...card };
+    } else {
+        secondCard = { element: cardElement, ...card };
+        moves++;
+        movesDisplay.textContent = moves;
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    const isMatch = firstCard.type === secondCard.type;
+    
+    if (isMatch) {
+        if (firstCard.isBomb && secondCard.isBomb) {
+            bombExplode();
+        } else {
+            disableCards();
+        }
+    } else {
+        unflipCards();
+    }
+}
+
+function disableCards() {
+    firstCard.element.classList.add('matched');
+    secondCard.element.classList.add('matched');
+    cards[firstCard.id].matched = true;
+    cards[secondCard.id].matched = true;
+    
+    matchedPairs++;
+    pairsDisplay.textContent = `${matchedPairs}/${regularPairs}`;
+    
+    playSound('match');
+    resetBoard();
+    
+    if (matchedPairs === regularPairs) {
+        setTimeout(showWinModal, 500);
+    }
+}
+
+function bombExplode() {
+    lockBoard = true;
+    firstCard.element.classList.add('matched', 'bomb-explode');
+    secondCard.element.classList.add('matched', 'bomb-explode');
+    cards[firstCard.id].matched = true;
+    cards[secondCard.id].matched = true;
+    playSound('bomb');
+    setTimeout(showBombModal, 700);
+}
+
+function unflipCards() {
+    lockBoard = true;
+    misses++;
+    playSound('wrong');
+    
+    setTimeout(() => {
+        firstCard.element.classList.remove('flipped');
+        secondCard.element.classList.remove('flipped');
+        cards[firstCard.id].flipped = false;
+        cards[secondCard.id].flipped = false;
+        resetBoard();
+    }, 1000);
+}
+
+function resetBoard() {
+    [firstCard, secondCard, lockBoard] = [null, null, false];
+}
+
+function startTimer() {
+    stopTimer();
+    seconds = 0;
+    timer = setInterval(() => {
+        seconds++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timer) {
+        clearInterval(timer);
+        timer = null;
+    }
+}
+
+function updateTimerDisplay() {
+    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    timerDisplay.textContent = `${mins}:${secs}`;
+}
+
+function resetStats() {
+    stopTimer();
+    moves = 0;
+    seconds = 0;
+    matchedPairs = 0;
+    gameStarted = false;
+    gameWon = false;
+    misses = 0;
+    lockBoard = false;
+    firstCard = null;
+    secondCard = null;
+    movesDisplay.textContent = '0';
+    timerDisplay.textContent = '00:00';
+    newRecord.classList.add('hidden');
+}
+
+function showWinModal() {
+    stopTimer();
+    gameWon = true;
+    
+    updateGameStats();
+    checkAchievements();
+    showAchievementNotification();
+    
+    unlockNextLevel(currentLevel);
+    
+    finalMoves.textContent = moves;
+    finalTime.textContent = timerDisplay.textContent;
+    
+    const isNewRecord = saveBestScore(currentLevel, moves);
+    if (isNewRecord) {
+        newRecord.classList.remove('hidden');
+        updateBestScoreDisplay();
+        playSound('record');
+    } else {
+        playSound('win');
+    }
+    
+    if (currentLevel < gameLevels.length - 1) {
+        nextLevelInfo.classList.remove('hidden');
+        nextLevelBtn.classList.remove('hidden');
+        unlockedLevelNum.textContent = currentLevel + 2;
+    } else {
+        nextLevelInfo.classList.add('hidden');
+        nextLevelBtn.classList.add('hidden');
+    }
+    
+    updateDifficultyButtons();
+    winModal.classList.remove('hidden');
+}
+
+function hideWinModal() {
+    winModal.classList.add('hidden');
+}
+
+function showBombModal() {
+    stopTimer();
+    const bombMovesEl = document.getElementById('bomb-moves');
+    const bombTimeEl = document.getElementById('bomb-time');
+    if (bombMovesEl) bombMovesEl.textContent = moves;
+    if (bombTimeEl) bombTimeEl.textContent = timerDisplay.textContent;
+    const bombModal = document.getElementById('bomb-modal');
+    if (bombModal) bombModal.classList.remove('hidden');
+}
+
+function hideBombModal() {
+    const bombModal = document.getElementById('bomb-modal');
+    if (bombModal) bombModal.classList.add('hidden');
+}
+
+function showConfirmModal() {
+    confirmModal.classList.remove('hidden');
+}
+
+function hideConfirmModal() {
+    confirmModal.classList.add('hidden');
+}
+
+function restartGame() {
+    resetStats();
+    createBoard();
+    hideWinModal();
+}
+
+function nextLevel() {
+    if (currentLevel < gameLevels.length - 1 && unlockedLevels[currentLevel + 1]) {
+        currentLevel++;
+        updateDifficultyButtons();
+        updateBestScoreDisplay();
+        restartGame();
+    }
+}
+
+function selectLevel() {
+    hideWinModal();
+    levelDropdown.classList.toggle('hidden');
+}
+
+function toggleLevelDropdown() {
+    levelDropdown.classList.toggle('hidden');
+}
+
+function closeLevelDropdown() {
+    levelDropdown.classList.add('hidden');
+}
+
+function changeLevel(levelIndex) {
+    if (levelIndex === currentLevel) return;
+    
+    if (!unlockedLevels[levelIndex]) {
+        return;
+    }
+    
+    if (!gameWon && (gameStarted || moves > 0)) {
+        showConfirmModal();
+        confirmYesBtn.onclick = () => {
+            currentLevel = levelIndex;
+            updateDifficultyButtons();
+            updateBestScoreDisplay();
+            restartGame();
+            hideConfirmModal();
+        };
+        confirmNoBtn.onclick = hideConfirmModal;
+        confirmYesBtn.textContent = '确定';
+        confirmModal.querySelector('h3').textContent = '⚠️ 确认重置';
+        confirmModal.querySelector('p').textContent = '当前进度将丢失，确定重置吗？';
+    } else {
+        currentLevel = levelIndex;
+        updateDifficultyButtons();
+        updateBestScoreDisplay();
+        restartGame();
+    }
+}
+
+restartBtn.addEventListener('click', () => {
+    if (gameStarted || moves > 0) {
+        showConfirmModal();
+        confirmYesBtn.onclick = () => {
+            restartGame();
+            hideConfirmModal();
+        };
+        confirmNoBtn.onclick = hideConfirmModal;
+        confirmYesBtn.textContent = '确定';
+        confirmModal.querySelector('h3').textContent = '⚠️ 确认重置';
+        confirmModal.querySelector('p').textContent = '当前进度将丢失，确定重置吗？';
+    } else {
+        restartGame();
+    }
+});
+
+resetProgressBtn.addEventListener('click', () => {
+    showConfirmModal();
+    confirmYesBtn.onclick = () => {
+        resetAllProgress();
+        updateDifficultyButtons();
+        updateBestScoreDisplay();
+        restartGame();
+        hideConfirmModal();
+    };
+    confirmNoBtn.onclick = hideConfirmModal;
+    confirmYesBtn.textContent = '确定重置';
+    confirmModal.querySelector('h3').textContent = '🔁 确认重置进度';
+    confirmModal.querySelector('p').textContent = '关卡解锁状态将被重置，但最佳步数记录会保留。确定吗？';
+});
+
+playAgainBtn.addEventListener('click', restartGame);
+nextLevelBtn.addEventListener('click', nextLevel);
+selectLevelBtn.addEventListener('click', selectLevel);
+closeWinModalBtn.addEventListener('click', hideWinModal);
+
+const closeBombModalBtn = document.getElementById('close-bomb-modal');
+const bombRetryBtn = document.getElementById('bomb-retry-btn');
+const bombCloseBtn = document.getElementById('bomb-close-btn');
+if (closeBombModalBtn) closeBombModalBtn.addEventListener('click', hideBombModal);
+if (bombRetryBtn) bombRetryBtn.addEventListener('click', () => { hideBombModal(); restartGame(); });
+if (bombCloseBtn) bombCloseBtn.addEventListener('click', hideBombModal);
+
+const bombOptions = document.querySelectorAll('.bomb-option');
+bombOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+        const val = opt.dataset.bomb === 'off' ? 0 : parseInt(opt.dataset.bomb);
+        setBombDifficulty(val);
+        playSound('click');
+    });
+});
+
+levelBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleLevelDropdown();
+});
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.level-selector')) {
+        closeLevelDropdown();
+    }
+});
+
+helpBtn.addEventListener('click', () => {
+    helpModal.classList.remove('hidden');
+});
+
+helpCloseBtn.addEventListener('click', () => {
+    helpModal.classList.add('hidden');
+});
+
+closeHelpModalBtn.addEventListener('click', () => {
+    helpModal.classList.add('hidden');
+});
+
+settingsBtn.addEventListener('click', () => {
+    settingsModal.classList.remove('hidden');
+    switchSettingsTab('theme');
+});
+
+closeSettingsModalBtn.addEventListener('click', () => {
+    settingsModal.classList.add('hidden');
+});
+
+themeItems.forEach(item => {
+    item.addEventListener('click', () => {
+        const themeName = item.dataset.theme;
+        setTheme(themeName);
+    });
+});
+
+const soundToggle = document.getElementById('sound-toggle');
+const soundIcon = document.getElementById('sound-icon');
+const soundLabelText = document.getElementById('sound-label-text');
+if (soundToggle) {
+    soundToggle.addEventListener('change', () => {
+        soundEnabled = soundToggle.checked;
+        localStorage.setItem(getStorageKey(STORAGE_KEYS.sound), soundEnabled);
+        if (soundIcon) soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+        if (soundLabelText) soundLabelText.textContent = soundEnabled ? '音效开启' : '音效关闭';
+        if (soundEnabled) playSound('click');
+        debounceSyncToCloud();
+    });
+}
+
+settingsTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        switchSettingsTab(tab.dataset.tab);
+    });
+});
+
+document.addEventListener('click', (e) => {
+    if (e.target === helpModal) {
+        helpModal.classList.add('hidden');
+    }
+    if (e.target === settingsModal) {
+        settingsModal.classList.add('hidden');
+    }
+    if (e.target === loginModal) {
+        loginModal.classList.add('hidden');
+    }
+    const bombModal = document.getElementById('bomb-modal');
+    if (e.target === bombModal) {
+        bombModal.classList.add('hidden');
+    }
+    if (!e.target.closest('.user-area')) {
+        userDropdown.classList.add('hidden');
+    }
+});
+
+userStatusBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    userDropdown.classList.toggle('hidden');
+});
+
+loginDropdownItem.addEventListener('click', function() {
+    userDropdown.classList.add('hidden');
+    showLoginModal();
+});
+
+logoutDropdownItem.addEventListener('click', function() {
+    logout();
+});
+
+closeLoginModalBtn.addEventListener('click', hideLoginModal);
+loginCancelBtn.addEventListener('click', hideLoginModal);
+smsSendBtn.addEventListener('click', sendSmsCode);
+loginConfirmBtn.addEventListener('click', loginWithCode);
+
+loginCodeInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') loginWithCode();
+});
+
+loginPhoneInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') loginCodeInput.focus();
+});
+
+document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+
+
+</html>
