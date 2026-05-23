@@ -3,629 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贪吃蛇</title>
-    <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    user-select: none;
-}
-
-.container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 600px;
-    width: 100%;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.header-title {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.header-title h1 {
-    font-size: 2.2rem;
-    color: #333;
-    text-align: center;
-}
-
-.header-buttons {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 10px;
-}
-
-.icon-btn {
-    width: 36px;
-    height: 36px;
-    border: 2px solid #43e97b;
-    background: white;
-    color: #43e97b;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    line-height: 1;
-}
-
-.icon-btn:hover {
-    background: #43e97b;
-    color: white;
-    transform: scale(1.1);
-}
-
-.stats {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-item .label {
-    display: block;
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-
-.stat-item .value {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
-
-.game-wrapper {
-    position: relative;
-    margin: 25px auto;
-    display: flex;
-    justify-content: center;
-}
-
-canvas {
-    border: 4px solid #43e97b;
-    border-radius: 12px;
-    background: #1a1a2e;
-    display: block;
-    max-width: 100%;
-    height: auto;
-    touch-action: none;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 400px;
-    height: 100%;
-    background: rgba(26, 26, 46, 0.92);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border: 4px solid #43e97b;
-}
-
-.overlay.hidden {
-    display: none;
-}
-
-.overlay h2 {
-    color: white;
-    font-size: 2rem;
-    margin-bottom: 15px;
-}
-
-.overlay p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-}
-
-.overlay .final-score {
-    color: #43e97b;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 15px 0;
-}
-
-.overlay .new-record {
-    color: #ffc107;
-    font-weight: bold;
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.overlay-buttons {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.btn {
-    padding: 12px 30px;
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    color: #333;
-    border: none;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(67, 233, 123, 0.4);
-}
-
-.btn-secondary {
-    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-    color: white;
-}
-
-.btn-secondary:hover {
-    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
-}
-
-footer {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.controls-hint {
-    color: #666;
-    font-size: 13px;
-    margin-top: 15px;
-    text-align: center;
-}
-
-.controls-hint kbd {
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 12px;
-    font-family: monospace;
-    margin: 0 2px;
-}
-
-.mobile-controls {
-    display: none;
-    margin-top: 20px;
-    justify-content: center;
-    gap: 10px;
-}
-
-.mobile-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: 3px solid #43e97b;
-    background: white;
-    color: #43e97b;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.mobile-btn:active {
-    background: #43e97b;
-    color: white;
-    transform: scale(0.95);
-}
-
-@media (max-width: 600px) {
-    .mobile-controls {
-        display: flex;
-        flex-wrap: wrap;
-        max-width: 300px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .controls-hint {
-        display: none;
-    }
-}
-    </style>
+    <title>🐍 贪吃蛇游戏</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="header-title">
-                <h1>🐍 贪吃蛇</h1>
-                <div class="header-buttons">
-                    <button id="sound-btn" class="icon-btn" title="音效开关">🔊</button>
-                    <button id="pause-btn" class="icon-btn" title="暂停">⏸</button>
+        <div class="title-bar">
+            <h1>🐍 贪吃蛇游戏</h1>
+            <div class="title-icons">
+                <button id="helpIconBtn" class="title-icon-btn" title="游戏说明">❓</button>
+                <button id="settingsIconBtn" class="title-icon-btn" title="设置">⚙️</button>
+            </div>
+        </div>
+        
+        <div class="game-wrapper">
+            <div class="game-area">
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+                <div class="controls-bar">
+                    <span id="controlsHint">↑↓←→ 或 WASD 控制方向</span>
+                    <span class="separator">|</span>
+                    <span>空格 暂停/继续</span>
                 </div>
             </div>
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="label">分数:</span>
-                    <span id="score" class="value">0</span>
+            
+            <div class="sidebar">
+                <div class="player-switch">
+                    <button id="singlePlayerBtn" class="player-btn active">单人模式</button>
+                    <button id="doublePlayerBtn" class="player-btn">双人模式</button>
                 </div>
-                <div class="stat-item">
-                    <span class="label">最高分:</span>
-                    <span id="high-score" class="value">0</span>
+                
+                <div class="mode-switch">
+                    <button id="normalModeBtn" class="mode-btn active">常规模式</button>
+                    <button id="funModeBtn" class="mode-btn">趣味模式</button>
+                    <button id="challengeModeBtn" class="mode-btn">挑战模式</button>
                 </div>
-                <div class="stat-item">
-                    <span class="label">长度:</span>
-                    <span id="length" class="value">3</span>
-                </div>
-            </div>
-        </header>
-
-        <main>
-            <div class="game-wrapper">
-                <canvas id="game-canvas" width="400" height="400"></canvas>
-                <div id="start-overlay" class="overlay">
-                    <h2>🐍 贪吃蛇</h2>
-                    <p>使用方向键或 WASD 控制蛇的移动</p>
-                    <p>吃食物 🍎 增长身体，避免撞墙和撞到自己</p>
-                    <div class="overlay-buttons">
-                        <button id="start-btn" class="btn">开始游戏</button>
+                
+                <div class="score-board">
+                    <div class="score-item">
+                        <span id="timeLabel" class="label">使用时间:</span>
+                        <span id="gameTime" class="value">00:00</span>
+                    </div>
+                    <div class="score-item" id="player1ScoreItem">
+                        <span id="player1Label" class="label">玩家1分数:</span>
+                        <span id="currentScore" class="value">0</span>
+                    </div>
+                    <div class="score-item" id="player2ScoreItem" style="display: none;">
+                        <span id="player2Label" class="label">玩家2分数:</span>
+                        <span id="player2Score" class="value">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span id="highScoreLabel" class="label">最高分:</span>
+                        <span id="highScore" class="value">0</span>
                     </div>
                 </div>
-                <div id="pause-overlay" class="overlay hidden">
-                    <h2>⏸ 游戏暂停</h2>
-                    <p>按空格键或点击继续</p>
-                    <div class="overlay-buttons">
-                        <button id="resume-btn" class="btn">继续游戏</button>
-                    </div>
-                </div>
-                <div id="gameover-overlay" class="overlay hidden">
-                    <h2>💀 游戏结束</h2>
-                    <p id="new-record-text" class="new-record hidden">🏆 新纪录！</p>
-                    <p>本局得分</p>
-                    <div class="final-score" id="final-score">0</div>
-                    <div class="overlay-buttons">
-                        <button id="retry-btn" class="btn">🔄 再来一局</button>
-                    </div>
-                </div>
+                
+                <button id="startBtn" class="btn">开始游戏</button>
+                <button id="endBtn" class="btn btn-end" disabled>结束游戏</button>
             </div>
-
-            <div class="mobile-controls">
-                <button class="mobile-btn" data-dir="up">▲</button>
-                <button class="mobile-btn" data-dir="left">◀</button>
-                <button class="mobile-btn" data-dir="down">▼</button>
-                <button class="mobile-btn" data-dir="right">▶</button>
-            </div>
-
-            <p class="controls-hint">⌨️ <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>空格</kbd> 暂停</p>
-        </main>
+        </div>
+        
+        <div id="gameMessage" class="game-message"></div>
     </div>
-
-    <script>
-(function() {
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('score');
-    const highScoreEl = document.getElementById('high-score');
-    const lengthEl = document.getElementById('length');
-    const finalScoreEl = document.getElementById('final-score');
-    const newRecordText = document.getElementById('new-record-text');
-    const soundBtn = document.getElementById('sound-btn');
-    const pauseBtn = document.getElementById('pause-btn');
-
-    const startOverlay = document.getElementById('start-overlay');
-    const pauseOverlay = document.getElementById('pause-overlay');
-    const gameoverOverlay = document.getElementById('gameover-overlay');
-
-    const startBtn = document.getElementById('start-btn');
-    const resumeBtn = document.getElementById('resume-btn');
-    const retryBtn = document.getElementById('retry-btn');
-
-    const GRID_SIZE = 20;
-    const CELL_SIZE = canvas.width / GRID_SIZE;
-
-    let snake, direction, nextDirection, food, score, gameLoop, gameSpeed, isPaused, isRunning;
-    let highScore = parseInt(localStorage.getItem('snakeHighScore') || '0');
-    let soundEnabled = localStorage.getItem('snakeSound') !== 'false';
-    let audioCtx = null;
-
-    highScoreEl.textContent = highScore;
-    soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-
-    function ensureAudio() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        return audioCtx;
-    }
-
-    function playSound(type) {
-        if (!soundEnabled) return;
-        const ctx = ensureAudio();
-        if (!ctx) return;
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        let freq = 440, duration = 0.1, volume = 0.15, wave = 'sine';
-        switch(type) {
-            case 'eat': freq = 800; duration = 0.1; volume = 0.2; wave = 'square'; break;
-            case 'gameover': freq = 150; duration = 0.4; volume = 0.25; wave = 'sawtooth'; break;
-            case 'click': freq = 600; duration = 0.05; volume = 0.1; wave = 'square'; break;
-        }
-        osc.type = wave;
-        osc.frequency.setValueAtTime(freq, now);
-        gain.gain.setValueAtTime(volume, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-        osc.start(now);
-        osc.stop(now + duration);
-    }
-
-    function init() {
-        snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
-        direction = {x: 1, y: 0};
-        nextDirection = {x: 1, y: 0};
-        score = 0;
-        gameSpeed = 120;
-        isPaused = false;
-        isRunning = false;
-        placeFood();
-        updateStats();
-        draw();
-    }
-
-    function placeFood() {
-        let valid = false;
-        while (!valid) {
-            food = {
-                x: Math.floor(Math.random() * GRID_SIZE),
-                y: Math.floor(Math.random() * GRID_SIZE)
-            };
-            valid = !snake.some(s => s.x === food.x && s.y === food.y);
-        }
-    }
-
-    function updateStats() {
-        scoreEl.textContent = score;
-        lengthEl.textContent = snake.length;
-    }
-
-    function draw() {
-        ctx.fillStyle = '#1a1a2e';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-        ctx.lineWidth = 1;
-        for (let i = 0; i <= GRID_SIZE; i++) {
-            ctx.beginPath();
-            ctx.moveTo(i * CELL_SIZE, 0);
-            ctx.lineTo(i * CELL_SIZE, canvas.height);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(0, i * CELL_SIZE);
-            ctx.lineTo(canvas.width, i * CELL_SIZE);
-            ctx.stroke();
-        }
-
-        ctx.fillStyle = '#ff6b6b';
-        ctx.beginPath();
-        ctx.arc(food.x * CELL_SIZE + CELL_SIZE / 2, food.y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2 - 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        snake.forEach((seg, i) => {
-            if (i === 0) {
-                ctx.fillStyle = '#43e97b';
-            } else {
-                const t = i / snake.length;
-                ctx.fillStyle = `rgb(${Math.floor(67 + t * 20)}, ${Math.floor(233 - t * 80)}, ${Math.floor(123 + t * 50)})`;
-            }
-            ctx.fillRect(seg.x * CELL_SIZE + 1, seg.y * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-        });
-
-        if (snake.length > 0) {
-            const head = snake[0];
-            ctx.fillStyle = '#1a1a2e';
-            const eyeSize = CELL_SIZE / 6;
-            const eyeOffset = CELL_SIZE / 4;
-            if (direction.x === 1) {
-                ctx.beginPath();
-                ctx.arc(head.x * CELL_SIZE + CELL_SIZE - eyeOffset, head.y * CELL_SIZE + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.arc(head.x * CELL_SIZE + CELL_SIZE - eyeOffset, head.y * CELL_SIZE + CELL_SIZE - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-            } else if (direction.x === -1) {
-                ctx.beginPath();
-                ctx.arc(head.x * CELL_SIZE + eyeOffset, head.y * CELL_SIZE + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.arc(head.x * CELL_SIZE + eyeOffset, head.y * CELL_SIZE + CELL_SIZE - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-            } else if (direction.y === -1) {
-                ctx.beginPath();
-                ctx.arc(head.x * CELL_SIZE + eyeOffset, head.y * CELL_SIZE + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.arc(head.x * CELL_SIZE + CELL_SIZE - eyeOffset, head.y * CELL_SIZE + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                ctx.beginPath();
-                ctx.arc(head.x * CELL_SIZE + eyeOffset, head.y * CELL_SIZE + CELL_SIZE - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.arc(head.x * CELL_SIZE + CELL_SIZE - eyeOffset, head.y * CELL_SIZE + CELL_SIZE - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-    }
-
-    function update() {
-        if (isPaused || !isRunning) return;
-
-        direction = { ...nextDirection };
-        const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
-
-        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-            gameOver();
-            return;
-        }
-
-        if (snake.some(s => s.x === head.x && s.y === head.y)) {
-            gameOver();
-            return;
-        }
-
-        snake.unshift(head);
-
-        if (head.x === food.x && head.y === food.y) {
-            score += 10;
-            playSound('eat');
-            placeFood();
-            if (gameSpeed > 60) gameSpeed -= 2;
-            clearInterval(gameLoop);
-            gameLoop = setInterval(tick, gameSpeed);
-        } else {
-            snake.pop();
-        }
-
-        updateStats();
-        draw();
-    }
-
-    function tick() {
-        update();
-    }
-
-    function gameOver() {
-        isRunning = false;
-        clearInterval(gameLoop);
-        playSound('gameover');
-        const isNewRecord = score > highScore;
-        if (isNewRecord) {
-            highScore = score;
-            localStorage.setItem('snakeHighScore', highScore);
-            highScoreEl.textContent = highScore;
-            newRecordText.classList.remove('hidden');
-        } else {
-            newRecordText.classList.add('hidden');
-        }
-        finalScoreEl.textContent = score;
-        gameoverOverlay.classList.remove('hidden');
-    }
-
-    function startGame() {
-        init();
-        isRunning = true;
-        startOverlay.classList.add('hidden');
-        pauseOverlay.classList.add('hidden');
-        gameoverOverlay.classList.add('hidden');
-        clearInterval(gameLoop);
-        gameLoop = setInterval(tick, gameSpeed);
-    }
-
-    function togglePause() {
-        if (!isRunning) return;
-        isPaused = !isPaused;
-        if (isPaused) {
-            pauseOverlay.classList.remove('hidden');
-        } else {
-            pauseOverlay.classList.add('hidden');
-        }
-    }
-
-    function setDirection(dx, dy) {
-        if (direction.x === -dx && direction.y === -dy) return;
-        if (direction.x === dx && direction.y === dy) return;
-        nextDirection = { x: dx, y: dy };
-    }
-
-    document.addEventListener('keydown', (e) => {
-        switch(e.key) {
-            case 'ArrowUp': case 'w': case 'W': e.preventDefault(); setDirection(0, -1); break;
-            case 'ArrowDown': case 's': case 'S': e.preventDefault(); setDirection(0, 1); break;
-            case 'ArrowLeft': case 'a': case 'A': e.preventDefault(); setDirection(-1, 0); break;
-            case 'ArrowRight': case 'd': case 'D': e.preventDefault(); setDirection(1, 0); break;
-            case ' ': e.preventDefault(); togglePause(); break;
-        }
-    });
-
-    document.querySelectorAll('.mobile-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const dir = btn.dataset.dir;
-            if (dir === 'up') setDirection(0, -1);
-            else if (dir === 'down') setDirection(0, 1);
-            else if (dir === 'left') setDirection(-1, 0);
-            else if (dir === 'right') setDirection(1, 0);
-        });
-    });
-
-    let touchStartX = 0, touchStartY = 0;
-    canvas.addEventListener('touchstart', (e) => {
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-    });
-    canvas.addEventListener('touchend', (e) => {
-        const touch = e.changedTouches[0];
-        const dx = touch.clientX - touchStartX;
-        const dy = touch.clientY - touchStartY;
-        if (Math.abs(dx) > Math.abs(dy)) {
-            setDirection(dx > 0 ? 1 : -1, 0);
-        } else {
-            setDirection(0, dy > 0 ? 1 : -1);
-        }
-    });
-
-    startBtn.addEventListener('click', startGame);
-    retryBtn.addEventListener('click', startGame);
-    resumeBtn.addEventListener('click', togglePause);
-
-    pauseBtn.addEventListener('click', togglePause);
-
-    soundBtn.addEventListener('click', () => {
-        soundEnabled = !soundEnabled;
-        localStorage.setItem('snakeSound', soundEnabled);
-        soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-        if (soundEnabled) playSound('click');
-    });
-
-    init();
-})();
-    </script>
+    
+    <div id="gameOverModal" class="modal-overlay">
+        <div class="modal-content gameover-modal-content">
+            <div class="modal-header">
+                <h2 id="gameOverTitle">💀 游戏结束</h2>
+                <button id="gameOverClose" class="modal-close">×</button>
+            </div>
+            <div id="gameOverContent" class="gameover-content"></div>
+            <div class="gameover-actions">
+                <button id="gameOverRestartBtn" class="btn">再来一局</button>
+                <button id="gameOverCloseBtn" class="btn btn-end">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content help-modal-content">
+            <div class="modal-header">
+                <h2 id="helpModalTitle">🐍 游戏帮助</h2>
+                <button id="modalClose" class="modal-close">×</button>
+            </div>
+            
+            <div class="help-cards-container">
+                <div class="help-card active" data-page="0">
+                    <div class="help-card-title">🎮 游戏基本玩法</div>
+                    <div class="help-card-content">
+                        <div class="help-section">
+                            <h4>操作说明</h4>
+                            <p><strong>单人模式：</strong></p>
+                            <p>↑ ↓ ← → 方向键 - 控制蛇的移动方向</p>
+                            <p>W A S D 键 - 同样可以控制方向</p>
+                            <p>空格键 - 开始游戏 / 暂停 / 继续</p>
+                            <p style="margin-top: 10px;"><strong>双人模式：</strong></p>
+                            <p>玩家1：W A S D 键控制</p>
+                            <p>玩家2：↑ ↓ ← → 方向键控制</p>
+                            <p>空格键 - 开始游戏 / 暂停 / 继续</p>
+                        </div>
+                        <div class="help-section">
+                            <h4>🎯 游戏模式</h4>
+                            <p><strong>常规模式</strong>：经典贪吃蛇玩法，每次出现一个食物</p>
+                            <p><strong>趣味模式</strong>：同时出现最多3个食物，包含特殊食物</p>
+                            <p><strong>挑战模式</strong>：更多特殊食物和障碍，挑战性更高</p>
+                        </div>
+                        <div class="help-section">
+                            <h4>💀 游戏结束条件</h4>
+                            <p>• 蛇头碰到画布边界</p>
+                            <p>• 蛇头撞到自己的身体</p>
+                        </div>
+                        <div class="help-section">
+                            <h4>🏆 分数说明</h4>
+                            <p>三种模式的最高分分别保存，互不影响</p>
+                            <p>游戏速度会随着分数增加而加快</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-card" data-page="1">
+                    <div class="help-card-title">🍎 趣味模式详解</div>
+                    <div class="help-card-content">
+                        <div class="help-section">
+                            <h4>食物说明</h4>
+                            <div class="modal-food-item">
+                                <span class="modal-food-dot" style="background: #ef4444;"></span>
+                                <span><strong>普通食物</strong> - 10分，身体+1格</span>
+                            </div>
+                            <div class="modal-food-item">
+                                <span class="modal-food-dot" style="background: #f59e0b;"></span>
+                                <span><strong>金色食物</strong> - 需要吃2次，共30分，身体+3格</span>
+                            </div>
+                            <div class="modal-food-item">
+                                <span class="modal-food-dot" style="background: #8b5cf6;"></span>
+                                <span><strong>紫色食物</strong> - 需要吃3次，共60分，身体+6格</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9rem; color: #94a3b8;">
+                                💡 提示：特殊食物上的数字表示还需要吃几次
+                            </p>
+                        </div>
+                        <div class="help-section">
+                            <h4>🔥 挑战模式 - 新食物</h4>
+                            <div class="modal-food-item">
+                                <span class="modal-food-dot" style="background: #10b981;"></span>
+                                <span><strong>减分食物</strong> - 身体-3格，分数-30；如果上次吃的也是减分食物，变为+3格，+30分；身体≤3格时吃到直接游戏结束</span>
+                            </div>
+                            <div class="modal-food-item">
+                                <span class="modal-food-dot" style="background: #06b6d4;"></span>
+                                <span><strong>反向食物</strong> - +20分，操作方向反向10秒</span>
+                            </div>
+                            <div class="modal-food-item">
+                                <span class="modal-food-dot" style="background: #000000;"></span>
+                                <span><strong>固定木桩</strong> - 每30秒或每150分出现一个，+10分，撞到游戏结束</span>
+                            </div>
+                            <div class="modal-food-item">
+                                <span class="modal-food-dot" style="background: #000000;"></span>
+                                <span><strong>移动木桩</strong> - 2×2大小的正方形，随机移动，20秒后消失，最多同时存在3个，撞到游戏结束</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-card" data-page="2">
+                    <div class="help-card-title">💥 双人模式注意事项</div>
+                    <div class="help-card-content">
+                        <div class="help-section">
+                            <h4>碰撞规则</h4>
+                            <div class="help-rule-item">
+                                <span class="help-rule-icon">🐍</span>
+                                <div>
+                                    <strong>撞到对方身体</strong>
+                                    <p>蛇头撞到对方身体 → 蛇头那方输</p>
+                                </div>
+                            </div>
+                            <div class="help-rule-item">
+                                <span class="help-rule-icon">⚔️</span>
+                                <div>
+                                    <strong>正面碰侧面</strong>
+                                    <p>蛇头正面碰到对方蛇头侧面 → 蛇头正面那方输</p>
+                                </div>
+                            </div>
+                            <div class="help-rule-item">
+                                <span class="help-rule-icon">💥</span>
+                                <div>
+                                    <strong>头对头相撞</strong>
+                                    <p>两蛇头正面相撞 → 开始消耗身体，先小于3节的算输，同时小于3则平局</p>
+                                </div>
+                            </div>
+                            <div class="help-rule-item">
+                                <span class="help-rule-icon">🔄</span>
+                                <div>
+                                    <strong>消耗中转向</strong>
+                                    <p>消耗过程中，若一方转向导致对方头撞到自己身体侧面 → 自己获胜</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="help-section">
+                            <h4>💡 小提示</h4>
+                            <p>• 两位玩家的速度各自独立变化，只受自身分数影响</p>
+                            <p>• 初始位置：玩家1在左上角，玩家2在右下角</p>
+                            <p>• 玩家1朝右开始，玩家2朝左开始，面对面角逐</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-card" data-page="3">
+                    <div class="help-card-title">🎊 祝您游玩愉快</div>
+                    <div class="help-card-content help-blessing-content">
+                        <div class="help-blessing-icon">🎉</div>
+                        <p class="help-blessing-text">感谢您选择这款贪吃蛇游戏！</p>
+                        <p class="help-blessing-text">希望您在游戏中收获快乐，</p>
+                        <p class="help-blessing-text">挑战自我，创造新的最高分！</p>
+                        <div class="help-blessing-emojis">
+                            <span>🐍</span>
+                            <span>🎮</span>
+                            <span>🏆</span>
+                            <span>⭐</span>
+                            <span>🎊</span>
+                        </div>
+                        <p class="help-blessing-footer">祝您游玩愉快！</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="help-pagination">
+                <button id="helpPrevBtn" class="help-nav-btn" disabled>‹</button>
+                <div class="help-page-indicators">
+                    <span class="help-page-dot active" data-page="0"></span>
+                    <span class="help-page-dot" data-page="1"></span>
+                    <span class="help-page-dot" data-page="2"></span>
+                    <span class="help-page-dot" data-page="3"></span>
+                </div>
+                <button id="helpNextBtn" class="help-nav-btn">›</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content" id="settingsModalContent">
+            <div class="modal-header" id="settingsModalHeader">
+                <h2>⚙️ 设置</h2>
+                <div class="modal-buttons">
+                    <button id="settingsMinimize" class="modal-minimize">−</button>
+                    <button id="settingsClose" class="modal-close">×</button>
+                </div>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="themes">🎨 主题</button>
+                <button class="tab-btn" data-tab="achievements">🏆 成就</button>
+                <button class="tab-btn" data-tab="history">📜 历史记录</button>
+            </div>
+            
+            <div id="tab-themes" class="tab-content active">
+                <div class="theme-grid">
+                    <div class="theme-btn" id="theme-classic">
+                        <div class="theme-preview theme-preview-classic"></div>
+                        <div class="theme-name">经典绿</div>
+                    </div>
+                    <div class="theme-btn" id="theme-dark">
+                        <div class="theme-preview theme-preview-dark"></div>
+                        <div class="theme-name">暗夜紫</div>
+                        <div class="lock-icon" id="lock-dark">🔒</div>
+                    </div>
+                    <div class="theme-btn" id="theme-ocean">
+                        <div class="theme-preview theme-preview-ocean"></div>
+                        <div class="theme-name">海洋蓝</div>
+                    </div>
+                    <div class="theme-btn" id="theme-forest">
+                        <div class="theme-preview theme-preview-forest"></div>
+                        <div class="theme-name">森林绿</div>
+                    </div>
+                    <div class="theme-btn" id="theme-retro">
+                        <div class="theme-preview theme-preview-retro"></div>
+                        <div class="theme-name">复古黄</div>
+                        <div class="lock-icon" id="lock-retro">🔒</div>
+                    </div>
+                    <div class="theme-btn" id="theme-pink">
+                        <div class="theme-preview theme-preview-pink"></div>
+                        <div class="theme-name">少女粉</div>
+                    </div>
+                </div>
+                <div class="theme-toast-container" id="themeToastContainer"></div>
+            </div>
+            
+            <div id="tab-achievements" class="tab-content">
+                <div id="achievementsList" class="achievements-list"></div>
+            </div>
+            
+            <div id="tab-history" class="tab-content">
+                <div id="historyContent" class="history-content"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="minimizeBar" class="minimize-bar">
+        <span class="minimize-bar-icon">⚙️</span>
+        <span class="minimize-bar-text">设置</span>
+        <button id="restoreSettings" class="minimize-bar-restore">恢复</button>
+    </div>
+    
+    <script src="js/game.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

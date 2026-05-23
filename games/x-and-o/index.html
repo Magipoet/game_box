@@ -1,787 +1,223 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>井字棋 XandO</title>
-    <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    user-select: none;
-}
-
-.container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 600px;
-    width: 100%;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.header-title {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.header-title h1 {
-    font-size: 2.2rem;
-    color: #333;
-    text-align: center;
-}
-
-.header-buttons {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 10px;
-}
-
-.icon-btn {
-    width: 36px;
-    height: 36px;
-    border: 2px solid #f093fb;
-    background: white;
-    color: #f093fb;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    line-height: 1;
-}
-
-.icon-btn:hover {
-    background: #f093fb;
-    color: white;
-    transform: scale(1.1);
-}
-
-.stats {
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-.stat-item {
-    text-align: center;
-    min-width: 70px;
-}
-
-.stat-item .label {
-    display: block;
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-
-.stat-item .value {
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
-}
-
-.stat-item.x .value {
-    color: #667eea;
-}
-
-.stat-item.o .value {
-    color: #f5576c;
-}
-
-.settings-row {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.setting-group {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-}
-
-.setting-label {
-    font-size: 13px;
-    color: #666;
-    font-weight: 600;
-    margin-right: 5px;
-}
-
-.setting-btn {
-    padding: 6px 14px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    color: #666;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.setting-btn:hover {
-    border-color: #f093fb;
-    color: #f093fb;
-}
-
-.setting-btn.active {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    border-color: transparent;
-    color: white;
-}
-
-.board-wrapper {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.board {
-    display: grid;
-    gap: 8px;
-    padding: 12px;
-    background: #f8f9fa;
-    border-radius: 15px;
-}
-
-.cell {
-    aspect-ratio: 1;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    min-width: 60px;
-    min-height: 60px;
-}
-
-.cell:hover:not(.filled) {
-    background: #f0f0f8;
-    transform: scale(1.03);
-}
-
-.cell.x {
-    color: #667eea;
-    animation: popIn 0.3s ease;
-}
-
-.cell.o {
-    color: #f5576c;
-    animation: popIn 0.3s ease;
-}
-
-.cell.winning {
-    background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
-    animation: winPulse 0.6s ease infinite;
-}
-
-.cell.winning.x,
-.cell.winning.o {
-    color: #333;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-@keyframes winPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.status {
-    text-align: center;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 15px;
-    min-height: 30px;
-}
-
-.status .player-x {
-    color: #667eea;
-}
-
-.status .player-o {
-    color: #f5576c;
-}
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-}
-
-.modal.hidden {
-    display: none;
-}
-
-.modal-content {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: modalIn 0.3s ease;
-}
-
-@keyframes modalIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.modal-content h2 {
-    color: #333;
-    font-size: 2rem;
-    margin-bottom: 15px;
-}
-
-.modal-content p {
-    color: #666;
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-}
-
-.winner-display {
-    font-size: 4rem;
-    margin: 15px 0;
-}
-
-.winner-display.x { color: #667eea; }
-.winner-display.o { color: #f5576c; }
-.winner-display.draw { color: #999; }
-
-.modal-buttons {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 25px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    padding: 12px 30px;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-    border: none;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(240, 147, 251, 0.4);
-}
-
-.btn-secondary {
-    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-}
-
-.btn-secondary:hover {
-    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
-}
-
-footer {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.reset-scores-btn {
-    padding: 8px 20px;
-    background: transparent;
-    border: 2px solid #ddd;
-    color: #999;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.reset-scores-btn:hover {
-    border-color: #f5576c;
-    color: #f5576c;
-}
-
-@media (max-width: 500px) {
-    .cell {
-        font-size: 2rem;
-        min-width: 50px;
-        min-height: 50px;
-    }
-    .header-title h1 {
-        font-size: 1.6rem;
-    }
-    .stat-item .value {
-        font-size: 18px;
-    }
-}
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>动态井字棋 X&amp;O</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-title">
-                <h1>❌⭕ 井字棋</h1>
-                <div class="header-buttons">
-                    <button id="sound-btn" class="icon-btn" title="音效开关">🔊</button>
-                    <button id="restart-btn" class="icon-btn" title="重新开始">🔄</button>
-                </div>
-            </div>
-        </header>
-
-        <main>
-            <div class="stats">
-                <div class="stat-item x">
-                    <span class="label">❌ 胜场</span>
-                    <span id="score-x" class="value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">平局</span>
-                    <span id="score-draw" class="value">0</span>
-                </div>
-                <div class="stat-item o">
-                    <span class="label">⭕ 胜场</span>
-                    <span id="score-o" class="value">0</span>
-                </div>
-            </div>
-
-            <div class="settings-row">
-                <div class="setting-group">
-                    <span class="setting-label">棋盘:</span>
-                    <button class="setting-btn active" data-size="3">3×3</button>
-                    <button class="setting-btn" data-size="4">4×4</button>
-                    <button class="setting-btn" data-size="5">5×5</button>
-                </div>
-            </div>
-
-            <div class="settings-row">
-                <div class="setting-group">
-                    <span class="setting-label">对手:</span>
-                    <button class="setting-btn active" data-mode="ai">人机</button>
-                    <button class="setting-btn" data-mode="pvp">双人</button>
-                </div>
-                <div class="setting-group" id="difficulty-group">
-                    <span class="setting-label">难度:</span>
-                    <button class="setting-btn" data-diff="easy">简单</button>
-                    <button class="setting-btn active" data-diff="medium">中等</button>
-                    <button class="setting-btn" data-diff="hard">困难</button>
-                </div>
-            </div>
-
-            <div class="status" id="status">
-                <span class="player-x">❌</span> 的回合
-            </div>
-
-            <div class="board-wrapper">
-                <div class="board" id="board"></div>
-            </div>
-
-            <div style="text-align:center; margin-top: 10px;">
-                <button id="reset-scores" class="reset-scores-btn">重置比分</button>
-            </div>
-        </main>
-    </div>
-
-    <div id="result-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2 id="result-title">游戏结束</h2>
-            <div id="winner-display" class="winner-display">❌</div>
-            <p id="result-text">获胜！</p>
-            <div class="modal-buttons">
-                <button id="play-again-btn" class="btn">🔄 再来一局</button>
-                <button id="close-modal-btn" class="btn btn-secondary">关闭</button>
-            </div>
+  <div id="app" class="app">
+    <div class="layout desktop" id="layout">
+      <header class="top-bar">
+        <div class="top-title">
+          <h1 class="title-main">动态井字棋</h1>
+          <div class="title-mode" id="titleMode">常规模式</div>
         </div>
+        <div class="top-actions">
+          <button class="icon-btn" id="btnMode" title="游戏模式" aria-label="游戏模式">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11c1.66 0 3-1.34 3-3S7.66 5 6 5 3 6.34 3 8s1.34 3 3 3z"/><path d="M18 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/><path d="M12 19c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
+          </button>
+          <button class="icon-btn" id="btnHelp" title="游戏玩法" aria-label="游戏玩法">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+          <button class="icon-btn" id="btnSettings" title="设置" aria-label="设置">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="status-bar">
+        <span class="status-text" id="statusText">轮到 X 方</span>
+      </div>
+
+      <div class="freeze-hint" id="freezeHint" hidden>
+        <span>请选择要固定的空格子</span>
+        <button class="hint-cancel" id="btnCancelFreeze">取消</button>
+      </div>
+
+      <main class="main-area">
+        <aside class="ability-panel ability-panel-x" id="panelX" hidden>
+          <div class="ability-title player-x">X</div>
+          <div class="ability-buttons">
+            <button class="ability-btn undo" id="btnUndoX" data-player="X">
+              <span class="ability-icon">↶</span>
+              <span class="ability-label">撤回 <span class="ability-count" id="countUndoX">1</span></span>
+            </button>
+            <button class="ability-btn freeze" id="btnFreezeX" data-player="X">
+              <span class="ability-icon">🔒</span>
+              <span class="ability-label">固定 <span class="ability-count" id="countFreezeX">1</span></span>
+            </button>
+          </div>
+        </aside>
+
+        <div class="board-wrapper">
+          <div class="board" id="board"></div>
+        </div>
+
+        <aside class="ability-panel ability-panel-o" id="panelO" hidden>
+          <div class="ability-title player-o">O</div>
+          <div class="ability-buttons">
+            <button class="ability-btn undo" id="btnUndoO" data-player="O">
+              <span class="ability-icon">↶</span>
+              <span class="ability-label">撤回 <span class="ability-count" id="countUndoO">1</span></span>
+            </button>
+            <button class="ability-btn freeze" id="btnFreezeO" data-player="O">
+              <span class="ability-icon">🔒</span>
+              <span class="ability-label">固定 <span class="ability-count" id="countFreezeO">1</span></span>
+            </button>
+          </div>
+        </aside>
+      </main>
+
+      <footer class="action-bar">
+        <button class="action-btn" id="btnUndo" hidden>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 3L3 13"/></svg>
+          撤回
+        </button>
+        <button class="action-btn reset" id="btnReset">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          重新开始
+        </button>
+      </footer>
     </div>
 
-    <script>
-(function() {
-    const boardEl = document.getElementById('board');
-    const statusEl = document.getElementById('status');
-    const scoreXEl = document.getElementById('score-x');
-    const scoreOEl = document.getElementById('score-o');
-    const scoreDrawEl = document.getElementById('score-draw');
-    const soundBtn = document.getElementById('sound-btn');
-    const restartBtn = document.getElementById('restart-btn');
-    const resetScoresBtn = document.getElementById('reset-scores');
+    <!-- 游戏模式选择对话框 -->
+    <div class="modal" id="modeModal" hidden>
+      <div class="modal-mask"></div>
+      <div class="modal-dialog mode-dialog">
+        <h2 class="modal-title">选择游戏模式</h2>
+        <div class="mode-tile" data-mode="normal">
+          <div class="mode-icon mode-icon-normal">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </div>
+          <div class="mode-info">
+            <div class="mode-name">常规模式</div>
+            <div class="mode-desc">标准动态井字棋，支持撤回和重新开始</div>
+          </div>
+          <div class="mode-check" data-mode="normal">✓</div>
+        </div>
+        <div class="mode-tile" data-mode="fun">
+          <div class="mode-icon mode-icon-fun">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11c1.66 0 3-1.34 3-3S7.66 5 6 5 3 6.34 3 8s1.34 3 3 3z"/><path d="M18 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/><path d="M12 19c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
+          </div>
+          <div class="mode-info">
+            <div class="mode-name">趣味模式</div>
+            <div class="mode-desc">每位玩家拥有一次撤回和固定机会</div>
+          </div>
+          <div class="mode-check" data-mode="fun">✓</div>
+        </div>
+      </div>
+    </div>
 
-    const resultModal = document.getElementById('result-modal');
-    const resultTitle = document.getElementById('result-title');
-    const winnerDisplay = document.getElementById('winner-display');
-    const resultText = document.getElementById('result-text');
-    const playAgainBtn = document.getElementById('play-again-btn');
-    const closeModalBtn = document.getElementById('close-modal-btn');
+    <!-- 帮助对话框 -->
+    <div class="modal" id="helpModal" hidden>
+      <div class="modal-mask" data-close></div>
+      <div class="modal-dialog help-dialog">
+        <button class="help-close" data-close aria-label="关闭">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <h2 class="modal-title" id="helpTitle">游戏玩法</h2>
+        <div class="help-pages" id="helpPages">
+          <div class="help-page active" data-page="0">
+            <h3 class="help-subtitle">游戏简介</h3>
+            <p><strong>X&amp;O - 动态井字棋</strong>，一款打破传统井字棋僵局的创新策略游戏。</p>
+            <h3 class="help-subtitle">游戏目标</h3>
+            <p>在棋盘上抢先将自己的 3 个棋子连成一条直线（横向、纵向或斜向对角线）即可获胜。</p>
+            <h3 class="help-subtitle">基本规则</h3>
+            <ul>
+              <li><strong>玩家：</strong>X（蓝色）先手，O（橙色）后手，轮流行动</li>
+              <li><strong>棋盘：</strong>3×3 共 9 个格子，点击任意空白格子即可落子</li>
+              <li><strong>动态棋子：</strong>每名玩家最多同时存在 3 个棋子，超过后最早放置的棋子会自动移除</li>
+              <li><strong>胜负判定：</strong>先将 3 子连成一线者获胜，游戏可无限进行直到分出胜负</li>
+            </ul>
+            <h3 class="help-subtitle">策略提示</h3>
+            <ul>
+              <li>由于棋子会被移除，防守往往比进攻更重要</li>
+              <li>注意观察自己和对手的棋子放置顺序（右下角数字表示新旧）</li>
+              <li>利用"旧棋子会被移除"的规则，可故意让对手误以为自己在连成一线</li>
+            </ul>
+          </div>
+          <div class="help-page" data-page="1">
+            <h3 class="help-subtitle">常规模式</h3>
+            <p>标准动态井字棋玩法，底部操作栏提供"撤回"和"重新开始"按钮。</p>
+            <ul>
+              <li><strong>撤回：</strong>可随时撤回上一步操作，不限次数</li>
+              <li><strong>重新开始：</strong>立即清空棋盘，从初始状态重新开始</li>
+            </ul>
+            <h3 class="help-subtitle">趣味模式</h3>
+            <p>每位玩家各拥有一次"撤回"和"固定"特殊能力，策略性更强。</p>
+            <ul>
+              <li><strong>撤回键（×1）：</strong>仅可撤回自己的上一步操作，使用后次数消耗</li>
+              <li><strong>固定键（×1）：</strong>点击后选择一个空格子，该格子在对方下一次落子后解除锁定</li>
+              <li><strong>固定效果：</strong>被固定的格子无法放置棋子，显示对应玩家颜色边框与 🔒 图标</li>
+              <li><strong>取消固定：</strong>在选择目标阶段可点击"取消"按钮或再次点击固定键取消</li>
+            </ul>
+            <h3 class="help-subtitle">模式切换</h3>
+            <p>点击右上角第一个图标按钮可随时切换游戏模式，切换后棋盘会重置。</p>
+          </div>
+          <div class="help-page" data-page="2">
+            <h3 class="help-subtitle">祝您游玩愉快！</h3>
+            <p>感谢您选择 <strong>X&amp;O 动态井字棋</strong>。</p>
+            <p>这款游戏融合了经典井字棋的策略性与动态棋子机制的创新性，希望能为您带来不一样的游戏体验。</p>
+            <h3 class="help-subtitle">小贴士</h3>
+            <ul>
+              <li>使用键盘 ← → 方向键可翻页浏览本说明，↑ ↓ 方向键可上下滚动</li>
+              <li>按 Esc 键可随时关闭此窗口</li>
+              <li>在"设置"中可以调整棋盘和棋子大小</li>
+            </ul>
+            <h3 class="help-subtitle">温馨祝福</h3>
+            <p>愿您在每一局游戏中都能享受到思考的乐趣，祝您游玩愉快，再见！🎮</p>
+          </div>
+        </div>
+        <div class="help-nav">
+          <button class="help-nav-btn" id="helpPrev" aria-label="上一页">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="help-dots" id="helpDots"></div>
+          <button class="help-nav-btn" id="helpNext" aria-label="下一页">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
-    const difficultyGroup = document.getElementById('difficulty-group');
+    <!-- 胜利对话框 -->
+    <div class="modal" id="winModal" hidden>
+      <div class="modal-mask"></div>
+      <div class="modal-dialog win-dialog">
+        <h2 class="modal-title" id="winTitle">X 方获胜！</h2>
+        <p class="win-sub">恭喜获胜</p>
+        <button class="modal-close primary" id="btnWinClose">再来一局</button>
+      </div>
+    </div>
 
-    let boardSize = 3;
-    let winLength = 3;
-    let board = [];
-    let currentPlayer = 'X';
-    let gameActive = true;
-    let gameMode = 'ai';
-    let aiDifficulty = 'medium';
-    let scores = { X: 0, O: 0, draw: 0 };
+    <!-- 设置对话框 -->
+    <div class="modal" id="settingsModal" hidden>
+      <div class="modal-mask" data-close></div>
+      <div class="modal-dialog settings-dialog">
+        <h2 class="modal-title">设置</h2>
+        <div class="settings-group">
+          <div class="settings-label">棋盘大小</div>
+          <div class="option-buttons">
+            <button class="option-btn" data-setting="boardSize" data-value="standard">标准款</button>
+            <button class="option-btn" data-setting="boardSize" data-value="large">大款</button>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">棋子大小</div>
+          <div class="option-buttons">
+            <button class="option-btn" data-setting="pieceSize" data-value="small">小（33%）</button>
+            <button class="option-btn" data-setting="pieceSize" data-value="standard">标准（50%）</button>
+            <button class="option-btn" data-setting="pieceSize" data-value="large">大（66%）</button>
+          </div>
+        </div>
+        <button class="modal-close" data-close>关闭</button>
+      </div>
+    </div>
+  </div>
 
-    let soundEnabled = localStorage.getItem('xandoSound') !== 'false';
-    soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-
-    let audioCtx = null;
-    function ensureAudio() {
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        return audioCtx;
-    }
-    function playSound(type) {
-        if (!soundEnabled) return;
-        const ctx = ensureAudio();
-        if (!ctx) return;
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        let freq = 440, duration = 0.1, volume = 0.15, wave = 'sine';
-        switch(type) {
-            case 'place': freq = 500; duration = 0.08; volume = 0.15; wave = 'sine'; break;
-            case 'win': freq = 800; duration = 0.3; volume = 0.2; wave = 'sine'; break;
-            case 'draw': freq = 300; duration = 0.2; volume = 0.15; wave = 'triangle'; break;
-            case 'click': freq = 600; duration = 0.05; volume = 0.1; wave = 'square'; break;
-        }
-        osc.type = wave;
-        osc.frequency.setValueAtTime(freq, now);
-        gain.gain.setValueAtTime(volume, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-        osc.start(now);
-        osc.stop(now + duration);
-    }
-
-    function initBoard() {
-        boardSize = boardSize;
-        winLength = boardSize === 3 ? 3 : boardSize === 4 ? 4 : 5;
-        board = Array(boardSize).fill(null).map(() => Array(boardSize).fill(''));
-        currentPlayer = 'X';
-        gameActive = true;
-        renderBoard();
-        updateStatus();
-    }
-
-    function renderBoard() {
-        boardEl.innerHTML = '';
-        boardEl.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
-        boardEl.style.width = `${Math.min(400, boardSize * 80)}px`;
-
-        for (let r = 0; r < boardSize; r++) {
-            for (let c = 0; c < boardSize; c++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                if (board[r][c]) {
-                    cell.classList.add('filled', board[r][c].toLowerCase());
-                    cell.textContent = board[r][c] === 'X' ? '❌' : '⭕';
-                }
-                cell.dataset.row = r;
-                cell.dataset.col = c;
-                cell.addEventListener('click', handleCellClick);
-                boardEl.appendChild(cell);
-            }
-        }
-    }
-
-    function handleCellClick(e) {
-        if (!gameActive) return;
-        const row = parseInt(e.currentTarget.dataset.row);
-        const col = parseInt(e.currentTarget.dataset.col);
-        if (board[row][col]) return;
-
-        if (gameMode === 'ai' && currentPlayer === 'O') return;
-
-        makeMove(row, col, currentPlayer);
-
-        if (!gameActive) return;
-
-        if (gameMode === 'ai' && currentPlayer === 'O') {
-            setTimeout(() => {
-                const move = getAIMove();
-                if (move) makeMove(move.row, move.col, 'O');
-            }, 300);
-        }
-    }
-
-    function makeMove(row, col, player) {
-        board[row][col] = player;
-        playSound('place');
-        renderBoard();
-
-        const winInfo = checkWin(row, col, player);
-        if (winInfo) {
-            gameActive = false;
-            highlightWinningCells(winInfo.cells);
-            scores[player]++;
-            saveScores();
-            updateScores();
-            setTimeout(() => showResult(player), 600);
-            return;
-        }
-
-        if (checkDraw()) {
-            gameActive = false;
-            scores.draw++;
-            saveScores();
-            updateScores();
-            setTimeout(() => showResult('draw'), 300);
-            return;
-        }
-
-        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-        updateStatus();
-    }
-
-    function checkWin(row, col, player) {
-        const directions = [
-            [0, 1], [1, 0], [1, 1], [1, -1]
-        ];
-
-        for (const [dr, dc] of directions) {
-            const cells = [[row, col]];
-            for (let i = 1; i < winLength; i++) {
-                const r = row + dr * i, c = col + dc * i;
-                if (r < 0 || r >= boardSize || c < 0 || c >= boardSize || board[r][c] !== player) break;
-                cells.push([r, c]);
-            }
-            for (let i = 1; i < winLength; i++) {
-                const r = row - dr * i, c = col - dc * i;
-                if (r < 0 || r >= boardSize || c < 0 || c >= boardSize || board[r][c] !== player) break;
-                cells.push([r, c]);
-            }
-            if (cells.length >= winLength) {
-                return { cells: cells.slice(0, winLength) };
-            }
-        }
-        return null;
-    }
-
-    function checkDraw() {
-        return board.every(row => row.every(cell => cell !== ''));
-    }
-
-    function highlightWinningCells(cells) {
-        const cellEls = boardEl.querySelectorAll('.cell');
-        cells.forEach(([r, c]) => {
-            const idx = r * boardSize + c;
-            cellEls[idx].classList.add('winning');
-        });
-    }
-
-    function showResult(winner) {
-        resultModal.classList.remove('hidden');
-        if (winner === 'draw') {
-            resultTitle.textContent = '🤝 平局！';
-            winnerDisplay.textContent = '🤝';
-            winnerDisplay.className = 'winner-display draw';
-            resultText.textContent = '双方势均力敌！';
-            playSound('draw');
-        } else {
-            resultTitle.textContent = '🎉 游戏结束';
-            winnerDisplay.textContent = winner === 'X' ? '❌' : '⭕';
-            winnerDisplay.className = 'winner-display ' + winner.toLowerCase();
-            resultText.textContent = `${winner === 'X' ? '❌' : '⭕'} 获胜！`;
-            playSound('win');
-        }
-    }
-
-    function updateStatus() {
-        if (gameMode === 'ai') {
-            statusEl.innerHTML = currentPlayer === 'X'
-                ? `<span class="player-x">❌</span> 你的回合`
-                : `<span class="player-o">⭕</span> AI 思考中...`;
-        } else {
-            statusEl.innerHTML = currentPlayer === 'X'
-                ? `<span class="player-x">❌</span> 的回合`
-                : `<span class="player-o">⭕</span> 的回合`;
-        }
-    }
-
-    function updateScores() {
-        scoreXEl.textContent = scores.X;
-        scoreOEl.textContent = scores.O;
-        scoreDrawEl.textContent = scores.draw;
-    }
-
-    function saveScores() {
-        localStorage.setItem('xandoScores', JSON.stringify(scores));
-    }
-
-    function loadScores() {
-        const saved = localStorage.getItem('xandoScores');
-        if (saved) scores = JSON.parse(saved);
-        updateScores();
-    }
-
-    function getAIMove() {
-        const emptyCells = [];
-        for (let r = 0; r < boardSize; r++) {
-            for (let c = 0; c < boardSize; c++) {
-                if (!board[r][c]) emptyCells.push({ row: r, col: c });
-            }
-        }
-        if (emptyCells.length === 0) return null;
-
-        if (aiDifficulty === 'easy') {
-            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        }
-
-        for (const cell of emptyCells) {
-            board[cell.row][cell.col] = 'O';
-            if (checkWin(cell.row, cell.col, 'O')) {
-                board[cell.row][cell.col] = '';
-                return cell;
-            }
-            board[cell.row][cell.col] = '';
-        }
-
-        for (const cell of emptyCells) {
-            board[cell.row][cell.col] = 'X';
-            if (checkWin(cell.row, cell.col, 'X')) {
-                board[cell.row][cell.col] = '';
-                return cell;
-            }
-            board[cell.row][cell.col] = '';
-        }
-
-        if (aiDifficulty === 'medium') {
-            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        }
-
-        const center = Math.floor(boardSize / 2);
-        let best = emptyCells[0];
-        let bestScore = -Infinity;
-        for (const cell of emptyCells) {
-            const dist = Math.abs(cell.row - center) + Math.abs(cell.col - center);
-            const score = 10 - dist + Math.random() * 2;
-            if (score > bestScore) {
-                bestScore = score;
-                best = cell;
-            }
-        }
-        return best;
-    }
-
-    document.querySelectorAll('.setting-btn[data-size]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.setting-btn[data-size]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            boardSize = parseInt(btn.dataset.size);
-            initBoard();
-        });
-    });
-
-    document.querySelectorAll('.setting-btn[data-mode]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.setting-btn[data-mode]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            gameMode = btn.dataset.mode;
-            difficultyGroup.style.display = gameMode === 'ai' ? 'flex' : 'none';
-            initBoard();
-        });
-    });
-
-    document.querySelectorAll('.setting-btn[data-diff]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.setting-btn[data-diff]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            aiDifficulty = btn.dataset.diff;
-            playSound('click');
-        });
-    });
-
-    restartBtn.addEventListener('click', () => {
-        initBoard();
-        resultModal.classList.add('hidden');
-        playSound('click');
-    });
-
-    playAgainBtn.addEventListener('click', () => {
-        initBoard();
-        resultModal.classList.add('hidden');
-    });
-
-    closeModalBtn.addEventListener('click', () => {
-        resultModal.classList.add('hidden');
-    });
-
-    resultModal.addEventListener('click', (e) => {
-        if (e.target === resultModal) resultModal.classList.add('hidden');
-    });
-
-    resetScoresBtn.addEventListener('click', () => {
-        scores = { X: 0, O: 0, draw: 0 };
-        saveScores();
-        updateScores();
-    });
-
-    soundBtn.addEventListener('click', () => {
-        soundEnabled = !soundEnabled;
-        localStorage.setItem('xandoSound', soundEnabled);
-        soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-        if (soundEnabled) playSound('click');
-    });
-
-    loadScores();
-    initBoard();
-})();
-    </script>
+  <script src="game.js"></script>
+  <script src="board.js"></script>
 </body>
 </html>
