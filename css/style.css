@@ -304,6 +304,14 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+.cover-snake {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.cover-xando {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
 .cover-coming {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
@@ -418,6 +426,16 @@ body {
 
 .tag-new {
     background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+}
+
+.tag-arcade {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+
+.tag-strategy {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     color: white;
 }
 

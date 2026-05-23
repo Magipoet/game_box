@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="api-base" content="">
     <title>记忆配对游戏</title>
     <style>
 * {
@@ -104,15 +103,19 @@ h1 {
 .level-dropdown {
     position: absolute;
     top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 0;
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     z-index: 100;
-    min-width: 140px;
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 10px;
+    max-height: 55vh;
+    overflow-y: auto;
     margin-top: 4px;
+    min-width: 420px;
 }
 
 .level-dropdown.hidden {
@@ -120,14 +123,51 @@ h1 {
 }
 
 .level-option {
-    padding: 10px 16px;
-    font-size: 14px;
+    padding: 12px 8px;
+    font-size: 15px;
     font-weight: 600;
     color: #333;
     cursor: pointer;
     transition: background 0.2s ease;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    position: relative;
+}
+
+.level-option .level-name {
+    display: block;
     text-align: center;
-    white-space: nowrap;
+    position: relative;
+    padding-left: 14px;
+}
+
+.level-option.locked .level-name::before {
+    content: '🔒';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+}
+
+.level-option .level-dims {
+    font-size: 13px;
+    font-weight: 500;
+    color: #888;
+    display: block;
+    text-align: center;
+}
+
+.level-option .level-bomb {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ff6b6b;
+    display: block;
+    text-align: center;
 }
 
 .level-option:hover {
@@ -139,6 +179,18 @@ h1 {
     color: white;
 }
 
+.level-option.active .level-name {
+    color: white;
+}
+
+.level-option.active .level-dims {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.level-option.active .level-bomb {
+    color: rgba(255, 255, 255, 0.85);
+}
+
 .level-option.locked {
     opacity: 0.5;
     cursor: not-allowed;
@@ -146,7 +198,7 @@ h1 {
 }
 
 .level-option.locked:hover {
-    background: white;
+    background: transparent;
 }
 
 .game-board {
@@ -409,21 +461,26 @@ footer {
 }
 
 .header-title {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 30px;
     margin-bottom: 20px;
+    padding: 0 10px;
 }
 
 .header-title h1 {
     margin: 0;
+    text-align: center;
 }
 
 .header-buttons {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
-    gap: 8px;
-    margin-left: 20px;
+    gap: 10px;
 }
 
 .icon-btn {
@@ -645,8 +702,47 @@ body.theme-dark .theme-name {
     color: #ddd;
 }
 
+body.theme-dark .icon-btn {
+    background: #2a2a2a;
+    border-color: #764ba2;
+    color: #764ba2;
+}
+
+body.theme-dark .icon-btn:hover {
+    background: #3a3a3a;
+    transform: scale(1.1);
+}
+
 body.theme-dark .game-board {
     background: #1e1e1e;
+}
+
+body.theme-dark .level-dropdown {
+    background: #2a2a2a;
+}
+
+body.theme-dark .level-option {
+    color: #ddd;
+}
+
+body.theme-dark .level-option:hover {
+    background: #3a3a3a;
+}
+
+body.theme-dark .level-option .level-dims {
+    color: #aaa;
+}
+
+body.theme-dark .level-option .level-name {
+    color: #ddd;
+}
+
+body.theme-dark .level-option .level-bomb {
+    color: #ff8a8a;
+}
+
+body.theme-dark .level-option.locked:hover {
+    background: transparent;
 }
 
 .settings-modal-content {
@@ -897,126 +993,6 @@ body.theme-dark .achievement-icon {
     font-weight: 500;
 }
 
-.sound-settings {
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: center;
-}
-
-.sound-toggle {
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.sound-toggle input[type="checkbox"] {
-    display: none;
-}
-
-.sound-label {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    transition: all 0.3s ease;
-}
-
-.sound-toggle input[type="checkbox"]:not(:checked) + .sound-label {
-    color: #999;
-}
-
-body.theme-dark .sound-label {
-    color: #ddd;
-}
-
-body.theme-dark .sound-toggle input[type="checkbox"]:not(:checked) + .sound-label {
-    color: #777;
-}
-
-body.theme-dark .sound-settings {
-    border-top-color: #444;
-}
-
-.bomb-settings {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #e0e0e0;
-    text-align: center;
-}
-
-.bomb-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.bomb-icon {
-    font-size: 18px;
-}
-
-.bomb-label {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-}
-
-.bomb-options {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.bomb-option {
-    padding: 6px 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 16px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: #666;
-    transition: all 0.3s ease;
-}
-
-.bomb-option:hover {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-}
-
-.bomb-option.active {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-    border-color: #ff6b6b;
-    color: white;
-}
-
-.bomb-hint {
-    font-size: 12px;
-    color: #999;
-    margin-top: 10px;
-}
-
-body.theme-dark .bomb-label {
-    color: #ddd;
-}
-
-body.theme-dark .bomb-settings {
-    border-top-color: #444;
-}
-
-body.theme-dark .bomb-option {
-    border-color: #555;
-    color: #aaa;
-}
-
-body.theme-dark .bomb-hint {
-    color: #777;
-}
-
 .card.bomb .card-front {
     background: linear-gradient(135deg, #333 0%, #000 100%);
     border-color: #ff6b6b;
@@ -1034,238 +1010,6 @@ body.theme-dark .bomb-hint {
     75% { transform: rotateY(180deg) scale(1.1) rotate(-2deg); }
     100% { transform: rotateY(180deg) scale(1); }
 }
-
-.user-area {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: 20px;
-}
-
-.user-status-btn {
-    padding: 6px 14px;
-    border: 2px solid #667eea;
-    background: white;
-    color: #667eea;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.user-status-btn:hover {
-    background: #667eea;
-    color: white;
-}
-
-body.theme-dark .user-status-btn {
-    border-color: var(--primary-color, #888);
-    color: var(--primary-color, #888);
-}
-
-body.theme-dark .user-status-btn:hover {
-    background: var(--primary-color, #888);
-    color: #2a2a2a;
-}
-
-.user-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-body.theme-dark .user-avatar {
-    background: var(--card-bg);
-}
-
-.user-dropdown {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 200;
-    min-width: 160px;
-    overflow: hidden;
-    margin-top: 4px;
-}
-
-.user-dropdown.hidden {
-    display: none;
-}
-
-body.theme-dark .user-dropdown {
-    background: #2a2a2a;
-}
-
-.user-dropdown-item {
-    padding: 12px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-body.theme-dark .user-dropdown-item {
-    color: #ddd;
-}
-
-.user-dropdown-item:hover {
-    background: #f0f0f8;
-}
-
-body.theme-dark .user-dropdown-item:hover {
-    background: #3a3a3a;
-}
-
-.login-input-group {
-    margin-bottom: 16px;
-    text-align: left;
-}
-
-.login-input-group label {
-    display: block;
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 6px;
-    font-weight: 600;
-}
-
-body.theme-dark .login-input-group label {
-    color: #ddd;
-}
-
-.login-input-group input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
-}
-
-body.theme-dark .login-input-group input {
-    background: #3a3a3a;
-    border-color: #555;
-    color: #ddd;
-}
-
-.login-input-group input:focus {
-    border-color: #667eea;
-}
-
-.login-input-group input.error {
-    border-color: #ff6b6b;
-}
-
-.login-sms-row {
-    display: flex;
-    gap: 10px;
-    align-items: stretch;
-}
-
-.login-sms-row input {
-    flex: 1;
-}
-
-.sms-btn {
-    padding: 0 16px;
-    border: 2px solid #667eea;
-    background: white;
-    color: #667eea;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-}
-
-.sms-btn:hover:not(:disabled) {
-    background: #667eea;
-    color: white;
-}
-
-.sms-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    border-color: #ccc;
-    color: #999;
-}
-
-body.theme-dark .sms-btn {
-    border-color: var(--primary-color, #888);
-    color: var(--primary-color, #888);
-    background: transparent;
-}
-
-body.theme-dark .sms-btn:hover:not(:disabled) {
-    background: var(--primary-color, #888);
-    color: #2a2a2a;
-}
-
-.login-error {
-    color: #ff6b6b;
-    font-size: 13px;
-    margin-top: 8px;
-    min-height: 18px;
-    text-align: center;
-}
-
-.login-footer-note {
-    margin-top: 16px;
-    font-size: 12px;
-    color: #999;
-}
-
-body.theme-dark .login-footer-note {
-    color: #888;
-}
-
-.sync-indicator {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 6px;
-    vertical-align: middle;
-}
-
-.sync-indicator.syncing {
-    background: #ffc107;
-    animation: pulseSync 1s infinite;
-}
-
-.sync-indicator.synced {
-    background: #28a745;
-}
-
-.sync-indicator.offline {
-    background: #999;
-}
-
-@keyframes pulseSync {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
 </style>
 </head>
 <body>
@@ -1274,16 +1018,7 @@ body.theme-dark .login-footer-note {
             <div class="header-title">
                 <h1>🎴 记忆配对游戏</h1>
                 <div class="header-buttons">
-                    <div class="user-area">
-                        <button id="user-status-btn" class="user-status-btn">
-                            <span id="sync-indicator" class="sync-indicator offline"></span>
-                            <span id="user-display-name">游客</span>
-                        </button>
-                        <div id="user-dropdown" class="user-dropdown hidden">
-                            <div id="login-dropdown-item" class="user-dropdown-item">🔐 登录账号</div>
-                            <div id="logout-dropdown-item" class="user-dropdown-item" style="display:none;">🚪 退出登录</div>
-                        </div>
-                    </div>
+                    <button id="sound-btn" class="icon-btn" title="音效开关">🔊</button>
                     <button id="help-btn" class="icon-btn" title="游戏说明">?</button>
                     <button id="settings-btn" class="icon-btn" title="设置">⚙️</button>
                 </div>
@@ -1333,6 +1068,7 @@ body.theme-dark .login-footer-note {
                     <p><strong>❌ 配对失败：</strong>卡片会在1秒后自动翻回</p>
                     <p><strong>🏆 挑战目标：</strong>用最少的步数和最短的时间完成配对</p>
                     <p><strong>🔓 解锁关卡：</strong>通关当前关卡后自动解锁下一关</p>
+                    <p><strong>💣 炸弹机制：</strong>部分关卡中会出现💣炸弹卡片，翻开两张炸弹配对会立即失败！请谨慎避开炸弹，专注于配对普通卡片</p>
                 </div>
                 <div class="modal-buttons">
                     <button id="help-close-btn" class="btn">我知道了</button>
@@ -1386,25 +1122,6 @@ body.theme-dark .login-footer-note {
                             </div>
                             <div class="theme-name">暗黑模式</div>
                         </div>
-                    </div>
-                    <div class="sound-settings">
-                        <label class="sound-toggle">
-                            <input type="checkbox" id="sound-toggle" checked>
-                            <span class="sound-label"><span id="sound-icon">🔊</span> <span id="sound-label-text">音效开启</span></span>
-                        </label>
-                    </div>
-                    <div class="bomb-settings">
-                        <div class="bomb-header">
-                            <span class="bomb-icon">💣</span>
-                            <span class="bomb-label">炸弹难度</span>
-                        </div>
-                        <div class="bomb-options" id="bomb-options">
-                            <div class="bomb-option active" data-bomb="off">关闭</div>
-                            <div class="bomb-option" data-bomb="1">💣 简单 (1对)</div>
-                            <div class="bomb-option" data-bomb="2">💣💣 中等 (2对)</div>
-                            <div class="bomb-option" data-bomb="3">💣💣💣 困难 (3对)</div>
-                        </div>
-                        <p class="bomb-hint">翻到炸弹配对则游戏失败，炸弹数量随牌数自动递增</p>
                     </div>
                 </div>
                 <div class="settings-panel" data-panel="records">
@@ -1474,29 +1191,18 @@ body.theme-dark .login-footer-note {
             </div>
         </div>
 
-        <div id="login-modal" class="modal hidden">
+        <div id="reset-progress-modal" class="modal hidden">
             <div class="modal-content">
-                <button id="close-login-modal" class="close-btn">×</button>
-                <h2>🔐 账号登录</h2>
-                <div class="login-input-group">
-                    <label>手机号</label>
-                    <input type="tel" id="login-phone" placeholder="请输入11位手机号" maxlength="11" autocomplete="tel">
-                </div>
-                <div class="login-input-group">
-                    <label>验证码</label>
-                    <div class="login-sms-row">
-                        <input type="text" id="login-code" placeholder="请输入6位验证码" maxlength="6" autocomplete="one-time-code">
-                        <button id="sms-send-btn" class="sms-btn">获取验证码</button>
-                    </div>
-                </div>
-                <div id="login-error" class="login-error"></div>
+                <h3>🔁 重置进度</h3>
+                <p>请选择要重置的范围：</p>
                 <div class="modal-buttons">
-                    <button id="login-confirm-btn" class="btn">登录</button>
-                    <button id="login-cancel-btn" class="btn btn-secondary">取消</button>
+                    <button id="reset-current-btn" class="btn btn-danger">重置本关进度</button>
+                    <button id="reset-all-btn" class="btn btn-danger">重置所有关卡进度</button>
+                    <button id="reset-cancel-btn" class="btn btn-secondary">取消</button>
                 </div>
-                <div class="login-footer-note">登录后可同步游戏进度到云端，换设备也能继续玩</div>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -1536,7 +1242,6 @@ const themes = {
 let currentTheme = 'classic';
 
 let soundEnabled = true;
-let bombDifficulty = 0;
 let regularPairs = 0;
 let audioCtx = null;
 
@@ -1672,21 +1377,13 @@ let gameStats = {
 let misses = 0;
 let newlyUnlockedAchievements = [];
 
-let currentUser = null;
-let authToken = null;
-let isGuest = true;
-let syncPending = false;
-const API_BASE = document.querySelector('meta[name="api-base"]')?.content || '';
 const STORAGE_KEYS = {
     progress: 'memoryGameProgress',
     bestScores: 'memoryGameBestScores',
     theme: 'memoryGameTheme',
     achievements: 'memoryGameAchievements',
     stats: 'memoryGameStats',
-    sound: 'memoryGameSound',
-    bomb: 'memoryGameBomb',
-    token: 'mg_token',
-    user: 'mg_user'
+    sound: 'memoryGameSound'
 };
 
 const gameBoard = document.getElementById('game-board');
@@ -1709,6 +1406,10 @@ const unlockedLevelNum = document.getElementById('unlocked-level-num');
 const confirmModal = document.getElementById('confirm-modal');
 const confirmYesBtn = document.getElementById('confirm-yes-btn');
 const confirmNoBtn = document.getElementById('confirm-no-btn');
+const resetProgressModal = document.getElementById('reset-progress-modal');
+const resetCurrentBtn = document.getElementById('reset-current-btn');
+const resetAllBtn = document.getElementById('reset-all-btn');
+const resetCancelBtn = document.getElementById('reset-cancel-btn');
 const levelBtn = document.getElementById('level-btn');
 const levelDropdown = document.getElementById('level-dropdown');
 const currentLevelLabel = document.getElementById('current-level-label');
@@ -1717,6 +1418,7 @@ const helpModal = document.getElementById('help-modal');
 const helpCloseBtn = document.getElementById('help-close-btn');
 const closeHelpModalBtn = document.getElementById('close-help-modal');
 const settingsBtn = document.getElementById('settings-btn');
+const soundBtn = document.getElementById('sound-btn');
 const settingsModal = document.getElementById('settings-modal');
 const closeSettingsModalBtn = document.getElementById('close-settings-modal');
 const themeItems = document.querySelectorAll('.theme-item');
@@ -1728,397 +1430,11 @@ const recordPairsEl = document.getElementById('record-pairs');
 const recordsPerLevelEl = document.getElementById('records-per-level');
 const achievementsGridEl = document.getElementById('achievements-grid');
 
-const loginModal = document.getElementById('login-modal');
-const closeLoginModalBtn = document.getElementById('close-login-modal');
-const loginPhoneInput = document.getElementById('login-phone');
-const loginCodeInput = document.getElementById('login-code');
-const smsSendBtn = document.getElementById('sms-send-btn');
-const loginConfirmBtn = document.getElementById('login-confirm-btn');
-const loginCancelBtn = document.getElementById('login-cancel-btn');
-const loginErrorEl = document.getElementById('login-error');
-const userStatusBtn = document.getElementById('user-status-btn');
-const userDropdown = document.getElementById('user-dropdown');
-const loginDropdownItem = document.getElementById('login-dropdown-item');
-const logoutDropdownItem = document.getElementById('logout-dropdown-item');
-const userDisplayName = document.getElementById('user-display-name');
-const syncIndicator = document.getElementById('sync-indicator');
-
 function getStorageKey(baseKey) {
-    if (isGuest || !currentUser) return baseKey;
-    var suffix = '_' + currentUser.id;
-    if (baseKey === STORAGE_KEYS.token || baseKey === STORAGE_KEYS.user) return baseKey;
-    return baseKey + suffix;
+    return baseKey;
 }
-
-function updateSyncIndicator(state) {
-    syncIndicator.className = 'sync-indicator ' + state;
-}
-
-function updateUserStatusUI() {
-    if (isGuest || !currentUser) {
-        userDisplayName.textContent = '游客';
-        loginDropdownItem.style.display = 'flex';
-        logoutDropdownItem.style.display = 'none';
-        updateSyncIndicator('offline');
-    } else {
-        var phone = currentUser.phone || '';
-        var masked = phone.length === 11 ? phone.slice(0, 3) + '****' + phone.slice(7) : phone;
-        userDisplayName.textContent = masked;
-        loginDropdownItem.style.display = 'none';
-        logoutDropdownItem.style.display = 'flex';
-        updateSyncIndicator('synced');
-    }
-}
-
-function showLoginModal() {
-    loginPhoneInput.value = '';
-    loginCodeInput.value = '';
-    loginErrorEl.textContent = '';
-    loginPhoneInput.classList.remove('error');
-    loginCodeInput.classList.remove('error');
-    loginModal.classList.remove('hidden');
-    smsSendBtn.disabled = false;
-    smsSendBtn.textContent = '获取验证码';
-}
-
-function hideLoginModal() {
-    loginModal.classList.add('hidden');
-}
-
-var smsCooldown = null;
-function sendSmsCode() {
-    var phone = loginPhoneInput.value.trim();
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-        loginPhoneInput.classList.add('error');
-        loginErrorEl.textContent = '请输入正确的11位手机号';
-        return;
-    }
-    loginPhoneInput.classList.remove('error');
-    loginErrorEl.textContent = '';
-    smsSendBtn.disabled = true;
-    var countdown = 60;
-    smsSendBtn.textContent = countdown + 's 后重试';
-    smsCooldown = setInterval(function() {
-        countdown--;
-        if (countdown <= 0) {
-            clearInterval(smsCooldown);
-            smsSendBtn.disabled = false;
-            smsSendBtn.textContent = '获取验证码';
-        } else {
-            smsSendBtn.textContent = countdown + 's 后重试';
-        }
-    }, 1000);
-    if (API_BASE) {
-        fetch(API_BASE + '/api/sms/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: phone })
-        }).then(function(res) { return res.json(); })
-          .then(function(data) {
-              if (data && data.success && data.devCode) {
-                  loginErrorEl.textContent = '开发模式：验证码为 ' + data.devCode;
-                  loginErrorEl.style.color = '#667eea';
-              }
-          }).catch(function() {});
-    } else {
-        console.log('[开发模式] 验证码已发送，测试码: 123456');
-        loginErrorEl.textContent = '开发模式：验证码为 123456';
-        loginErrorEl.style.color = '#667eea';
-    }
-}
-
-function loginWithCode() {
-    var phone = loginPhoneInput.value.trim();
-    var code = loginCodeInput.value.trim();
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-        loginPhoneInput.classList.add('error');
-        loginErrorEl.textContent = '请输入正确的11位手机号';
-        return;
-    }
-    if (code.length !== 6) {
-        loginCodeInput.classList.add('error');
-        loginErrorEl.textContent = '请输入6位验证码';
-        return;
-    }
-    loginErrorEl.style.color = '#ff6b6b';
-    loginErrorEl.textContent = '登录中...';
-    loginConfirmBtn.disabled = true;
-
-    function doLogin(userId, token) {
-        currentUser = { id: userId, phone: phone };
-        authToken = token;
-        isGuest = false;
-        localStorage.setItem(STORAGE_KEYS.token, token);
-        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(currentUser));
-        syncFromCloud();
-        updateUserStatusUI();
-        hideLoginModal();
-        loginConfirmBtn.disabled = false;
-    }
-
-    if (API_BASE) {
-        fetch(API_BASE + '/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: phone, code: code })
-        }).then(function(res) { return res.json(); })
-          .then(function(data) {
-            if (data.token && data.user) {
-                doLogin(data.user.id, data.token);
-            } else {
-                loginErrorEl.textContent = data.error || '验证码错误或已过期';
-                loginConfirmBtn.disabled = false;
-            }
-        }).catch(function() {
-            loginErrorEl.textContent = '网络错误，请重试';
-            loginConfirmBtn.disabled = false;
-        });
-    } else {
-        if (code === '123456') {
-            doLogin(phone, 'dev_token_' + phone);
-            loginErrorEl.textContent = '';
-        } else {
-            loginErrorEl.textContent = '验证码错误（开发模式请输入 123456）';
-            loginConfirmBtn.disabled = false;
-        }
-    }
-}
-
-function logout() {
-    if (!confirm('确定退出登录吗？本地数据将保留，登录后可恢复。')) return;
-    var syncPromise = syncToCloud(true);
-    var cleanup = function() {
-        currentUser = null;
-        authToken = null;
-        isGuest = true;
-        localStorage.removeItem(STORAGE_KEYS.token);
-        localStorage.removeItem(STORAGE_KEYS.user);
-        loadGameData();
-        createBoard();
-        resetStats();
-        updateDifficultyButtons();
-        updateBestScoreDisplay();
-        updateUserStatusUI();
-        userDropdown.classList.add('hidden');
-    };
-    if (syncPromise && typeof syncPromise.then === 'function') {
-        syncPromise.finally(cleanup);
-    } else {
-        cleanup();
-    }
-}
-
-function mergeGameData(localData, cloudData) {
-    if (!cloudData) return { localData: localData, merged: false };
-    var merged = {};
-    merged.unlockedLevels = Object.assign({}, cloudData.unlocked_levels || {}, localData.unlockedLevels || {});
-    merged.bestScores = {};
-    var allLevels = new Set(Object.keys(localData.bestScores || {}).concat(Object.keys(cloudData.best_scores || {})));
-    allLevels.forEach(function(lv) {
-        var localVal = localData.bestScores ? localData.bestScores[lv] : undefined;
-        var cloudVal = cloudData.best_scores ? cloudData.best_scores[lv] : undefined;
-        if (localVal !== undefined && cloudVal !== undefined) {
-            merged.bestScores[lv] = Math.min(localVal, cloudVal);
-        } else if (localVal !== undefined) {
-            merged.bestScores[lv] = localVal;
-        } else {
-            merged.bestScores[lv] = cloudVal;
-        }
-    });
-    merged.achievements = Object.assign({}, cloudData.achievements || {}, localData.achievements || {});
-    merged.gameStats = {
-        totalGames: (localData.gameStats ? localData.gameStats.totalGames : 0) + (cloudData.game_stats ? cloudData.game_stats.totalGames : 0),
-        totalTime: (localData.gameStats ? localData.gameStats.totalTime : 0) + (cloudData.game_stats ? cloudData.game_stats.totalTime : 0),
-        totalPairs: (localData.gameStats ? localData.gameStats.totalPairs : 0) + (cloudData.game_stats ? cloudData.game_stats.totalPairs : 0),
-        perLevel: Object.assign({}, (cloudData.game_stats && cloudData.game_stats.perLevel) || {}, (localData.gameStats && localData.gameStats.perLevel) || {})
-    };
-    merged.settings = cloudData.settings || localData.settings || {};
-    return { localData: merged, merged: true };
-}
-
-function collectLocalData() {
-    return {
-        unlockedLevels: unlockedLevels,
-        bestScores: bestScores,
-        achievements: achievements,
-        gameStats: gameStats,
-        settings: {
-            theme: currentTheme,
-            soundEnabled: soundEnabled,
-            bombDifficulty: bombDifficulty
-        }
-    };
-}
-
-function applyCloudData(data) {
-    if (!data) return;
-    if (data.unlocked_levels) unlockedLevels = data.unlocked_levels;
-    if (data.best_scores) bestScores = data.best_scores;
-    if (data.achievements) achievements = data.achievements;
-    if (data.game_stats) {
-        gameStats = data.game_stats;
-    }
-    if (data.settings) {
-        if (data.settings.theme && themes[data.settings.theme]) {
-            currentTheme = data.settings.theme;
-        }
-        if (data.settings.soundEnabled !== undefined) {
-            soundEnabled = data.settings.soundEnabled;
-        }
-        if (data.settings.bombDifficulty !== undefined) {
-            bombDifficulty = data.settings.bombDifficulty;
-        }
-    }
-}
-
-function toSnakeCasePayload(data) {
-    if (!data) return data;
-    return {
-        unlocked_levels: data.unlockedLevels,
-        best_scores: data.bestScores,
-        achievements: data.achievements,
-        game_stats: data.gameStats,
-        settings: data.settings
-    };
-}
-
-var syncDebounceTimer = null;
-
-function handleAuthExpired() {
-    isGuest = true;
-    currentUser = null;
-    authToken = null;
-    localStorage.removeItem(STORAGE_KEYS.token);
-    localStorage.removeItem(STORAGE_KEYS.user);
-    updateSyncIndicator('offline');
-    updateUserStatusUI();
-    console.log('[Auth] Token 已过期，已降级为游客模式');
-}
-
-function syncToCloud(isLogout) {
-    if (isGuest || !currentUser || !API_BASE) return Promise.resolve();
-    updateSyncIndicator('syncing');
-    var payload = toSnakeCasePayload(collectLocalData());
-    return fetch(API_BASE + '/api/game/data', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + authToken
-        },
-        body: JSON.stringify(payload)
-    }).then(function(res) {
-        if (res.status === 401) {
-            handleAuthExpired();
-            return;
-        }
-        updateSyncIndicator('synced');
-    }).catch(function() {
-        updateSyncIndicator('offline');
-        syncPending = true;
-    });
-}
-
-function debounceSyncToCloud(isLogout) {
-    if (isLogout) {
-        if (syncDebounceTimer) {
-            clearTimeout(syncDebounceTimer);
-            syncDebounceTimer = null;
-        }
-        syncToCloud(true);
-        return;
-    }
-    if (syncDebounceTimer) {
-        clearTimeout(syncDebounceTimer);
-    }
-    syncDebounceTimer = setTimeout(function() {
-        syncDebounceTimer = null;
-        syncToCloud(false);
-    }, 2000);
-}
-
-function syncFromCloud() {
-    if (isGuest || !currentUser || !API_BASE) return;
-    updateSyncIndicator('syncing');
-    fetch(API_BASE + '/api/game/data', {
-        headers: { 'Authorization': 'Bearer ' + authToken }
-    }).then(function(res) {
-        if (res.status === 401) {
-            handleAuthExpired();
-            throw new Error('token expired');
-        }
-        return res.json();
-      })
-      .then(function(cloudData) {
-        var localData = collectLocalData();
-        var result = mergeGameData(localData, cloudData);
-        if (result.merged) {
-            unlockedLevels = result.localData.unlockedLevels || { 0: true };
-            bestScores = result.localData.bestScores || {};
-            achievements = result.localData.achievements || {};
-            gameStats = result.localData.gameStats || { totalGames: 0, totalTime: 0, totalPairs: 0, perLevel: {} };
-            saveProgress(true);
-            localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
-            saveAchievements(true);
-            saveStats(true);
-            if (result.localData.settings) {
-                if (result.localData.settings.theme && themes[result.localData.settings.theme]) {
-                    currentTheme = result.localData.settings.theme;
-                    localStorage.setItem(getStorageKey(STORAGE_KEYS.theme), currentTheme);
-                    applyTheme(currentTheme);
-                    createBoard();
-                }
-                soundEnabled = result.localData.settings.soundEnabled !== undefined ? result.localData.settings.soundEnabled : soundEnabled;
-                localStorage.setItem(getStorageKey(STORAGE_KEYS.sound), soundEnabled ? 'true' : 'false');
-                const soundToggleEl = document.getElementById('sound-toggle');
-                const soundIconEl = document.getElementById('sound-icon');
-                const soundLabelTextEl = document.getElementById('sound-label-text');
-                if (soundToggleEl) soundToggleEl.checked = soundEnabled;
-                if (soundIconEl) soundIconEl.textContent = soundEnabled ? '🔊' : '🔇';
-                if (soundLabelTextEl) soundLabelTextEl.textContent = soundEnabled ? '音效开启' : '音效关闭';
-                bombDifficulty = result.localData.settings.bombDifficulty !== undefined ? result.localData.settings.bombDifficulty : bombDifficulty;
-                localStorage.setItem(getStorageKey(STORAGE_KEYS.bomb), bombDifficulty);
-                updateBombOptions();
-            }
-        } else if (cloudData) {
-            applyCloudData(cloudData);
-            saveProgress(true);
-            localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
-            saveAchievements(true);
-            saveStats(true);
-        }
-        syncToCloud();
-        updateSyncIndicator('synced');
-        updateUserStatusUI();
-    }).catch(function() {
-        updateSyncIndicator('offline');
-    });
-}
-
-function retrySync() {
-    if (syncPending && !isGuest && currentUser) {
-        syncPending = false;
-        syncToCloud();
-    }
-}
-
-setInterval(retrySync, 30000);
 
 function loadGameData() {
-    var savedToken = localStorage.getItem(STORAGE_KEYS.token);
-    var savedUser = localStorage.getItem(STORAGE_KEYS.user);
-    if (savedToken && savedUser) {
-        try {
-            currentUser = JSON.parse(savedUser);
-            authToken = savedToken;
-            isGuest = false;
-        } catch(e) {
-            currentUser = null;
-            authToken = null;
-            isGuest = true;
-        }
-    }
-    updateUserStatusUI();
-
     const savedScores = localStorage.getItem(getStorageKey(STORAGE_KEYS.bestScores));
     if (savedScores) {
         bestScores = JSON.parse(savedScores);
@@ -2145,37 +1461,12 @@ function loadGameData() {
     if (savedSound !== null) {
         soundEnabled = savedSound === 'true';
     }
-    const soundToggleEl = document.getElementById('sound-toggle');
-    const soundIconEl = document.getElementById('sound-icon');
-    const soundLabelTextEl = document.getElementById('sound-label-text');
-    if (soundToggleEl) {
-        soundToggleEl.checked = soundEnabled;
-        if (soundIconEl) soundIconEl.textContent = soundEnabled ? '🔊' : '🔇';
-        if (soundLabelTextEl) soundLabelTextEl.textContent = soundEnabled ? '音效开启' : '音效关闭';
-    }
-    const savedBomb = localStorage.getItem(getStorageKey(STORAGE_KEYS.bomb));
-    if (savedBomb !== null) {
-        bombDifficulty = parseInt(savedBomb);
-    }
-    updateBombOptions();
+    if (soundBtn) soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
     applyTheme(currentTheme);
-
-    if (!isGuest && currentUser && API_BASE) {
-        fetch(API_BASE + '/api/auth/me', {
-            headers: { 'Authorization': 'Bearer ' + authToken }
-        }).then(function(res) {
-            if (res.status === 401) {
-                handleAuthExpired();
-                return;
-            }
-            setTimeout(function() { syncFromCloud(); }, 500);
-        }).catch(function() {});
-    }
 }
 
 function saveProgress(silent) {
     localStorage.setItem(getStorageKey(STORAGE_KEYS.progress), JSON.stringify(unlockedLevels));
-    if (!silent) debounceSyncToCloud();
 }
 
 function unlockNextLevel(level) {
@@ -2191,11 +1482,19 @@ function resetAllProgress() {
     currentLevel = 0;
 }
 
+function resetCurrentLevelProgress() {
+    delete bestScores[currentLevel];
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
+    if (gameStats.perLevel[currentLevel]) {
+        delete gameStats.perLevel[currentLevel];
+        saveStats();
+    }
+}
+
 function saveBestScore(level, score) {
     if (!bestScores[level] || score < bestScores[level]) {
         bestScores[level] = score;
         localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
-        debounceSyncToCloud();
         return true;
     }
     return false;
@@ -2217,7 +1516,6 @@ function setTheme(themeName) {
     localStorage.setItem(getStorageKey(STORAGE_KEYS.theme), themeName);
     applyTheme(themeName);
     createBoard();
-    debounceSyncToCloud();
 }
 
 function updateThemeItems() {
@@ -2227,42 +1525,12 @@ function updateThemeItems() {
     });
 }
 
-function updateBombOptions() {
-    const options = document.querySelectorAll('.bomb-option');
-    options.forEach(opt => {
-        const val = opt.dataset.bomb === 'off' ? 0 : parseInt(opt.dataset.bomb);
-        opt.classList.toggle('active', val === bombDifficulty);
-    });
-}
-
-function setBombDifficulty(level) {
-    bombDifficulty = level;
-    localStorage.setItem(getStorageKey(STORAGE_KEYS.bomb), bombDifficulty);
-    updateBombOptions();
-    debounceSyncToCloud();
-    if (gameStarted || moves > 0) {
-        showConfirmModal();
-        confirmYesBtn.onclick = () => {
-            restartGame();
-            hideConfirmModal();
-        };
-        confirmNoBtn.onclick = hideConfirmModal;
-        confirmYesBtn.textContent = '确定重置';
-        confirmModal.querySelector('h3').textContent = '⚠️ 确认重置';
-        confirmModal.querySelector('p').textContent = '当前进度将丢失，确定重置吗？';
-    } else {
-        restartGame();
-    }
-}
-
 function saveAchievements(silent) {
     localStorage.setItem(getStorageKey(STORAGE_KEYS.achievements), JSON.stringify(achievements));
-    if (!silent) debounceSyncToCloud();
 }
 
 function saveStats(silent) {
     localStorage.setItem(getStorageKey(STORAGE_KEYS.stats), JSON.stringify(gameStats));
-    if (!silent) debounceSyncToCloud();
 }
 
 function unlockAchievement(achId) {
@@ -2347,16 +1615,16 @@ function renderRecords() {
         const rec = gameStats.perLevel[index];
         const div = document.createElement('div');
         div.className = 'level-record';
-        const bombTag = level.bomb > 0 ? ' 💣'.repeat(level.bomb) : '';
+        const bombText = level.bomb > 0 ? ` 炸弹×${level.bomb}` : '';
         if (rec) {
             div.innerHTML = `
-                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombTag}</div>
+                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombText}</div>
                 <div class="level-stats">最佳步数: <span>${rec.bestMoves || '-'}</span></div>
                 <div class="level-stats">完成次数: <span>${rec.completions || 0}</span></div>
             `;
         } else {
             div.innerHTML = `
-                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombTag}</div>
+                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombText}</div>
                 <div class="level-stats">最佳步数: <span>-</span></div>
                 <div class="level-stats">完成次数: <span>0</span></div>
             `;
@@ -2430,13 +1698,12 @@ function updateDifficultyButtons() {
         option.dataset.level = index;
         if (index === currentLevel) option.classList.add('active');
         if (!unlockedLevels[index]) option.classList.add('locked');
-        if (unlockedLevels[index]) {
-            const bombTag = level.bomb > 0 ? ' 💣'.repeat(level.bomb) : '';
-            option.textContent = `第${index + 1}关 (${level.cols}×${level.rows})${bombTag}`;
-        } else {
-            const bombTag = level.bomb > 0 ? ' 💣'.repeat(level.bomb) : '';
-            option.innerHTML = `🔒 第${index + 1}关 (${level.cols}×${level.rows})${bombTag}`;
-        }
+        const bombLine = level.bomb > 0 ? `<span class="level-bomb">炸弹×${level.bomb}</span>` : '';
+        option.innerHTML = `
+            <span class="level-name">第${index + 1}关</span>
+            <span class="level-dims">(${level.cols}×${level.rows})</span>
+            ${bombLine}
+        `;
         option.addEventListener('click', (e) => {
             e.stopPropagation();
             const lvl = parseInt(option.dataset.level);
@@ -2447,23 +1714,18 @@ function updateDifficultyButtons() {
         levelDropdown.appendChild(option);
     });
     const curLevel = gameLevels[currentLevel];
-    const curBombTag = curLevel.bomb > 0 ? ' 💣'.repeat(curLevel.bomb) : '';
-    currentLevelLabel.textContent = `第${currentLevel + 1}关 (${curLevel.cols}×${curLevel.rows})${curBombTag}`;
+    const curBombText = curLevel.bomb > 0 ? ` 炸弹×${curLevel.bomb}` : '';
+    currentLevelLabel.textContent = `第${currentLevel + 1}关 (${curLevel.cols}×${curLevel.rows})${curBombText}`;
 }
 
 function createBoard() {
     const level = gameLevels[currentLevel];
     const totalCards = level.rows * level.cols;
-    const totalPairs = totalCards / 2;
 
     let bombPairs;
     if (level.bomb > 0) {
         bombPairs = level.bomb;
         regularPairs = level.pairs;
-    } else if (bombDifficulty > 0) {
-        const maxBombPairs = Math.min(bombDifficulty, Math.floor(totalCards / 10) || 1);
-        bombPairs = Math.min(maxBombPairs, totalPairs - 1);
-        regularPairs = level.pairs - bombPairs;
     } else {
         bombPairs = 0;
         regularPairs = level.pairs;
@@ -2775,18 +2037,27 @@ restartBtn.addEventListener('click', () => {
 });
 
 resetProgressBtn.addEventListener('click', () => {
-    showConfirmModal();
-    confirmYesBtn.onclick = () => {
-        resetAllProgress();
-        updateDifficultyButtons();
-        updateBestScoreDisplay();
-        restartGame();
-        hideConfirmModal();
-    };
-    confirmNoBtn.onclick = hideConfirmModal;
-    confirmYesBtn.textContent = '确定重置';
-    confirmModal.querySelector('h3').textContent = '🔁 确认重置进度';
-    confirmModal.querySelector('p').textContent = '关卡解锁状态将被重置，但最佳步数记录会保留。确定吗？';
+    resetProgressModal.classList.remove('hidden');
+});
+
+resetCurrentBtn.addEventListener('click', () => {
+    resetCurrentLevelProgress();
+    updateDifficultyButtons();
+    updateBestScoreDisplay();
+    restartGame();
+    resetProgressModal.classList.add('hidden');
+});
+
+resetAllBtn.addEventListener('click', () => {
+    resetAllProgress();
+    updateDifficultyButtons();
+    updateBestScoreDisplay();
+    restartGame();
+    resetProgressModal.classList.add('hidden');
+});
+
+resetCancelBtn.addEventListener('click', () => {
+    resetProgressModal.classList.add('hidden');
 });
 
 playAgainBtn.addEventListener('click', restartGame);
@@ -2800,15 +2071,6 @@ const bombCloseBtn = document.getElementById('bomb-close-btn');
 if (closeBombModalBtn) closeBombModalBtn.addEventListener('click', hideBombModal);
 if (bombRetryBtn) bombRetryBtn.addEventListener('click', () => { hideBombModal(); restartGame(); });
 if (bombCloseBtn) bombCloseBtn.addEventListener('click', hideBombModal);
-
-const bombOptions = document.querySelectorAll('.bomb-option');
-bombOptions.forEach(opt => {
-    opt.addEventListener('click', () => {
-        const val = opt.dataset.bomb === 'off' ? 0 : parseInt(opt.dataset.bomb);
-        setBombDifficulty(val);
-        playSound('click');
-    });
-});
 
 levelBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -2849,17 +2111,12 @@ themeItems.forEach(item => {
     });
 });
 
-const soundToggle = document.getElementById('sound-toggle');
-const soundIcon = document.getElementById('sound-icon');
-const soundLabelText = document.getElementById('sound-label-text');
-if (soundToggle) {
-    soundToggle.addEventListener('change', () => {
-        soundEnabled = soundToggle.checked;
+if (soundBtn) {
+    soundBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
         localStorage.setItem(getStorageKey(STORAGE_KEYS.sound), soundEnabled);
-        if (soundIcon) soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
-        if (soundLabelText) soundLabelText.textContent = soundEnabled ? '音效开启' : '音效关闭';
+        soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
         if (soundEnabled) playSound('click');
-        debounceSyncToCloud();
     });
 }
 
@@ -2876,43 +2133,13 @@ document.addEventListener('click', (e) => {
     if (e.target === settingsModal) {
         settingsModal.classList.add('hidden');
     }
-    if (e.target === loginModal) {
-        loginModal.classList.add('hidden');
-    }
     const bombModal = document.getElementById('bomb-modal');
     if (e.target === bombModal) {
         bombModal.classList.add('hidden');
     }
-    if (!e.target.closest('.user-area')) {
-        userDropdown.classList.add('hidden');
+    if (e.target === resetProgressModal) {
+        resetProgressModal.classList.add('hidden');
     }
-});
-
-userStatusBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    userDropdown.classList.toggle('hidden');
-});
-
-loginDropdownItem.addEventListener('click', function() {
-    userDropdown.classList.add('hidden');
-    showLoginModal();
-});
-
-logoutDropdownItem.addEventListener('click', function() {
-    logout();
-});
-
-closeLoginModalBtn.addEventListener('click', hideLoginModal);
-loginCancelBtn.addEventListener('click', hideLoginModal);
-smsSendBtn.addEventListener('click', sendSmsCode);
-loginConfirmBtn.addEventListener('click', loginWithCode);
-
-loginCodeInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') loginWithCode();
-});
-
-loginPhoneInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') loginCodeInput.focus();
 });
 
 document.addEventListener('DOMContentLoaded', initGame);
