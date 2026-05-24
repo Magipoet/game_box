@@ -1,14 +1,14 @@
 :root {
-  --color-bg: #F5F5F5;
-  --color-board-bg: #FFFFFF;
-  --color-board-lines: #424242;
+  --color-bg: #f5f7fb;
+  --color-board-bg: #ffffff;
+  --color-board-lines: #b8b8b8;
   --color-text-primary: #212121;
-  --color-text-secondary: #757575;
-  --color-player-x: #2196F3;
-  --color-player-o: #FF9800;
+  --color-text-secondary: #666666;
+  --color-player-x: #3b82f6;
+  --color-player-o: #ef4444;
   --color-win: #4CAF50;
-  --color-btn-primary: #2196F3;
-  --color-btn-secondary: #FF9800;
+  --color-btn-primary: #3b82f6;
+  --color-btn-secondary: #ef4444;
   --color-btn-text: #FFFFFF;
   --opacity-oldest: 0.5;
   --opacity-middle: 0.75;
@@ -26,6 +26,90 @@
   --freeze-hint-height: 0px;
 }
 
+[data-theme="classic"] {
+  --color-bg: #f5f7fb;
+  --color-board-bg: #ffffff;
+  --color-board-lines: #b8b8b8;
+  --color-text-primary: #212121;
+  --color-text-secondary: #666666;
+  --color-player-x: #3b82f6;
+  --color-player-o: #ef4444;
+  --color-btn-primary: #3b82f6;
+  --color-btn-secondary: #ef4444;
+}
+
+[data-theme="orange-sea"] {
+  --color-bg: linear-gradient(135deg, #f28a48 0%, #ef5d8f 50%, #3f7ec4 100%);
+  --color-board-bg: rgba(255, 240, 230, 0.92);
+  --color-board-lines: #c9a898;
+  --color-text-primary: #212121;
+  --color-text-secondary: #666666;
+  --color-player-x: #3f7ec4;
+  --color-player-o: #ef5d8f;
+  --color-btn-primary: #ef5d8f;
+  --color-btn-secondary: #3f7ec4;
+}
+
+[data-theme="sunset"] {
+  --color-bg: linear-gradient(135deg, #e85d5d 0%, #e89200 100%);
+  --color-board-bg: rgba(255, 242, 224, 0.92);
+  --color-board-lines: #c9a878;
+  --color-text-primary: #212121;
+  --color-text-secondary: #666666;
+  --color-player-x: #d44636;
+  --color-player-o: #d9850c;
+  --color-btn-primary: #d44636;
+  --color-btn-secondary: #d9850c;
+}
+
+[data-theme="ocean"] {
+  --color-bg: linear-gradient(135deg, #5a6fd4 0%, #00b0df 100%);
+  --color-board-bg: rgba(232, 245, 255, 0.92);
+  --color-board-lines: #98b8c9;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #555555;
+  --color-player-x: #236ea1;
+  --color-player-o: #128a73;
+  --color-btn-primary: #236ea1;
+  --color-btn-secondary: #128a73;
+}
+
+[data-theme="forest"] {
+  --color-bg: linear-gradient(135deg, #0e8878 0%, #30d86e 100%);
+  --color-board-bg: rgba(235, 250, 238, 0.92);
+  --color-board-lines: #98c9a8;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #555555;
+  --color-player-x: #219a52;
+  --color-player-o: #7d3c98;
+  --color-btn-primary: #219a52;
+  --color-btn-secondary: #7d3c98;
+}
+
+[data-theme="midnight"] {
+  --color-bg: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --color-board-bg: rgba(255, 255, 255, 0.08);
+  --color-board-lines: rgba(255, 255, 255, 0.35);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.6);
+  --color-player-x: #7b68ee;
+  --color-player-o: #ff6b9d;
+  --color-btn-primary: #7b68ee;
+  --color-btn-secondary: #ff6b9d;
+}
+
+[data-theme="candy"] {
+  --color-bg: linear-gradient(135deg, #e8888c 0%, #e8b9ab 50%, #e9a8d4 100%);
+  --color-board-bg: rgba(255, 240, 248, 0.92);
+  --color-board-lines: #c9a8b8;
+  --color-text-primary: #212121;
+  --color-text-secondary: #666666;
+  --color-player-x: #cf3c84;
+  --color-player-o: #e86b98;
+  --color-btn-primary: #cf3c84;
+  --color-btn-secondary: #e86b98;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -39,7 +123,8 @@ html, body {
   padding: 0;
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background-color: var(--color-bg);
+  background: var(--color-bg);
+  background-attachment: fixed;
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -419,7 +504,7 @@ html, body {
 
 .modal-dialog {
   position: relative;
-  background: var(--color-bg);
+  background: var(--color-board-bg);
   border-radius: 20px;
   padding: 24px;
   min-width: 320px;
@@ -427,6 +512,18 @@ html, body {
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-dialog.mode-dialog {
+  background: var(--color-bg);
+}
+
+.modal-dialog.win-dialog {
+  background: var(--color-bg);
+}
+
+.modal-dialog.help-dialog {
+  background: var(--color-bg);
 }
 
 .modal-title {
@@ -678,7 +775,50 @@ html, body {
 }
 
 .settings-dialog {
-  min-width: 340px;
+  min-width: 380px;
+  width: 380px;
+  min-height: 340px;
+  background: var(--color-board-bg);
+  color: var(--color-text-primary);
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-board-lines);
+}
+
+.settings-tab {
+  flex: 1;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  margin-bottom: -1px;
+}
+
+.settings-tab:hover {
+  color: var(--color-text-primary);
+}
+
+.settings-tab.active {
+  color: var(--color-btn-primary);
+  border-bottom-color: var(--color-btn-primary);
+}
+
+.settings-page {
+  display: none;
+  min-height: 200px;
+}
+
+.settings-page.active {
+  display: block;
 }
 
 .settings-group {
@@ -708,10 +848,12 @@ html, body {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .option-btn:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .option-btn.selected {
@@ -723,6 +865,37 @@ html, body {
 .option-btn.selected[data-setting="pieceSize"] {
   background: var(--color-btn-secondary);
   border-color: var(--color-btn-secondary);
+}
+
+.option-btn.selected[data-setting="theme"] {
+  background: var(--color-btn-primary);
+  border-color: var(--color-btn-primary);
+}
+
+.theme-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+}
+
+.theme-btn .theme-preview {
+  width: 100%;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.theme-btn .theme-label {
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .modal-close {

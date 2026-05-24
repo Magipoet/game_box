@@ -197,19 +197,60 @@
       <div class="modal-mask" data-close></div>
       <div class="modal-dialog settings-dialog">
         <h2 class="modal-title">设置</h2>
-        <div class="settings-group">
-          <div class="settings-label">棋盘大小</div>
-          <div class="option-buttons">
-            <button class="option-btn" data-setting="boardSize" data-value="standard">标准款</button>
-            <button class="option-btn" data-setting="boardSize" data-value="large">大款</button>
+        <div class="settings-tabs">
+          <button class="settings-tab active" data-settings-tab="basic">基本设置</button>
+          <button class="settings-tab" data-settings-tab="theme">主题选择</button>
+        </div>
+        <div class="settings-page active" data-settings-page="basic">
+          <div class="settings-group">
+            <div class="settings-label">棋盘大小</div>
+            <div class="option-buttons">
+              <button class="option-btn" data-setting="boardSize" data-value="standard">标准款</button>
+              <button class="option-btn" data-setting="boardSize" data-value="large">大款</button>
+            </div>
+          </div>
+          <div class="settings-group">
+            <div class="settings-label">棋子大小</div>
+            <div class="option-buttons">
+              <button class="option-btn" data-setting="pieceSize" data-value="small">小（33%）</button>
+              <button class="option-btn" data-setting="pieceSize" data-value="standard">标准（50%）</button>
+              <button class="option-btn" data-setting="pieceSize" data-value="large">大（66%）</button>
+            </div>
           </div>
         </div>
-        <div class="settings-group">
-          <div class="settings-label">棋子大小</div>
-          <div class="option-buttons">
-            <button class="option-btn" data-setting="pieceSize" data-value="small">小（33%）</button>
-            <button class="option-btn" data-setting="pieceSize" data-value="standard">标准（50%）</button>
-            <button class="option-btn" data-setting="pieceSize" data-value="large">大（66%）</button>
+        <div class="settings-page" data-settings-page="theme">
+          <div class="settings-group">
+            <div class="settings-label">主题配色</div>
+            <div class="option-buttons theme-buttons">
+              <button class="option-btn theme-btn" data-setting="theme" data-value="classic">
+                <span class="theme-preview" style="background: #f5f7fb;border:1px solid #d0d0d0"></span>
+                <span class="theme-label">经典</span>
+              </button>
+              <button class="option-btn theme-btn" data-setting="theme" data-value="orange-sea">
+                <span class="theme-preview" style="background: linear-gradient(135deg,#f28a48,#ef5d8f,#3f7ec4)"></span>
+                <span class="theme-label">橘子海</span>
+              </button>
+              <button class="option-btn theme-btn" data-setting="theme" data-value="sunset">
+                <span class="theme-preview" style="background: linear-gradient(135deg,#e85d5d,#e89200)"></span>
+                <span class="theme-label">日落</span>
+              </button>
+              <button class="option-btn theme-btn" data-setting="theme" data-value="ocean">
+                <span class="theme-preview" style="background: linear-gradient(135deg,#5a6fd4,#00b0df)"></span>
+                <span class="theme-label">深海</span>
+              </button>
+              <button class="option-btn theme-btn" data-setting="theme" data-value="forest">
+                <span class="theme-preview" style="background: linear-gradient(135deg,#0e8878,#30d86e)"></span>
+                <span class="theme-label">森林</span>
+              </button>
+              <button class="option-btn theme-btn" data-setting="theme" data-value="midnight">
+                <span class="theme-preview" style="background: linear-gradient(135deg,#0f0c29,#302b63,#24243e)"></span>
+                <span class="theme-label">午夜</span>
+              </button>
+              <button class="option-btn theme-btn" data-setting="theme" data-value="candy">
+                <span class="theme-preview" style="background: linear-gradient(135deg,#e8888c,#e8b9ab,#e9a8d4)"></span>
+                <span class="theme-label">糖果</span>
+              </button>
+            </div>
           </div>
         </div>
         <button class="modal-close" data-close>关闭</button>

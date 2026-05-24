@@ -1,101 +1,110 @@
 class ThemeManager {
-    constructor() {
-        this.themes = {
-            classic: { name: '经典绿', color: '#4ade80', unlocked: true },
-            dark: { name: '暗夜紫', color: '#9333ea', unlocked: true },
-            ocean: { name: '海洋蓝', color: '#0ea5e9', unlocked: true },
-            forest: { name: '森林绿', color: '#22c55e', unlocked: true },
-            retro: { name: '复古黄', color: '#fbbf24', unlocked: true },
-            pink: { name: '粉色系', color: '#f472b6', unlocked: false, requirement: 'score_200' }
+    constructor(game, achievementManager) {
+        this.game = game;
+        this.achievementManager = achievementManager;
+        this.currentTheme = localStorage.getItem('snakeTheme') || 'classic';
+        this.themes = ['classic', 'dark', 'ocean', 'forest', 'retro', 'pink'];
+        this.themeNames = {
+            classic: '经典绿',
+            dark: '暗夜紫',
+            ocean: '海洋蓝',
+            forest: '森林绿',
+            retro: '复古黄',
+            pink: '少女粉'
         };
         
-        this.currentTheme = localStorage.getItem('snakeTheme') || 'classic';
-    }
-    
-    init(game) {
-        this.game = game;
-        this.applyTheme(this.currentTheme);
+        this.lockedThemes = {
+            dark: { achievementId: 'twenty_purple', name: '紫色传说' },
+            retro: { achievementId: 'fifty_gold', name: '黄金收藏家' }
+        };
         
-        document.querySelectorAll('.theme-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const theme = btn.dataset.theme;
-                if (this.isThemeUnlocked(theme)) {
-                    this.applyTheme(theme);
-                    localStorage.setItem('snakeTheme', theme);
-                    this.updateThemeButtons();
-                } else {
-                    this.showThemeLockMessage(theme);
-                }
-            });
-        });
-        
-        this.updateThemeButtons();
+        this.init();
     }
-    
+
+    init() {
+        this.validateCurrentTheme();
+        this.applyTheme(this.currentTheme, false);
+        this.bindEvents();
+    }
+
     isThemeUnlocked(themeName) {
-        const theme = this.themes[themeName];
-        if (!theme) return false;
-        if (theme.unlocked) return true;
-        
-        if (theme.requirement && typeof achievementManager !== 'undefined') {
-            return achievementManager.unlockedAchievements.includes(theme.requirement);
-        }
-        
-        return false;
+        if (!this.lockedThemes[themeName]) return true;
+        const achievementId = this.lockedThemes[themeName].achievementId;
+        return this.achievementManager.isAchievementUnlocked(achievementId);
     }
-    
-    applyTheme(themeName) {
-        document.body.className = '';
-        if (themeName !== 'classic') {
-            document.body.classList.add(`theme-${themeName}`);
+
+    validateCurrentTheme() {
+        if (!this.isThemeUnlocked(this.currentTheme)) {
+            this.currentTheme = 'classic';
+            localStorage.setItem('snakeTheme', 'classic');
         }
-        this.currentTheme = themeName;
     }
-    
-    updateThemeButtons() {
-        document.querySelectorAll('.theme-btn').forEach(btn => {
-            const theme = btn.dataset.theme;
-            const isUnlocked = this.isThemeUnlocked(theme);
-            
-            btn.classList.toggle('active', theme === this.currentTheme);
-            btn.classList.toggle('locked', !isUnlocked);
-            
-            const lockIcon = btn.querySelector('.lock-icon');
-            if (lockIcon) {
-                lockIcon.style.display = isUnlocked ? 'none' : 'block';
-            }
-        });
-    }
-    
-    showThemeLockMessage(themeName) {
-        const theme = this.themes[themeName];
-        if (!theme || !theme.requirement) return;
-        
-        const container = document.querySelector('.theme-toast-container');
-        if (!container) return;
-        
-        const existingToast = container.querySelector('.theme-toast');
-        if (existingToast) {
-            existingToast.remove();
-        }
-        
-        const achievement = typeof achievementManager !== 'undefined' 
-            ? achievementManager.achievements.find(a => a.id === theme.requirement)
-            : null;
-        
-        const achievementName = achievement ? achievement.name : theme.requirement;
+
+    showThemeLockToast(themeName) {
+        const lockInfo = this.lockedThemes[themeName];
+        const container = document.getElementById('themeToastContainer');
         
         const toast = document.createElement('div');
         toast.className = 'theme-toast';
         toast.innerHTML = `
             <span class="theme-toast-icon">🔒</span>
-            <span>解锁「${achievementName}」后可用</span>
+            <span>需要解锁成就「${lockInfo.name}」才能使用此主题</span>
         `;
+        
         container.appendChild(toast);
         
         setTimeout(() => {
             toast.classList.add('fade-out');
-            setTimeout(() => toast.remove(), 500);
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 500);
         }, 2000);
+    }
+
+    applyTheme(themeName, showToast = true) {
+        if (!this.isThemeUnlocked(themeName)) {
+            if (showToast) {
+                this.showThemeLockToast(themeName);
+            }
+            return;
+        }
+        
+        this.currentTheme = themeName;
+        document.body.className = '';
+        if (themeName !== 'classic') {
+            document.body.classList.add(`theme-${themeName}`);
+        }
+        localStorage.setItem('snakeTheme', themeName);
+        this.game.render();
+    }
+
+    updateThemeButtons() {
+        this.themes.forEach(theme => {
+            const btn = document.getElementById(`theme-${theme}`);
+            if (btn) {
+                btn.classList.toggle('active', theme === this.currentTheme);
+                const isLocked = !this.isThemeUnlocked(theme);
+                btn.classList.toggle('locked', isLocked);
+                
+                const lockIcon = document.getElementById(`lock-${theme}`);
+                if (lockIcon) {
+                    lockIcon.style.display = isLocked ? 'block' : 'none';
+                }
+            }
+        });
+    }
+
+    bindEvents() {
+        this.themes.forEach(theme => {
+            const btn = document.getElementById(`theme-${theme}`);
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    this.applyTheme(theme);
+                    this.updateThemeButtons();
+                });
+            }
+        });
     }
 }

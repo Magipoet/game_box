@@ -1,16 +1,13 @@
 import shutil
 import os
 
-src_dir = '/remote-home/share/lijl/task_all/6贪吃蛇'
-dst_dir = '/remote-home/share/lijl/game_box/games/snake'
+src_dir = '/remote-home/share/lijl/前端2048'
+dst_dir = '/remote-home/share/lijl/game_box/games/2048'
 
 files = [
     'index.html',
-    'js/game.js',
-    'js/app.js',
-    'js/theme.js',
-    'js/achievements.js',
-    'css/style.css',
+    'style.css',
+    'game.js',
 ]
 
 for f in files:
@@ -20,4 +17,4 @@ for f in files:
     shutil.copy2(src, dst)
     print(f'Copied: {f} ({os.path.getsize(dst)} bytes)')
 
-print('All snake game files copied successfully!')
+print('All 2048 game files copied successfully!')

@@ -26,6 +26,7 @@
     settings: {
       boardSize: 'standard',
       pieceSize: 'standard',
+      theme: localStorage.getItem('xando-theme') || 'classic',
     },
   };
 
@@ -36,6 +37,10 @@
     totalPages: 3,
     scrollDir: 0,
     scrollTimer: null,
+  };
+
+  const settingsTabState = {
+    current: 'basic',
   };
 
   function $(id) {
@@ -71,6 +76,8 @@
     els.btnWinClose = $('btnWinClose');
     els.settingsModal = $('settingsModal');
     els.optionBtns = document.querySelectorAll('.option-btn');
+    els.settingsTabs = document.querySelectorAll('.settings-tab');
+    els.settingsPages = document.querySelectorAll('.settings-page');
     els.helpPages = document.querySelectorAll('.help-page');
     els.helpPagesContainer = $('helpPages');
     els.helpPrev = $('helpPrev');
@@ -485,11 +492,18 @@
 
     els.btnSettings.addEventListener('click', () => {
       updateOptionButtons();
+      switchSettingsTab('basic');
       showModal(els.settingsModal);
     });
     els.settingsModal.querySelectorAll('[data-close]').forEach((el) =>
       el.addEventListener('click', () => hideModal(els.settingsModal))
     );
+
+    els.settingsTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        switchSettingsTab(tab.dataset.settingsTab);
+      });
+    });
 
     els.optionBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -511,6 +525,16 @@
       const setting = btn.dataset.setting;
       const value = btn.dataset.value;
       btn.classList.toggle('selected', state.settings[setting] === value);
+    });
+  }
+
+  function switchSettingsTab(tabName) {
+    settingsTabState.current = tabName;
+    els.settingsTabs.forEach((tab) => {
+      tab.classList.toggle('active', tab.dataset.settingsTab === tabName);
+    });
+    els.settingsPages.forEach((page) => {
+      page.classList.toggle('active', page.dataset.settingsPage === tabName);
     });
   }
 
@@ -565,9 +589,20 @@
     document.documentElement.style.setProperty('--piece-size-ratio', ratio);
   }
 
+  function applyTheme() {
+    const theme = state.settings.theme || 'classic';
+    if (theme === 'classic') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem('xando-theme', theme);
+  }
+
   function applySettings() {
     applyBoardSize();
     applyPieceSize();
+    applyTheme();
   }
 
   function init() {

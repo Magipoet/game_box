@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2048消消乐</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <div class="main-content">
+      <div class="board-section">
+        <div class="board-header">
+          <h1 class="game-title">2048消消乐</h1>
+          <div class="header-buttons">
+            <button class="undo-btn" id="undoBtn" title="撤回上一步" disabled>
+              <span class="undo-text">撤销</span><span class="undo-icon">↶</span>
+            </button>
+          </div>
+        </div>
+        <div class="board-wrapper" id="boardWrapper">
+          <div class="board" id="board">
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-section">
+        <div class="controls-header">
+          <button class="help-btn" id="helpBtn" title="游戏帮助">
+            <span class="help-icon">?</span>
+          </button>
+          <button class="settings-btn" id="settingsBtn" title="游戏设置">
+            <span class="settings-icon">⚙</span>
+          </button>
+        </div>
+        <div class="mode-selector">
+          <div class="mode-group">
+            <span class="mode-label">时间模式：</span>
+            <div class="mode-buttons">
+              <button class="mode-btn active" data-mode="unlimited">不限时</button>
+              <button class="mode-btn" data-mode="timed">限时10分钟</button>
+            </div>
+          </div>
+          <div class="variant-group">
+            <span class="variant-label">游戏模式：</span>
+            <div class="variant-buttons">
+              <button class="variant-btn active" data-variant="normal">普通</button>
+              <button class="variant-btn" data-variant="fun">趣味</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-panel">
+          <div class="current-score">
+            <div class="score-label">SCORE</div>
+            <div class="score-value" id="currentScore">0</div>
+          </div>
+          <div class="time-panel">
+            <div class="time-label">TIME</div>
+            <div class="time-value" id="timeDisplay">00:00</div>
+          </div>
+        </div>
+
+        <button class="new-game-btn" id="newGameBtn">新一局</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="helpModal" style="display:none;">
+    <div class="modal help-modal">
+      <div class="modal-header">
+        <h2>游戏玩法说明</h2>
+        <button class="modal-close" id="helpCloseBtn">✕</button>
+      </div>
+      <div class="modal-body" id="helpModalBody">
+        <div class="help-pages" id="helpPages">
+          <div class="help-page active">
+            <h3>🎮 游戏基本玩法</h3>
+            <div class="help-section">
+              <h4>基本规则</h4>
+              <ul>
+                <li>使用方向键（↑↓←→）或滑动屏幕移动方块</li>
+                <li>相同数字的方块碰撞时会合并为两者之和</li>
+                <li>每次有效移动后，空白处会随机出现 2 或 4</li>
+                <li>合并数字会获得分数（例如 2+2=4，获得 4 分）</li>
+                <li>点击左上角撤回按钮可回到上一步</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h4>⏱️ 时间模式</h4>
+              <ul>
+                <li>限时 10 分钟：在 10 分钟内尽可能获得高分</li>
+                <li>不限时：无时间限制，但会记录游戏时间</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h4>🎯 游戏目标</h4>
+              <ul>
+                <li>合成出 2048 即可获胜</li>
+                <li>获胜后可继续游戏挑战更高分数</li>
+                <li>棋盘被填满且无法合并任何方块时游戏结束</li>
+                <li>限时模式中时间耗尽也会结束游戏</li>
+              </ul>
+            </div>
+          </div>
+          <div class="help-page">
+            <h3>🌟 趣味模式玩法</h3>
+            <div class="help-section">
+              <h4>模式介绍</h4>
+              <ul>
+                <li>趣味模式在经典玩法基础上加入了特殊元素</li>
+                <li>让游戏更具挑战性和趣味性</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h4>🪵 木块</h4>
+              <ul>
+                <li>随机生成在棋盘上，不会被移动</li>
+                <li>显示数字表示周围需要发生的合并次数</li>
+                <li>当周围发生指定次数合并后，木块消失</li>
+                <li>每次合并可使相邻的多个木块计数 -1</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h4>❄️ 冰块区域</h4>
+              <ul>
+                <li>棋盘上有蓝色边框标记的冻结区域</li>
+                <li>数字滑入该区域后被冻结，无法再移动</li>
+                <li>冻结的数字可以参与合并</li>
+                <li>冰块区域每滑动一次倒计时 -1，最多存在 8 次滑动后消失</li>
+                <li>若冻结的数字参与了合并，冰块倒计时额外 -1（即总共 -2）</li>
+              </ul>
+            </div>
+          </div>
+          <div class="help-page">
+            <div class="help-final">
+              <div class="celebration">🎉</div>
+              <h3>祝您游玩愉快！</h3>
+              <p>愿每一次滑动都带来惊喜，</p>
+              <p>每一次合并都创造奇迹！</p>
+              <p>享受游戏，挑战自我，</p>
+              <p>创造属于你的最高分！</p>
+              <p class="signature">— 2048 消消乐</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="page-btn" id="prevPageBtn" disabled>上一页</button>
+        <div class="page-dots">
+          <span class="page-dot active" data-page="0"></span>
+          <span class="page-dot" data-page="1"></span>
+          <span class="page-dot" data-page="2"></span>
+        </div>
+        <button class="page-btn" id="nextPageBtn">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settingsModal" style="display:none;">
+    <div class="modal settings-modal">
+      <div class="modal-header">
+        <h2>游戏设置</h2>
+        <button class="modal-close" id="settingsCloseBtn">✕</button>
+      </div>
+      <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="records">游戏记录</button>
+        <button class="settings-tab" data-tab="achievements">成就</button>
+      </div>
+      <div class="modal-body" id="settingsModalBody">
+        <div class="settings-page active" id="recordsPage">
+          <h3 class="settings-section-title">最高分记录</h3>
+          <div class="score-grid">
+            <div class="score-item">
+              <span class="score-item-label">限时·普通</span>
+              <span class="score-item-value" id="timedNormalHighest">0</span>
+            </div>
+            <div class="score-item">
+              <span class="score-item-label">限时·趣味</span>
+              <span class="score-item-value" id="timedFunHighest">0</span>
+            </div>
+            <div class="score-item">
+              <span class="score-item-label">不限时·普通</span>
+              <span class="score-item-value" id="unlimitedNormalHighest">0</span>
+            </div>
+            <div class="score-item">
+              <span class="score-item-label">不限时·趣味</span>
+              <span class="score-item-value" id="unlimitedFunHighest">0</span>
+            </div>
+          </div>
+          <h3 class="settings-section-title">最快通关记录</h3>
+          <div class="best-times">
+            <div class="best-time-item">
+              <span class="best-time-label">不限时·普通最快</span>
+              <span class="best-time-value" id="unlimitedNormalBestTime">--:--</span>
+            </div>
+            <div class="best-time-item">
+              <span class="best-time-label">不限时·趣味最快</span>
+              <span class="best-time-value" id="unlimitedFunBestTime">--:--</span>
+            </div>
+            <div class="best-time-item">
+              <span class="best-time-label">限时·普通最快</span>
+              <span class="best-time-value" id="timedNormalBestTime">--:--</span>
+            </div>
+            <div class="best-time-item">
+              <span class="best-time-label">限时·趣味最快</span>
+              <span class="best-time-value" id="timedFunBestTime">--:--</span>
+            </div>
+          </div>
+        </div>
+        <div class="settings-page" id="achievementsPage">
+          <div class="achievements-grid" id="achievementsGrid">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn primary" id="settingsCloseFooterBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="winModal" style="display:none;">
+    <div class="modal win-modal">
+      <div class="modal-header">
+        <h2>🎉 恭喜获胜！</h2>
+      </div>
+      <div class="modal-body">
+        <p>你成功合成了 2048！</p>
+        <div class="win-stats">
+          <div class="stat-item">
+            <span class="stat-label">当前得分</span>
+            <span class="stat-value" id="winScore">0</span>
+          </div>
+          <div class="stat-item" id="winTimeItem">
+            <span class="stat-label">用时</span>
+            <span class="stat-value" id="winTime">00:00</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn secondary" id="continueBtn">继续游戏</button>
+        <button class="modal-btn primary" id="winNewGameBtn">新游戏</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="gameOverModal" style="display:none;">
+    <div class="modal gameover-modal">
+      <div class="modal-header">
+        <h2>游戏结束</h2>
+      </div>
+      <div class="modal-body">
+        <p class="gameover-reason" id="gameOverReason">无法继续移动了</p>
+        <div class="gameover-stats">
+          <div class="stat-item">
+            <span class="stat-label">最终得分</span>
+            <span class="stat-value" id="gameOverScore">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">最大数字</span>
+            <span class="stat-value" id="gameOverMaxTile">0</span>
+          </div>
+        </div>
+        <div class="gameover-time" id="gameOverTimeItem" style="display:none;">
+          <span class="gameover-time-label">用时</span>
+          <span class="gameover-time-value" id="gameOverTime">00:00</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn secondary" id="closeGameOverBtn">关闭</button>
+        <button class="modal-btn primary" id="gameOverNewGameBtn">新游戏</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="achievement-toast" id="achievementToast" style="display:none;">
+    <div class="achievement-toast-icon">🏆</div>
+    <div class="achievement-toast-content">
+      <div class="achievement-toast-title" id="achievementToastTitle">成就解锁</div>
+      <div class="achievement-toast-desc" id="achievementToastDesc">描述</div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
