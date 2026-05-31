@@ -53,24 +53,24 @@
   }
 
   .board {
-    width: min(88vw, 400px);
-    height: min(88vw, 400px);
+    width: min(92vw, 420px);
+    height: min(92vw, 420px);
     padding: 8px;
   }
 
   .board-header {
     margin-bottom: 4px;
     width: 100%;
-    max-width: min(88vw, 400px);
+    max-width: min(92vw, 420px);
   }
 
   .controls-section {
     flex: 0 1 auto;
-    max-height: 32vh;
+    max-height: 28vh;
     overflow-y: auto;
     overflow-x: hidden;
-    gap: 6px;
-    padding: 4px 0 2px;
+    gap: 4px;
+    padding: 0 0 2px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     order: 1;

@@ -95,12 +95,14 @@
     if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
 
     if (position === 'top' && targetEl) {
-      if (top + tooltipHeight > targetRect.top - gap) {
+      var spaceAbove = targetRect.top - gap - 16;
+      if (spaceAbove >= tooltipHeight) {
         top = targetRect.top - tooltipHeight - gap;
-        if (top < 16) {
-          tooltipHeight = Math.max(100, targetRect.top - gap - 16);
-          top = 16;
-        }
+      } else {
+        position = 'bottom';
+        top = targetRect.bottom + gap;
+        tooltip.classList.remove('arrow-bottom');
+        tooltip.classList.add('arrow-top');
       }
     }
 
