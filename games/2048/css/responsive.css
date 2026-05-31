@@ -34,7 +34,7 @@
   .main-content {
     height: 100%;
     justify-content: space-between;
-    gap: 8px;
+    gap: 4px;
     overflow: hidden;
   }
 
@@ -56,7 +56,7 @@
   }
 
   .board-header {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     width: 100%;
     max-width: min(96vw, 420px);
   }
@@ -65,8 +65,8 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    gap: 10px;
-    padding-bottom: 10px;
+    gap: 8px;
+    padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
   }
