@@ -17,7 +17,7 @@
 
 @media (max-width: 700px) {
   body {
-    padding: 4px;
+    padding: 0 4px 4px;
     height: 100vh;
     height: 100dvh;
     overflow: hidden;

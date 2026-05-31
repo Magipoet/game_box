@@ -89,11 +89,6 @@
         break;
     }
 
-    if (left < 16) left = 16;
-    if (left + tooltipWidth > window.innerWidth - 16) left = window.innerWidth - tooltipWidth - 16;
-    if (top < 16) top = 16;
-    if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
-
     if (position === 'top' && targetEl) {
       var spaceAbove = targetRect.top - gap - 16;
       if (spaceAbove >= tooltipHeight) {
@@ -105,6 +100,21 @@
         tooltip.classList.add('arrow-top');
       }
     }
+
+    if (position === 'bottom' && targetEl) {
+      var spaceBelow = window.innerHeight - targetRect.bottom - gap - 16;
+      if (spaceBelow < tooltipHeight) {
+        position = 'top';
+        top = targetRect.top - tooltipHeight - gap;
+        tooltip.classList.remove('arrow-top');
+        tooltip.classList.add('arrow-bottom');
+      }
+    }
+
+    if (left < 16) left = 16;
+    if (left + tooltipWidth > window.innerWidth - 16) left = window.innerWidth - tooltipWidth - 16;
+    if (top < 16) top = 16;
+    if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
 
     var targetCenterX = targetRect.left + targetRect.width / 2;
     var targetCenterY = targetRect.top + targetRect.height / 2;
