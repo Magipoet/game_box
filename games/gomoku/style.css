@@ -1353,13 +1353,14 @@ canvas {
 
 @media (max-width: 768px) {
   .app {
-    padding: 10px;
+    padding: 6px;
   }
 
   .top-bar {
-    padding: 10px 14px;
+    padding: 10px 12px;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 10px;
   }
 
   .top-title {
@@ -1394,8 +1395,20 @@ canvas {
     height: 20px;
   }
 
+  .main-area {
+    padding: 4px 0;
+  }
+
   .board-wrapper {
-    padding: 10px;
+    padding: 6px;
+    border-width: 3px;
+  }
+
+  .board-wrapper::before {
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
   }
 
   canvas {

@@ -15,12 +15,16 @@
 
   function resizeCanvas() {
     var wrapper = state.canvas.parentElement;
-    var maxWidth = Math.min(wrapper.clientWidth - 40, 600);
+    var isMobile = window.innerWidth <= 768;
+    var marginOffset = isMobile ? 12 : 40;
+    var maxWidth = Math.min(wrapper.clientWidth - marginOffset, 600);
     var size = Math.max(300, maxWidth);
-    var cellSize = Math.floor(size / (G.BOARD_SIZE + 1));
-    var padding = cellSize;
-    state.canvas.width = cellSize * (G.BOARD_SIZE + 1);
-    state.canvas.height = cellSize * (G.BOARD_SIZE + 1);
+    var paddingRatio = isMobile ? 0.5 : 1;
+    var divisor = G.BOARD_SIZE + paddingRatio * 2;
+    var cellSize = Math.floor(size / divisor);
+    var padding = cellSize * paddingRatio;
+    state.canvas.width = cellSize * G.BOARD_SIZE + padding * 2;
+    state.canvas.height = cellSize * G.BOARD_SIZE + padding * 2;
     state.cellSize = cellSize;
     state.padding = padding;
 
@@ -28,8 +32,8 @@
       state.bgCanvas = document.createElement('canvas');
       state.bgCtx = state.bgCanvas.getContext('2d');
     }
-    state.bgCanvas.width = size;
-    state.bgCanvas.height = size;
+    state.bgCanvas.width = state.canvas.width;
+    state.bgCanvas.height = state.canvas.height;
     renderBackgroundToCache();
 
     if (state.board) { draw(); }
