@@ -20,11 +20,11 @@
     var maxWidth = Math.min(wrapper.clientWidth - marginOffset, 600);
     var size = Math.max(300, maxWidth);
     var paddingRatio = isMobile ? 0.5 : 1;
-    var divisor = G.BOARD_SIZE + paddingRatio * 2;
+    var divisor = (G.BOARD_SIZE - 1) + paddingRatio * 2;
     var cellSize = Math.floor(size / divisor);
     var padding = cellSize * paddingRatio;
-    state.canvas.width = cellSize * G.BOARD_SIZE + padding * 2;
-    state.canvas.height = cellSize * G.BOARD_SIZE + padding * 2;
+    state.canvas.width = cellSize * (G.BOARD_SIZE - 1) + padding * 2;
+    state.canvas.height = cellSize * (G.BOARD_SIZE - 1) + padding * 2;
     state.cellSize = cellSize;
     state.padding = padding;
 

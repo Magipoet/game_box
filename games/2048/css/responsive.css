@@ -18,52 +18,97 @@
 @media (max-width: 700px) {
   body {
     padding: 8px;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
 
   .game-container {
-    flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .main-content {
-    flex: 1;
+    height: 100%;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
+    overflow: hidden;
   }
 
   .game-title {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .board {
-    width: 360px;
-    height: 360px;
+    width: 340px;
+    height: 340px;
     padding: 8px;
   }
 
   .board-section {
-    margin-top: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .controls-section {
-    gap: 12px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 10px;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .controls-section::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .controls-section::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+  }
+
+  .controls-section::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
   }
 
   .board-header {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    width: 100%;
+    max-width: 340px;
   }
 
   .mode-selector {
-    padding: 14px;
+    padding: 12px;
+  }
+
+  .mode-label,
+  .variant-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .mode-btn,
+  .variant-btn {
+    padding: 10px 12px;
+    font-size: 14px;
   }
 
   .current-score,
   .time-panel {
-    padding: 14px;
+    padding: 12px;
+  }
+
+  .score-label,
+  .time-label {
+    font-size: 12px;
   }
 
   .controls-header {
@@ -71,12 +116,26 @@
     margin-bottom: 0;
   }
 
+  .game-buttons {
+    margin-bottom: 6px;
+  }
+
+  .pause-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .new-game-btn {
+    padding: 12px;
+    font-size: 18px;
+  }
+
   .tile {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .tile.wood-block .wood-label {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .tile[data-value="128"],
@@ -91,7 +150,7 @@
   body.theme-forest .tile[data-value="128"],
   body.theme-forest .tile[data-value="256"],
   body.theme-forest .tile[data-value="512"] {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .tile[data-value="1024"],
@@ -102,12 +161,12 @@
   body.theme-forest .tile[data-value="1024"],
   body.theme-forest .tile[data-value="2048"],
   .tile[data-value="2048"] {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .score-value,
   .time-value {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .achievement-category-tabs {
