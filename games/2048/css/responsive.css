@@ -33,14 +33,13 @@
 
   .main-content {
     height: 100%;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 4px;
+    justify-content: space-between;
+    gap: 8px;
     overflow: hidden;
   }
 
   .game-title {
-    font-size: 22px;
+    font-size: 26px;
   }
 
   .board-section {
@@ -57,7 +56,7 @@
   }
 
   .board-header {
-    margin-bottom: 4px;
+    margin-bottom: 8px;
     width: 100%;
     max-width: min(96vw, 420px);
   }
@@ -66,8 +65,8 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    gap: 6px;
-    padding: 4px 0 4px;
+    gap: 10px;
+    padding-bottom: 10px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
   }
@@ -87,45 +86,29 @@
   }
 
   .mode-selector {
-    padding: 8px;
+    padding: 12px;
   }
 
   .mode-label,
   .variant-label {
-    font-size: 12px;
-    margin-bottom: 4px;
-  }
-
-  .mode-group,
-  .variant-group {
-    margin-bottom: 6px;
-  }
-
-  .mode-group:last-child,
-  .variant-group:last-child {
-    margin-bottom: 0;
+    font-size: 14px;
+    margin-bottom: 8px;
   }
 
   .mode-btn,
   .variant-btn {
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
   }
 
   .current-score,
   .time-panel {
-    padding: 6px 8px;
+    padding: 12px;
   }
 
   .score-label,
   .time-label {
-    font-size: 10px;
-    margin-bottom: 2px;
-  }
-
-  .score-value,
-  .time-value {
-    font-size: 18px;
+    font-size: 12px;
   }
 
   .controls-header {
@@ -134,17 +117,17 @@
   }
 
   .game-buttons {
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .pause-btn {
-    padding: 6px;
-    font-size: 12px;
+    padding: 12px;
+    font-size: 14px;
   }
 
   .new-game-btn {
-    padding: 6px;
-    font-size: 14px;
+    padding: 12px;
+    font-size: 18px;
   }
 
   .tile {
@@ -181,6 +164,11 @@
     font-size: 16px;
   }
 
+  .score-value,
+  .time-value {
+    font-size: 24px;
+  }
+
   .achievement-category-tabs {
     gap: 6px;
   }
@@ -199,9 +187,5 @@
     left: 10px;
     right: 10px;
     top: 10px;
-  }
-
-  .score-panel {
-    gap: 6px;
   }
 }
