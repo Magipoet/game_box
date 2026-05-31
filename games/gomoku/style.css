@@ -1402,6 +1402,9 @@ canvas {
   .board-wrapper {
     padding: 6px;
     border-width: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .board-wrapper::before {
@@ -1414,6 +1417,8 @@ canvas {
   canvas {
     max-width: 100%;
     height: auto;
+    display: block;
+    margin: 0 auto;
   }
 
   .action-btn {
