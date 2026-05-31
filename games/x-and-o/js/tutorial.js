@@ -94,6 +94,16 @@
     if (top < 16) top = 16;
     if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
 
+    if (position === 'top' && targetEl && targetEl.classList && targetEl.classList.contains('cell')) {
+      if (top + tooltipHeight > targetRect.top - gap) {
+        top = targetRect.top - tooltipHeight - gap;
+        if (top < 16) {
+          tooltipHeight = Math.max(100, targetRect.top - gap - 16);
+          top = 16;
+        }
+      }
+    }
+
     var targetCenterX = targetRect.left + targetRect.width / 2;
     var targetCenterY = targetRect.top + targetRect.height / 2;
     var minArrowOffset = 20;
@@ -1034,7 +1044,7 @@
           els.tutorialHighlight.style.width = (rect.width + padding * 2) + 'px';
           els.tutorialHighlight.style.height = (rect.height + padding * 2) + 'px';
         }
-        positionTutorialTooltip(rect, targetPosition);
+        positionTutorialTooltip(rect, targetPosition, targetEl);
       }
     } else {
       els.tutorialHighlight.style.display = 'none';
