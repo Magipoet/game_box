@@ -1013,7 +1013,7 @@
         var cell = document.querySelector('.cell[data-row="' + cellRow + '"][data-col="' + cellCol + '"]');
         if (cell) {
           rect = cell.getBoundingClientRect();
-          targetPosition = 'right';
+          targetPosition = window.innerWidth <= 800 ? 'top' : 'right';
           targetEl = cell;
         } else if (targetEl) {
           rect = targetEl.getBoundingClientRect();
