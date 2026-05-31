@@ -1,0 +1,229 @@
+body.theme-dark .container {
+    background: #2a2a2a;
+}
+
+body.theme-dark h1 {
+    color: #e0e0e0;
+}
+
+body.theme-dark .stat-item .label,
+body.theme-dark .current-level {
+    color: #aaa;
+}
+
+body.theme-dark .stat-item .value,
+body.theme-dark h2,
+body.theme-dark h3 {
+    color: #e0e0e0;
+}
+
+body.theme-dark .modal-content {
+    background: #2a2a2a;
+}
+
+body.theme-dark .theme-item:hover {
+    background: #3a3a3a;
+}
+
+body.theme-dark .theme-name {
+    color: #ddd;
+}
+
+body.theme-dark .icon-btn {
+    background: #2a2a2a;
+    border-color: #764ba2;
+    color: #764ba2;
+}
+
+body.theme-dark .icon-btn:hover {
+    background: #3a3a3a;
+    transform: scale(1.1);
+}
+
+body.theme-dark .game-board {
+    background: #1e1e1e;
+}
+
+body.theme-dark .level-dropdown {
+    background: #2a2a2a;
+}
+
+body.theme-dark .level-option {
+    color: #ddd;
+}
+
+body.theme-dark .level-option:hover {
+    background: #3a3a3a;
+}
+
+body.theme-dark .level-option .level-dims {
+    color: #aaa;
+}
+
+body.theme-dark .level-option .level-name {
+    color: #ddd;
+}
+
+body.theme-dark .level-option .level-bomb {
+    color: #ff8a8a;
+}
+
+body.theme-dark .level-option.locked:hover {
+    background: transparent;
+}
+
+body.theme-dark .settings-tab {
+    color: #aaa;
+}
+
+body.theme-dark .settings-tab:hover {
+    background: #3a3a3a;
+}
+
+body.theme-dark .record-item,
+body.theme-dark .level-record,
+body.theme-dark .achievement-item {
+    background: #3a3a3a;
+}
+
+body.theme-dark .record-label,
+body.theme-dark .achievement-desc {
+    color: #999;
+}
+
+body.theme-dark .record-value,
+body.theme-dark .level-record .level-stats span,
+body.theme-dark .achievement-name {
+    color: #e0e0e0;
+}
+
+body.theme-dark .level-record .level-name {
+    color: #bbb;
+}
+
+body.theme-dark .achievement-item.unlocked {
+    background: #3a3a5a;
+}
+
+body.theme-dark .achievement-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.theme-dark .tutorial-section {
+    border-top-color: #3a3a3a;
+}
+
+body.theme-dark .tutorial-desc {
+    color: #999;
+}
+
+body.theme-dark .tutorial-step {
+    background: #3a3a3a;
+    border-left-color: #667eea;
+}
+
+body.theme-dark .tutorial-step h3 {
+    color: #e0e0e0;
+}
+
+body.theme-dark .tutorial-step p {
+    color: #bbb;
+}
+
+body.theme-dark .tutorial-guide-content {
+    background: #2a2a2a;
+}
+
+body.theme-dark .tutorial-guide-title {
+    color: #e0e0e0;
+}
+
+body.theme-dark .tutorial-guide-text {
+    color: #aaa;
+}
+
+body.theme-dark .feature-item span:last-child {
+    color: #999;
+}
+
+body.theme-dark .tutorial-desc-large {
+    color: #ccc;
+}
+
+body.theme-dark .mode-toggle {
+    background: #3a3a3a;
+}
+
+body.theme-dark .mode-btn {
+    color: #aaa;
+}
+
+body.theme-dark .mode-btn:hover:not(.active) {
+    background: #4a4a4a;
+}
+
+body.theme-dark .combo-display {
+    color: #fff;
+}
+
+body.theme-dark .countdown-display {
+    color: #fff;
+}
+
+body.theme-dark .level-option.hidden-level .level-name {
+    color: #ce93d8;
+}
+
+body.theme-dark .level-option.active.hidden-level .level-name {
+    color: #f3e5f5;
+}
+
+body.theme-dark .level-option .level-locked-text {
+    color: #ffb74d;
+}
+
+body.theme-dark .level-option.active .level-locked-text {
+    color: #ffe0b2;
+}
+
+body.theme-dark .star-criteria {
+    background: #3a3a3a;
+    color: #aaa;
+}
+
+body.theme-dark .win-stats {
+    background: #3a3a3a;
+}
+
+body.theme-dark .win-stats p {
+    color: #ccc;
+}
+
+body.theme-dark .win-stats span {
+    color: #90caf9;
+}
+
+body.theme-dark .help-content p {
+    color: #bbb;
+}
+
+body.theme-dark .help-content strong {
+    color: #ddd;
+}
+
+body.theme-dark .step-reduction-bonus {
+    color: #81c784;
+}
+
+body.theme-dark .time-bonus {
+    color: #fff;
+}
+
+body.theme-dark .record-star.filled {
+    filter: drop-shadow(0 0 2px #ffd700);
+}
+
+body.theme-dark .record-star.empty {
+    opacity: 0.3;
+    filter: grayscale(1);
+}

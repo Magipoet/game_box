@@ -210,6 +210,74 @@ body {
     font-size: 1rem;
 }
 
+.search-box {
+    position: relative;
+    max-width: 480px;
+    margin: 20px auto 0;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.search-box:focus-within {
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    background: #fff;
+}
+
+.search-icon {
+    padding: 0 16px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 14px 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.search-input::placeholder {
+    color: var(--text-light);
+}
+
+.search-clear {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0 16px;
+    flex-shrink: 0;
+    transition: var(--transition);
+    line-height: 1;
+    display: none;
+}
+
+.search-clear.visible {
+    display: block;
+}
+
+.search-clear:hover {
+    color: var(--text-primary);
+}
+
+.search-no-result {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    padding: 40px 20px;
+    display: none;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -256,6 +324,10 @@ body {
 
 .game-card:nth-child(4) {
     animation-delay: 0.7s;
+}
+
+.game-card:nth-child(5) {
+    animation-delay: 0.8s;
 }
 
 @keyframes cardIn {
@@ -318,6 +390,10 @@ body {
 
 .cover-2048 {
     background: linear-gradient(135deg, #fceabb 0%, #f8b500 50%, #f7797d 100%);
+}
+
+.cover-gomoku {
+    background: linear-gradient(135deg, #dcb35c 0%, #c19a3e 50%, #8b6914 100%);
 }
 
 .cover-coming {

@@ -1,0 +1,73 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --background-color: #FAF8EF;
+  --board-background: #A89A8C;
+  --empty-tile: #9E8F80;
+  --score-background: #BBADA0;
+  --button-background: #8F7A66;
+  --text-color: #776E65;
+  --score-text-color: #FFFFFF;
+  --button-text-color: #FFFFFF;
+  --wood-block: #5D4037;
+  --frozen-glow: rgba(100, 181, 246, 0.6);
+}
+
+body.theme-dark {
+  --background-color: #1A1A2E;
+  --board-background: #16213E;
+  --empty-tile: #1E293B;
+  --score-background: #0F766E;
+  --button-background: #0F766E;
+  --text-color: #E2E8F0;
+  --score-text-color: #FFFFFF;
+  --button-text-color: #FFFFFF;
+  --wood-block: #374151;
+  --frozen-glow: rgba(251, 191, 36, 0.5);
+}
+
+body.theme-ocean {
+  --background-color: #F0F9FF;
+  --board-background: #0369A1;
+  --empty-tile: #BAE6FD;
+  --score-background: #075985;
+  --button-background: #075985;
+  --text-color: #0C4A6E;
+  --score-text-color: #FFFFFF;
+  --button-text-color: #FFFFFF;
+  --wood-block: #164E63;
+  --frozen-glow: rgba(180, 83, 9, 0.5);
+}
+
+body.theme-forest {
+  --background-color: #F7FEE7;
+  --board-background: #15803D;
+  --empty-tile: #BBF7D0;
+  --score-background: #166534;
+  --button-background: #166534;
+  --text-color: #14532D;
+  --score-text-color: #FFFFFF;
+  --button-text-color: #FFFFFF;
+  --wood-block: #3D2914;
+  --frozen-glow: rgba(79, 70, 229, 0.5);
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+html, body {
+  height: 100%;
+}

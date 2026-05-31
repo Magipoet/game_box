@@ -3,6 +3,7 @@
 
   const BOARD_SIZE = 3;
   const MAX_PIECES_PER_PLAYER = 3;
+  const PERSIST_PIECES_PER_PLAYER = 5;
   const PLAYER_X = 'X';
   const PLAYER_O = 'O';
   const MODE_NORMAL = 'normal';
@@ -37,9 +38,11 @@
       },
       waitingForFreezeTarget: false,
       funAbilities: {
-        X: { undo: 1, freeze: 1 },
-        O: { undo: 1, freeze: 1 },
+        X: { undo: 1, freeze: 1, persist: 1 },
+        O: { undo: 1, freeze: 1, persist: 1 },
       },
+      persistActive: { X: false, O: false },
+      turnCount: { X: 0, O: 0 },
       lastPlayer: null,
     };
   }
@@ -63,6 +66,8 @@
         X: { ...state.funAbilities.X },
         O: { ...state.funAbilities.O },
       },
+      persistActive: { ...state.persistActive },
+      turnCount: { ...state.turnCount },
       lastPlayer: state.lastPlayer,
     };
   }
@@ -124,12 +129,29 @@
       col,
     };
     next.board[row][col] = piece;
-    next.pieceOrder[player].push({ row, col, id: piece.id });
 
-    while (next.pieceOrder[player].length > MAX_PIECES_PER_PLAYER) {
-      const oldest = next.pieceOrder[player].shift();
-      if (next.board[oldest.row][oldest.col] && next.board[oldest.row][oldest.col].id === oldest.id) {
-        next.board[oldest.row][oldest.col] = null;
+    next.turnCount[player] += 1;
+    var isPersist = next.persistActive[player];
+    next.pieceOrder[player].push({ row: row, col: col, id: piece.id, persist: isPersist, placedTurn: next.turnCount[player] });
+    if (isPersist) {
+      next.persistActive[player] = false;
+    }
+
+    var removed = true;
+    while (removed) {
+      removed = false;
+      for (var i = 0; i < next.pieceOrder[player].length; i++) {
+        var p = next.pieceOrder[player][i];
+        var age = next.turnCount[player] - p.placedTurn + 1;
+        var maxAge = p.persist ? 5 : 3;
+        if (age > maxAge) {
+          next.pieceOrder[player].splice(i, 1);
+          if (next.board[p.row][p.col] && next.board[p.row][p.col].id === p.id) {
+            next.board[p.row][p.col] = null;
+          }
+          removed = true;
+          break;
+        }
       }
     }
 
@@ -224,8 +246,43 @@
     return next;
   }
 
+  function usePersist(state, player) {
+    if (state.gameMode !== MODE_FUN) return state;
+    if (state.gameOver) return state;
+    if (state.funAbilities[player].persist <= 0) return state;
+    if (state.persistActive[player]) return state;
+
+    var next = cloneState(state);
+    next.persistActive[player] = true;
+    next.funAbilities[player].persist -= 1;
+    return next;
+  }
+
+  function cancelPersist(state, player) {
+    if (state.gameMode !== MODE_FUN) return state;
+    if (state.gameOver) return state;
+    if (!state.persistActive[player]) return state;
+
+    var next = cloneState(state);
+    next.persistActive[player] = false;
+    next.funAbilities[player].persist += 1;
+    return next;
+  }
+
   function isCellFrozen(state, row, col) {
     return state.freeze.active && state.freeze.row === row && state.freeze.col === col;
+  }
+
+  function isPiecePersist(state, row, col) {
+    var piece = state.board[row][col];
+    if (!piece) return false;
+    var order = state.pieceOrder[piece.owner];
+    for (var i = 0; i < order.length; i++) {
+      if (order[i].id === piece.id) {
+        return order[i].persist;
+      }
+    }
+    return false;
   }
 
   function getRelativeOrder(state, piece) {
@@ -234,6 +291,17 @@
     for (let i = 0; i < order.length; i++) {
       if (order[i].id === piece.id) {
         return order.length - i;
+      }
+    }
+    return 0;
+  }
+
+  function getPieceDisplayCount(state, piece) {
+    if (!piece) return 0;
+    var order = state.pieceOrder[piece.owner];
+    for (var i = 0; i < order.length; i++) {
+      if (order[i].id === piece.id) {
+        return state.turnCount[piece.owner] - order[i].placedTurn + 1;
       }
     }
     return 0;
@@ -249,6 +317,7 @@
   const XOGame = {
     BOARD_SIZE,
     MAX_PIECES_PER_PLAYER,
+    PERSIST_PIECES_PER_PLAYER,
     PLAYER_X,
     PLAYER_O,
     MODE_NORMAL,
@@ -261,8 +330,12 @@
     startFreezeSelection,
     cancelFreezeSelection,
     setFreezeTarget,
+    usePersist,
+    cancelPersist,
     isCellFrozen,
+    isPiecePersist,
     getRelativeOrder,
+    getPieceDisplayCount,
     getPieceAge,
     getWinningLines,
   };

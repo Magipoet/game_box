@@ -5,6 +5,7 @@
         initGameCards();
         initKeyboardNavigation();
         initAnimations();
+        initSearch();
         console.log('🎮 游戏盒子已加载完成');
     });
 
@@ -136,6 +137,50 @@
             osc.start(audioCtx.currentTime);
             osc.stop(audioCtx.currentTime + 0.1);
         } catch (e) {}
+    }
+
+    function initSearch() {
+        var searchInput = document.getElementById('game-search');
+        var searchClear = document.getElementById('search-clear');
+        var noResult = document.getElementById('search-no-result');
+        var cards = document.querySelectorAll('.game-card');
+
+        if (!searchInput) return;
+
+        searchInput.addEventListener('input', function() {
+            var keyword = searchInput.value.trim().toLowerCase();
+            searchClear.classList.toggle('visible', keyword.length > 0);
+            filterCards(keyword);
+        });
+
+        searchClear.addEventListener('click', function() {
+            searchInput.value = '';
+            searchClear.classList.remove('visible');
+            filterCards('');
+            searchInput.focus();
+        });
+
+        function filterCards(keyword) {
+            var visibleCount = 0;
+            cards.forEach(function(card) {
+                if (!keyword) {
+                    card.style.display = '';
+                    visibleCount++;
+                    return;
+                }
+                var title = card.querySelector('.game-title').textContent.toLowerCase();
+                var tags = Array.from(card.querySelectorAll('.tag')).map(function(t) {
+                    return t.textContent.toLowerCase();
+                });
+                var desc = card.querySelector('.game-desc').textContent.toLowerCase();
+                var match = title.indexOf(keyword) !== -1 ||
+                    tags.some(function(tag) { return tag.indexOf(keyword) !== -1; }) ||
+                    desc.indexOf(keyword) !== -1;
+                card.style.display = match ? '' : 'none';
+                if (match) visibleCount++;
+            });
+            noResult.style.display = (keyword && visibleCount === 0) ? 'block' : 'none';
+        }
     }
 
 })();

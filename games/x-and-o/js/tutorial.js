@@ -1,0 +1,1299 @@
+(function () {
+  'use strict';
+
+  var XOApp = window.XOApp;
+  var state = XOApp.state;
+  var els = XOApp.els;
+
+  var {
+    PLAYER_X,
+    PLAYER_O,
+    MODE_NORMAL,
+    MODE_FUN,
+    makeMove,
+    usePersist,
+  } = window.XOGame;
+
+  function showTutorialCellGuide() {
+    hideTutorialCellGuide();
+    if (!state.tutorial.interactionCell) return;
+    var cell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
+    if (!cell) return;
+    var rect = cell.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+  }
+
+  function hideTutorialCellGuide() {
+    if (state.tutorial.guideElement) {
+      state.tutorial.guideElement.remove();
+      state.tutorial.guideElement = null;
+    }
+  }
+
+  function positionTutorialTooltip(targetRect, position, targetEl) {
+    var tooltip = els.tutorialTooltip;
+    var tooltipWidth = 400;
+    var tooltipHeight = 180;
+    var gap = 16;
+    var arrowOffset = 24;
+
+    if (position === 'left') {
+      tooltipWidth = 260;
+      tooltipHeight = 280;
+    }
+
+    tooltip.classList.remove('arrow-top', 'arrow-bottom', 'arrow-left', 'arrow-right');
+    tooltip.style.transform = 'none';
+    tooltip.style.setProperty('--arrow-offset-x', '24px');
+    tooltip.style.setProperty('--arrow-offset-y', '24px');
+
+    var left, top;
+
+    switch (position) {
+      case 'top':
+        left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+        top = targetRect.top - tooltipHeight - gap;
+        tooltip.classList.add('arrow-bottom');
+        break;
+      case 'bottom':
+        left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+        top = targetRect.bottom + gap;
+        tooltip.classList.add('arrow-top');
+        break;
+      case 'left':
+        left = targetRect.left - tooltipWidth - gap;
+        top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+        tooltip.classList.add('arrow-right');
+        break;
+      case 'right':
+        left = targetRect.right + gap;
+        top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+        tooltip.classList.add('arrow-left');
+        break;
+    }
+
+    if (left < 16) left = 16;
+    if (left + tooltipWidth > window.innerWidth - 16) left = window.innerWidth - tooltipWidth - 16;
+    if (top < 16) top = 16;
+    if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
+
+    var targetCenterX = targetRect.left + targetRect.width / 2;
+    var targetCenterY = targetRect.top + targetRect.height / 2;
+    var minArrowOffset = 20;
+    var maxArrowOffsetX = tooltipWidth - 20;
+    var maxArrowOffsetY = tooltipHeight - 20;
+
+    if (position === 'top' || position === 'bottom') {
+      var arrowX = targetCenterX - left - 6;
+      arrowX = Math.max(minArrowOffset, Math.min(maxArrowOffsetX, arrowX));
+      tooltip.style.setProperty('--arrow-offset-x', arrowX + 'px');
+    } else if (position === 'left' || position === 'right') {
+      var arrowY = targetCenterY - top - 6;
+      arrowY = Math.max(minArrowOffset, Math.min(maxArrowOffsetY, arrowY));
+      tooltip.style.setProperty('--arrow-offset-y', arrowY + 'px');
+    }
+
+    if (position === 'left') {
+      tooltip.style.width = tooltipWidth + 'px';
+    } else {
+      tooltip.style.width = '';
+    }
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+  }
+
+  function showTutorialUndoGuide() {
+    var targetEl = document.querySelector('#btnUndoX');
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    state.tutorial.allowedButton = '#btnUndoX';
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">撤回能力</h3><p style="margin:0;">刚刚你在右下角落下了一枚 X 棋子。<br><br>现在请点击<strong>闪烁的撤回按钮</strong>，撤回刚才的落子，观察棋子消失的效果。</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    positionTutorialTooltip(rect, 'left');
+  }
+
+  function showTutorialFreezeBtnGuide() {
+    var targetEl = document.querySelector('#btnFreezeX');
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    state.tutorial.allowedButton = '#btnFreezeX';
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">固定能力</h3><p style="margin:0;"><strong>固定</strong>：点击后选择一个空格子，对方无法在此落子，固定会在对方下一次落子后解除。<br><br>现在请点击<strong>闪烁的固定按钮</strong>，激活固定能力。</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    positionTutorialTooltip(rect, 'left');
+  }
+
+  function showTutorialFreezeCellGuide() {
+    hideTutorialCellGuide();
+    if (!state.tutorial.interactionCell) return;
+    var cell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
+    if (!cell) return;
+    var rect = cell.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">固定能力</h3><p style="margin:0;">固定能力已激活！<br><br>现在请点击棋盘上<strong>闪烁的格子</strong>，将该格子设为固定状态。</p>';
+    positionTutorialTooltip(rect, 'top');
+  }
+
+  function showTutorialCancelFreezeBtnGuide() {
+    var targetEl = document.querySelector('#btnCancelFreeze');
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    state.tutorial.allowedButton = '#btnCancelFreeze';
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">取消固定</h3><p style="margin:0;">在选择目标格子前，你可以随时<strong>取消固定</strong>操作。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>固定按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次固定操作。</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    positionTutorialTooltip(rect, 'bottom');
+  }
+
+  function showTutorialPersistBtnGuide() {
+    var targetEl = document.querySelector('#btnPersistX');
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    state.tutorial.allowedButton = '#btnPersistX';
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留能力</h3><p style="margin:0;"><strong>保留</strong>：点击激活后，下一步落子的棋子将保留五个回合，不会因为后续放置新棋子而被自动移除。<br><br>这是趣味模式中最具策略性的能力，善用它可锁定胜局！<br><br>现在请点击<strong>闪烁的保留按钮</strong>，激活保留能力。</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    positionTutorialTooltip(rect, 'left');
+  }
+
+  function showTutorialCancelPersistBtnGuide() {
+    var targetEl = document.querySelector('#btnCancelPersist');
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    state.tutorial.allowedButton = '#btnCancelPersist';
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">取消保留</h3><p style="margin:0;">在落下保留棋子前，你可以随时<strong>取消保留</strong>操作。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>保留按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次保留操作。</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    positionTutorialTooltip(rect, 'bottom');
+  }
+
+  function showTutorialHelpBtnGuide() {
+    var targetEl = document.querySelector('#btnHelp');
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    state.tutorial.allowedButton = '#btnHelp';
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">游戏帮助</h3><p style="margin:0;">点击此按钮可随时查看<strong>游戏帮助</strong>，了解完整的游戏规则和玩法说明。<br><br>现在请点击<strong>闪烁的帮助按钮</strong>，打开帮助弹窗查看。</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    positionTutorialTooltip(rect, 'bottom');
+  }
+
+  function showTutorialSettingsBtnGuide() {
+    var targetEl = document.querySelector('#btnSettings');
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    var guide = document.createElement('div');
+    guide.className = 'tutorial-cell-guide';
+    var padding = 4;
+    guide.style.left = (rect.left - padding) + 'px';
+    guide.style.top = (rect.top - padding) + 'px';
+    guide.style.width = (rect.width + padding * 2) + 'px';
+    guide.style.height = (rect.height + padding * 2) + 'px';
+    document.body.appendChild(guide);
+    state.tutorial.guideElement = guide;
+    state.tutorial.allowedButton = '#btnSettings';
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">游戏设置</h3><p style="margin:0;">点击此按钮可打开<strong>设置</strong>，调整棋盘大小、棋子大小和主题配色，也可以在这里重新查看本教程。<br><br>现在请点击<strong>闪烁的设置按钮</strong>，打开设置弹窗查看。</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    positionTutorialTooltip(rect, 'bottom');
+  }
+
+  function startPersistAutoDemo() {
+    var xMoves = [
+      { cell: [0, 1], stage: 3, text: '请点击<strong>闪烁的格子</strong>（上中）落下一枚 X 棋子。' },
+      { cell: [1, 2], stage: 4, text: '请点击<strong>闪烁的格子</strong>（右中）落下一枚 X 棋子。' },
+      { cell: [2, 1], stage: 5, text: '请点击<strong>闪烁的格子</strong>（下中）落下一枚 X 棋子。' },
+      { cell: [1, 1], stage: 6, text: '请点击<strong>闪烁的格子</strong>（中心）落下一枚 X 棋子。' },
+      { cell: [0, 1], stage: 7, text: '请点击<strong>闪烁的格子</strong>（上中）落下最后一枚 X 棋子，观察保留棋子（左下角）闪烁后消失！' },
+    ];
+    var oMoves = [[0, 0], [0, 2], [2, 2], [1, 0], [0, 0]];
+    state.tutorial.persistStepIndex = 0;
+
+    function showPersistReminder() {
+      state.tutorial.waitingForInteraction = false;
+      state.tutorial.persistStage = 9;
+      els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留效果演示</h3><p style="margin:0;">注意观察！现在 X 方已有 <strong>第4个棋子</strong>落下，普通棋子本应消失，但<strong>左下角的保留棋子（带 ⏳ 图标）</strong>依然存在！<br><br>这就是保留能力的作用：让关键位置更持久，点击"下一步"继续观看保留棋子消失的最终效果。</p>';
+      els.tutorialOverlay.classList.remove('interaction-mode');
+      hideTutorialCellGuide();
+      var persistCell = els.board.querySelector('.cell[data-row="2"][data-col="0"]');
+      if (persistCell) {
+        persistCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function showXMoveGuide() {
+      var idx = state.tutorial.persistStepIndex;
+      if (idx >= xMoves.length) {
+        setTimeout(function () {
+          els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留效果演示完成</h3><p style="margin:0;">观察到：<br>• 普通棋子3个回合后消失<br>• <strong>保留棋子5个回合后才消失</strong>（从左下角闪烁后消失）<br><br>善用保留能力可锁定关键位置，形成多子攻势！点击"下一步"继续教程。</p>';
+          state.tutorial.waitingForInteraction = false;
+          els.tutorialOverlay.classList.remove('interaction-mode');
+        }, 800);
+        return;
+      }
+      var xMove = xMoves[idx];
+      state.tutorial.waitingForInteraction = true;
+      state.tutorial.interactionCell = xMove.cell;
+      state.tutorial.persistStage = xMove.stage;
+      els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留效果演示</h3><p style="margin:0;">保留棋子在<strong>左下角 (2,0)</strong>，带 <strong>⏳</strong> 图标。<br><br>' + xMove.text + '</p>';
+      els.tutorialOverlay.classList.add('interaction-mode');
+      XOApp.render();
+      setTimeout(showTutorialCellGuide, 100);
+    }
+
+    function doOMove() {
+      var idx = state.tutorial.persistStepIndex;
+      if (idx >= oMoves.length) {
+        showXMoveGuide();
+        return;
+      }
+      var oMove = oMoves[idx];
+      state.game = makeMove(state.game, oMove[0], oMove[1]);
+      XOApp.render();
+      setTimeout(showXMoveGuide, 500);
+    }
+
+    state.tutorial.persistAutoNextOMove = doOMove;
+    state.tutorial.showPersistReminder = showPersistReminder;
+    if (state.game.currentPlayer === PLAYER_O) {
+      doOMove();
+    } else {
+      showXMoveGuide();
+    }
+  }
+
+  var TUTORIAL_STEPS = [
+    {
+      target: null,
+      title: '欢迎游玩动态井字棋游戏',
+      content: '欢迎来到 <strong>X&amp;O - 动态井字棋</strong>！<br><br>这是一款打破传统井字棋僵局的创新策略游戏，每名玩家最多同时存在 3 个棋子，最早放置的棋子会被自动移除，让游戏始终充满变数。<br><br>接下来让我们一步步了解游戏界面和玩法。',
+      position: 'center',
+    },
+    {
+      target: '#board',
+      title: '棋盘区域',
+      content: '这是游戏的核心区域——<strong>棋盘</strong>。点击任意空白格子即可落子，先将自己的 3 个棋子连成一条直线（横向、纵向或斜向）即可获胜！<br><br>现在棋盘上 X 已有 2 个棋子，请点击<strong>闪烁的格子</strong>落下第 3 个棋子，连成一线获胜！',
+      position: 'top',
+      onEnter: function () {
+        XOApp.resetGame(MODE_NORMAL);
+        var demoMoves = [[0, 2], [0, 0], [1, 2], [1, 0]];
+        for (var i = 0; i < demoMoves.length; i++) {
+          var move = demoMoves[i];
+          state.game = makeMove(state.game, move[0], move[1]);
+        }
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.interactionCell = [2, 2];
+        state.tutorial.isWinStep = true;
+        XOApp.render();
+        setTimeout(showTutorialCellGuide, 100);
+      },
+    },
+    {
+      target: '#statusText',
+      title: '当前玩家',
+      content: '这里显示<strong>当前轮到哪方落子</strong>。X（蓝色）先手，O（橙色）后手，双方轮流行动。',
+      position: 'bottom',
+    },
+    {
+      target: '#board',
+      title: '动态棋子机制',
+      content: '<strong>这是本游戏最核心的机制！</strong><br><br>每名玩家最多同时存在 <strong>3 个棋子</strong>，当落下第 4 个棋子时，最早放置的棋子会自动消失。<br><br>现在棋盘上 X 已有 3 个棋子，请点击棋盘上<strong>闪烁的格子</strong>落下第 4 个棋子，观察最早的棋子(左上角)消失的效果！<br><br>在趣味模式中，使用<strong>保留键</strong>可让棋子多停留几个回合。',
+      position: 'right',
+      onEnter: function () {
+        XOApp.resetGame(MODE_NORMAL);
+        var demoMoves = [[0, 0], [1, 0], [0, 2], [2, 0], [2, 1], [1, 2]];
+        for (var i = 0; i < demoMoves.length; i++) {
+          var move = demoMoves[i];
+          state.game = makeMove(state.game, move[0], move[1]);
+        }
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.interactionCell = [2, 2];
+        state.tutorial.animateDisappear = true;
+        state.tutorial.disappearCell = [0, 0];
+        XOApp.render();
+        setTimeout(showTutorialCellGuide, 100);
+      },
+    },
+    {
+      target: '#btnMode',
+      title: '游戏模式',
+      content: '点击此按钮可切换<strong>游戏模式</strong>。<br><br>• <strong>常规模式</strong>：标准动态井字棋，支持撤回和重新开始<br>• <strong>趣味模式</strong>：每位玩家拥有撤回、固定、保留三种特殊能力<br><br>点击"下一步"将打开模式选择弹窗。',
+      position: 'left',
+      onEnter: function () {
+        XOApp.hideModal(els.modeModal);
+        els.tutorialOverlay.classList.remove('modal-mode');
+        XOApp.resetGame(MODE_NORMAL);
+      },
+    },
+    {
+      target: '.mode-tile[data-mode="fun"]',
+      title: '选择趣味模式',
+      content: '现在弹出了<strong>游戏模式选择</strong>弹窗。<br><br>请点击右侧高亮的<strong>"趣味模式"</strong>卡片，即可进入趣味模式界面，体验撤回、固定、保留三种特殊能力。<br><br>也可直接点击"下一步"自动切换到趣味模式。',
+      position: 'left',
+      onEnter: function () {
+        XOApp.resetGame(MODE_NORMAL);
+        XOApp.showModal(els.modeModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        els.tutorialOverlay.classList.add('button-interaction-mode');
+        state.tutorial.modeStage = 2;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.allowedButton = '.mode-tile[data-mode="fun"]';
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var guide = document.createElement('div');
+            guide.className = 'tutorial-cell-guide';
+            var padding = 4;
+            guide.style.left = (rect.left - padding) + 'px';
+            guide.style.top = (rect.top - padding) + 'px';
+            guide.style.width = (rect.width + padding * 2) + 'px';
+            guide.style.height = (rect.height + padding * 2) + 'px';
+            document.body.appendChild(guide);
+            state.tutorial.guideElement = guide;
+          }
+        }, 100);
+      },
+    },
+    {
+      target: '#panelX',
+      title: '趣味模式 - 能力面板',
+      content: '已切换到<strong>趣味模式</strong>！<br><br>此时左右两侧会显示双方玩家的<strong>能力面板</strong>。每位玩家各拥有一次<strong>撤回</strong>、<strong>固定</strong>和<strong>保留</strong>能力，合理使用可大幅改变战局。',
+      position: 'right',
+      onEnter: function () {
+        XOApp.hideModal(els.modeModal);
+        els.tutorialOverlay.classList.remove('modal-mode');
+        els.tutorialOverlay.classList.remove('button-interaction-mode');
+        XOApp.hideTutorialCellGuide();
+        XOApp.resetGame(MODE_FUN);
+      },
+    },
+    {
+      target: '#btnUndoX',
+      title: '撤回能力',
+      content: '<strong>撤回</strong>：可撤销自己的上一步落子，使用后次数消耗。<br><br>现在棋盘上已有一些棋子，请先点击<strong>闪烁的格子</strong>落下一枚 X 棋子，然后我们再演示撤回功能。',
+      position: 'left',
+      onEnter: function () {
+        els.tutorialOverlay.hidden = false;
+        XOApp.resetGame(MODE_FUN);
+        state.history = [];
+        var demoMoves = [[0, 0], [1, 0], [0, 1], [2, 0]];
+        for (var i = 0; i < demoMoves.length; i++) {
+          var move = demoMoves[i];
+          state.history.push(window.XOGame.cloneState(state.game));
+          state.game = makeMove(state.game, move[0], move[1]);
+        }
+        if (state.tutorial.undoStage === 1) {
+          state.history.push(window.XOGame.cloneState(state.game));
+          state.game = makeMove(state.game, 2, 2);
+          XOApp.render();
+          XOApp.showTutorialUndoGuide();
+        } else {
+          state.tutorial.undoStage = 0;
+          state.tutorial.waitingForInteraction = true;
+          state.tutorial.interactionCell = [2, 2];
+          XOApp.render();
+          setTimeout(showTutorialCellGuide, 100);
+        }
+      },
+    },
+    {
+      target: '#btnFreezeX',
+      title: '固定能力',
+      content: '<strong>固定</strong>：点击后选择一个空格子，对方无法在此落子，固定会在对方下一次落子后解除。<br><br>被固定的格子会显示对应玩家颜色的边框和 🔒 图标。<br><br>现在请点击<strong>闪烁的固定按钮</strong>，激活固定能力。',
+      position: 'left',
+      onEnter: function () {
+        els.tutorialOverlay.hidden = false;
+        XOApp.resetGame(MODE_FUN);
+        var demoMoves = [[0, 0], [1, 0], [0, 1], [2, 0]];
+        for (var i = 0; i < demoMoves.length; i++) {
+          var move = demoMoves[i];
+          state.game = makeMove(state.game, move[0], move[1]);
+        }
+        state.tutorial.freezeStage = 1;
+        state.tutorial.waitingForInteraction = true;
+        XOApp.render();
+        setTimeout(showTutorialFreezeBtnGuide, 100);
+      },
+    },
+    {
+      target: '#board',
+      title: '固定能力',
+      content: '固定能力已激活！<br><br>现在请点击棋盘上<strong>闪烁的格子</strong>，将该格子设为固定状态。',
+      position: 'top',
+      onEnter: function () {
+        if (state.tutorial.freezeStage !== 2) {
+          XOApp.resetGame(MODE_FUN);
+          var demoMoves = [[0, 0], [1, 0], [0, 1], [2, 0]];
+          for (var i = 0; i < demoMoves.length; i++) {
+            var move = demoMoves[i];
+            state.game = makeMove(state.game, move[0], move[1]);
+          }
+          state.game = window.XOGame.startFreezeSelection(state.game, 'X');
+          state.freezeInitiator = 'X';
+        }
+        state.tutorial.freezeStage = 2;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.interactionCell = [1, 1];
+        XOApp.render();
+        setTimeout(showTutorialFreezeCellGuide, 100);
+      },
+    },
+    {
+      target: '#board',
+      title: '固定效果演示',
+      content: '固定成功！中间的格子 (1,1) 已被 X 方固定（显示 🔒 图标和蓝色边框）。<br><br>现在轮到 O 方落子，请先点击<strong>闪烁的固定格子</strong>（中间），试试能不能在被固定的格子落子。',
+      position: 'top',
+      onEnter: function () {
+        if (state.tutorial.freezeStage !== 3) {
+          XOApp.resetGame(MODE_FUN);
+          var demoMoves = [[0, 0], [1, 0], [0, 1], [2, 0]];
+          for (var i = 0; i < demoMoves.length; i++) {
+            var move = demoMoves[i];
+            state.game = makeMove(state.game, move[0], move[1]);
+          }
+          state.game = window.XOGame.startFreezeSelection(state.game, 'X');
+          state.game = window.XOGame.setFreezeTarget(state.game, 1, 1, 'X');
+          state.game.currentPlayer = PLAYER_O;
+          state.game.waitingForFreezeTarget = false;
+          state.game.freeze.active = true;
+          state.game.freeze.row = 1;
+          state.game.freeze.col = 1;
+          state.game.freeze.owner = 'X';
+          state.game.freeze.willExpire = true;
+          state.freezeInitiator = null;
+        }
+        state.tutorial.freezeStage = 3;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.interactionCell = [1, 1];
+        state.tutorial.freezeTriedFrozenCell = false;
+        XOApp.render();
+        setTimeout(showTutorialCellGuide, 100);
+      },
+    },
+    {
+      target: '#board',
+      title: '固定效果演示',
+      content: '没错！被固定的格子无法落子，O 方只能选择其他位置。<br><br>现在请点击<strong>闪烁的格子</strong>（右下角），让 O 方在其他位置落子，观察固定效果解除。',
+      position: 'top',
+      onEnter: function () {
+        if (state.tutorial.freezeStage !== 4) {
+          XOApp.resetGame(MODE_FUN);
+          var demoMoves = [[0, 0], [1, 0], [0, 1], [2, 0]];
+          for (var i = 0; i < demoMoves.length; i++) {
+            var move = demoMoves[i];
+            state.game = makeMove(state.game, move[0], move[1]);
+          }
+          state.game = window.XOGame.startFreezeSelection(state.game, 'X');
+          state.game = window.XOGame.setFreezeTarget(state.game, 1, 1, 'X');
+          state.game.currentPlayer = PLAYER_O;
+        }
+        state.tutorial.freezeStage = 4;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.interactionCell = [2, 2];
+        state.tutorial.animateFreezeDisappear = true;
+        state.tutorial.freezeDisappearCell = [1, 1];
+        XOApp.render();
+        setTimeout(showTutorialCellGuide, 100);
+      },
+    },
+    {
+      target: '#btnFreezeX',
+      title: '取消固定 - 激活固定',
+      content: '固定能力已完整演示！接下来介绍如何<strong>取消固定</strong>操作。<br><br>取消固定需要先激活固定能力，然后在选择目标格子前取消。<br><br>现在请点击<strong>闪烁的固定按钮</strong>，先激活固定能力。',
+      position: 'left',
+      onEnter: function () {
+        XOApp.resetGame(MODE_FUN);
+        var demoMoves = [[0, 0], [1, 0], [0, 1], [2, 0]];
+        for (var i = 0; i < demoMoves.length; i++) {
+          var move = demoMoves[i];
+          state.game = makeMove(state.game, move[0], move[1]);
+        }
+        state.tutorial.freezeStage = 5;
+        state.tutorial.waitingForInteraction = true;
+        XOApp.render();
+        setTimeout(showTutorialFreezeBtnGuide, 100);
+      },
+    },
+    {
+      target: '#btnCancelFreeze',
+      title: '取消固定',
+      content: '固定能力已激活！下方出现了"取消"按钮。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>固定按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次固定操作。',
+      position: 'bottom',
+      onEnter: function () {
+        state.tutorial.freezeStage = 6;
+        state.tutorial.waitingForInteraction = true;
+        setTimeout(XOApp.showTutorialCancelFreezeBtnGuide, 100);
+      },
+    },
+    {
+      target: '#btnPersistX',
+      title: '保留能力',
+      content: '<strong>保留</strong>：点击激活后，下一步落子的棋子将保留五个回合，不会因为后续放置新棋子而被自动移除。<br><br>这是趣味模式中最具策略性的能力，善用它可锁定胜局！<br><br>现在请点击<strong>闪烁的保留按钮</strong>，激活保留能力。',
+      position: 'left',
+      onEnter: function () {
+        els.tutorialOverlay.hidden = false;
+        XOApp.resetGame(MODE_FUN);
+        state.tutorial.persistStage = 1;
+        state.tutorial.waitingForInteraction = true;
+        XOApp.render();
+        setTimeout(showTutorialPersistBtnGuide, 100);
+      },
+    },
+    {
+      target: '#board',
+      title: '落下保留棋子',
+      content: '保留能力已激活！<br><br>现在请点击棋盘上<strong>闪烁的格子</strong>，落下一枚带有保留效果的 X 棋子。观察该棋子不会因其他棋子被移除而消失。',
+      position: 'top',
+      onEnter: function () {
+        if (state.tutorial.persistStage !== 2) {
+          XOApp.resetGame(MODE_FUN);
+          state.game = window.XOGame.usePersist(state.game, 'X');
+        }
+        state.tutorial.persistStage = 2;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.interactionCell = [2, 0];
+        els.tutorialOverlay.classList.add('interaction-mode');
+        XOApp.render();
+        setTimeout(showTutorialCellGuide, 100);
+      },
+    },
+    {
+      target: '#btnPersistX',
+      title: '取消保留 - 激活保留',
+      content: '保留能力已完整演示！接下来介绍如何<strong>取消保留</strong>操作。<br><br>取消保留需要先激活保留能力，然后在落下保留棋子前取消。<br><br>现在请点击<strong>闪烁的保留按钮</strong>，先激活保留能力。',
+      position: 'left',
+      onEnter: function () {
+        XOApp.resetGame(MODE_FUN);
+        state.tutorial.persistStage = 10;
+        state.tutorial.waitingForInteraction = true;
+        XOApp.render();
+        setTimeout(showTutorialPersistBtnGuide, 100);
+      },
+    },
+    {
+      target: '#btnCancelPersist',
+      title: '取消保留',
+      content: '保留能力已激活！下方出现了"取消"按钮。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>保留按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次保留操作。',
+      position: 'bottom',
+      onEnter: function () {
+        state.tutorial.persistStage = 11;
+        state.tutorial.waitingForInteraction = true;
+        setTimeout(XOApp.showTutorialCancelPersistBtnGuide, 100);
+      },
+    },
+    {
+      target: '#btnAI',
+      title: 'AI对局',
+      content: '点击此按钮可打开<strong>AI对局设置</strong>，选择与AI对战或与朋友对战。',
+      position: 'bottom',
+      onEnter: function () {
+        state.tutorial.aiStage = 1;
+        state.tutorial.waitingForInteraction = true;
+        XOApp.render();
+        setTimeout(function () {
+          var targetEl = document.querySelector('#btnAI');
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var guide = document.createElement('div');
+            guide.className = 'tutorial-cell-guide';
+            var padding = 4;
+            guide.style.left = (rect.left - padding) + 'px';
+            guide.style.top = (rect.top - padding) + 'px';
+            guide.style.width = (rect.width + padding * 2) + 'px';
+            guide.style.height = (rect.height + padding * 2) + 'px';
+            document.body.appendChild(guide);
+            state.tutorial.guideElement = guide;
+            state.tutorial.allowedButton = '#btnAI';
+          }
+        }, 100);
+      },
+    },
+    {
+      target: null,
+      title: 'AI对局设置',
+      content: '这里可以设置AI对局的各项选项：<br><br><strong>对局类型</strong>：<br>• <strong>人人对局</strong>：两位玩家轮流操作<br>• <strong>人机对局</strong>：与AI对战<br><br>现在默认显示的是<strong>"人人对局"</strong>，请点击<strong>闪烁的"人机对局"按钮</strong>，查看与AI对战的相关设置。',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.aiModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        els.tutorialOverlay.classList.add('button-interaction-mode');
+        state.tutorial.aiStage = 2;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.allowedButton = '.option-btn[data-ai-setting="gameMode"][data-value="pve"]';
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var guide = document.createElement('div');
+            guide.className = 'tutorial-cell-guide';
+            var padding = 4;
+            guide.style.left = (rect.left - padding) + 'px';
+            guide.style.top = (rect.top - padding) + 'px';
+            guide.style.width = (rect.width + padding * 2) + 'px';
+            guide.style.height = (rect.height + padding * 2) + 'px';
+            document.body.appendChild(guide);
+            state.tutorial.guideElement = guide;
+          }
+        }, 100);
+      },
+    },
+    {
+      target: null,
+      title: 'AI对局设置 - 人机对局',
+      content: '切换到<strong>人机对局</strong>后，下方会显示额外的设置选项：<br><br><strong>AI难度</strong>：<br>• <strong>初级</strong>：适合新手，AI会随机落子<br>• <strong>中级</strong>：AI具有一定策略性<br>• <strong>高级</strong>：AI采用最优策略，较难战胜<br><br><strong>先手选择</strong>：<br>• <strong>玩家先手（X）</strong>：玩家使用X方，先行落子<br>• <strong>AI先手（O）</strong>：AI使用O方，先行落子',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.aiModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        els.tutorialOverlay.classList.remove('button-interaction-mode');
+        XOApp.hideTutorialCellGuide();
+        state.tutorial.aiStage = 3;
+        state.tutorial.waitingForInteraction = false;
+        state.tutorial.allowedButton = null;
+      },
+    },
+    {
+      target: '#btnHelp',
+      title: '游戏帮助',
+      content: '点击此按钮可随时查看<strong>游戏帮助</strong>，了解完整的游戏规则和玩法说明。<br><br>现在请点击<strong>闪烁的帮助按钮</strong>，打开帮助弹窗查看。',
+      position: 'bottom',
+      onEnter: function () {
+        state.tutorial.helpStage = 1;
+        state.tutorial.waitingForInteraction = true;
+        XOApp.render();
+        setTimeout(showTutorialHelpBtnGuide, 100);
+      },
+    },
+    {
+      target: null,
+      title: '帮助弹窗',
+      content: '这里可以查看<strong>完整的游戏规则和玩法说明</strong>，支持翻页浏览。<br><br>浏览完毕后，关闭弹窗继续教程。',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.helpModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        state.tutorial.helpStage = 2;
+        state.tutorial.waitingForInteraction = false;
+      },
+    },
+    {
+      target: '#btnSettings',
+      title: '游戏设置',
+      content: '点击此按钮可打开<strong>设置</strong>，调整棋盘大小、棋子大小和主题配色，也可以在这里重新查看本教程。<br><br>现在请点击<strong>闪烁的设置按钮</strong>，打开设置弹窗查看。',
+      position: 'bottom',
+      onEnter: function () {
+        state.tutorial.settingsStage = 1;
+        state.tutorial.waitingForInteraction = true;
+        XOApp.render();
+        setTimeout(showTutorialSettingsBtnGuide, 100);
+      },
+    },
+    {
+      target: null,
+      title: '设置弹窗',
+      content: '这里可以调整<strong>棋盘大小、棋子大小和主题配色</strong>，也可以重新查看新手教程。<br><br>点击"下一步"我们来了解具体的设置功能。',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.settingsModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        state.tutorial.settingsStage = 2;
+        state.tutorial.waitingForInteraction = false;
+      },
+    },
+    {
+      target: '.settings-page[data-settings-page="basic"]',
+      title: '基本设置 - 棋盘大小',
+      content: '这里有两个设置标签页。当前是<strong>基本设置</strong>页面。<br><br><strong>棋盘大小</strong>：可选择"标准款"或"大款"，大款棋盘更适合大屏设备。<br><br>请点击<strong>"大款"</strong>按钮试试效果，观察棋盘变大。',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.settingsModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        els.tutorialOverlay.classList.add('button-interaction-mode');
+        state.tutorial.settingsStage = 3;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.allowedButton = '.option-btn[data-setting="boardSize"][data-value="large"]';
+        setTimeout(function () {
+          if (!XOApp.collapseState['board-settings']) {
+            XOApp.collapseState['board-settings'] = true;
+            localStorage.setItem('xando-collapse-board-settings', 'false');
+            XOApp.applyCollapseState();
+          }
+        }, 50);
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var settingsPage = document.querySelector('.settings-page[data-settings-page="basic"]');
+            if (settingsPage) {
+              var targetRect = targetEl.getBoundingClientRect();
+              var pageRect = settingsPage.getBoundingClientRect();
+              if (targetRect.bottom > pageRect.bottom || targetRect.top < pageRect.top) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }
+          }
+        }, 150);
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var guide = document.createElement('div');
+            guide.className = 'tutorial-cell-guide';
+            var padding = 4;
+            guide.style.left = (rect.left - padding) + 'px';
+            guide.style.top = (rect.top - padding) + 'px';
+            guide.style.width = (rect.width + padding * 2) + 'px';
+            guide.style.height = (rect.height + padding * 2) + 'px';
+            document.body.appendChild(guide);
+            state.tutorial.guideElement = guide;
+          }
+        }, 400);
+      },
+    },
+    {
+      target: '.settings-page[data-settings-page="basic"]',
+      title: '基本设置 - 棋子大小',
+      content: '棋盘变大了！现在来试试<strong>棋子大小</strong>设置。<br><br>棋子大小有三个选项：<br>• <strong>小（33%）</strong>：小巧精致<br>• <strong>标准（50%）</strong>：默认大小<br>• <strong>大（66%）</strong>：醒目霸气<br><br>请点击<strong>"大（66%）"</strong>按钮，观察棋子变大。',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.settingsModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        els.tutorialOverlay.classList.add('button-interaction-mode');
+        state.tutorial.settingsStage = 4;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.allowedButton = '.option-btn[data-setting="pieceSize"][data-value="large"]';
+        XOApp.hideTutorialCellGuide();
+        setTimeout(function () {
+          if (!XOApp.collapseState['board-settings']) {
+            XOApp.collapseState['board-settings'] = true;
+            localStorage.setItem('xando-collapse-board-settings', 'false');
+            XOApp.applyCollapseState();
+          }
+        }, 50);
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var settingsPage = document.querySelector('.settings-page[data-settings-page="basic"]');
+            if (settingsPage) {
+              var targetRect = targetEl.getBoundingClientRect();
+              var pageRect = settingsPage.getBoundingClientRect();
+              if (targetRect.bottom > pageRect.bottom || targetRect.top < pageRect.top) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }
+          }
+        }, 150);
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var guide = document.createElement('div');
+            guide.className = 'tutorial-cell-guide';
+            var padding = 4;
+            guide.style.left = (rect.left - padding) + 'px';
+            guide.style.top = (rect.top - padding) + 'px';
+            guide.style.width = (rect.width + padding * 2) + 'px';
+            guide.style.height = (rect.height + padding * 2) + 'px';
+            document.body.appendChild(guide);
+            state.tutorial.guideElement = guide;
+          }
+        }, 400);
+      },
+    },
+    {
+      target: '.settings-tab[data-settings-tab="theme"]',
+      title: '主题选择',
+      content: '基本设置了解完毕！现在来看看<strong>主题选择</strong>。<br><br>请点击<strong>"主题选择"</strong>标签页，查看丰富的主题配色。',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.settingsModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        els.tutorialOverlay.classList.add('button-interaction-mode');
+        state.tutorial.settingsStage = 5;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.allowedButton = '.settings-tab[data-settings-tab="theme"]';
+        XOApp.hideTutorialCellGuide();
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var guide = document.createElement('div');
+            guide.className = 'tutorial-cell-guide';
+            var padding = 4;
+            guide.style.left = (rect.left - padding) + 'px';
+            guide.style.top = (rect.top - padding) + 'px';
+            guide.style.width = (rect.width + padding * 2) + 'px';
+            guide.style.height = (rect.height + padding * 2) + 'px';
+            document.body.appendChild(guide);
+            state.tutorial.guideElement = guide;
+          }
+        }, 100);
+      },
+    },
+    {
+      target: '.settings-page[data-settings-page="theme"]',
+      title: '主题配色',
+      content: '哇！有 <strong>7 种精美主题</strong>可选：<br>• <strong>经典</strong>：清爽白底<br>• <strong>橘子海</strong>：暖橙渐变<br>• <strong>日落</strong>：火红夕阳<br>• <strong>深海</strong>：蓝绿调<br>• <strong>森林</strong>：清新绿意<br>• <strong>午夜</strong>：暗色科幻<br>• <strong>糖果</strong>：粉色甜美<br><br>请点击<strong>"橘子海"</strong>主题，感受温暖的氛围！',
+      position: 'center',
+      onEnter: function () {
+        XOApp.showModal(els.settingsModal);
+        els.tutorialOverlay.classList.add('modal-mode');
+        els.tutorialOverlay.classList.add('button-interaction-mode');
+        state.tutorial.settingsStage = 6;
+        state.tutorial.waitingForInteraction = true;
+        state.tutorial.allowedButton = '.option-btn[data-setting="theme"][data-value="orange-sea"]';
+        XOApp.hideTutorialCellGuide();
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var settingsPage = document.querySelector('.settings-page[data-settings-page="theme"]');
+            if (settingsPage) {
+              var targetRect = targetEl.getBoundingClientRect();
+              var pageRect = settingsPage.getBoundingClientRect();
+              if (targetRect.bottom > pageRect.bottom || targetRect.top < pageRect.top) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }
+          }
+        }, 150);
+        setTimeout(function () {
+          var targetEl = document.querySelector(state.tutorial.allowedButton);
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var guide = document.createElement('div');
+            guide.className = 'tutorial-cell-guide';
+            var padding = 4;
+            guide.style.left = (rect.left - padding) + 'px';
+            guide.style.top = (rect.top - padding) + 'px';
+            guide.style.width = (rect.width + padding * 2) + 'px';
+            guide.style.height = (rect.height + padding * 2) + 'px';
+            document.body.appendChild(guide);
+            state.tutorial.guideElement = guide;
+          }
+        }, 400);
+      },
+    },
+    {
+      target: '#btnReset',
+      title: '重新开始',
+      content: '主题是不是很漂亮？点击"下一步"我们将恢复您原来的设置并切换回常规模式，准备正式开始。',
+      position: 'top',
+      onEnter: function () {
+        XOApp.hideModal(els.settingsModal);
+        els.tutorialOverlay.classList.remove('modal-mode');
+        els.tutorialOverlay.classList.remove('button-interaction-mode');
+        state.tutorial.settingsStage = 0;
+        state.tutorial.waitingForInteraction = false;
+        XOApp.hideTutorialCellGuide();
+        if (state.tutorial.preTutorialSettings) {
+          state.settings.boardSize = state.tutorial.preTutorialSettings.boardSize;
+          state.settings.pieceSize = state.tutorial.preTutorialSettings.pieceSize;
+          state.settings.theme = state.tutorial.preTutorialSettings.theme;
+        } else {
+          state.settings.boardSize = 'standard';
+          state.settings.pieceSize = 'standard';
+          state.settings.theme = 'classic';
+        }
+        XOApp.applyBoardSize();
+        XOApp.applyPieceSize();
+        XOApp.applyTheme();
+      },
+    },
+    {
+      target: null,
+      title: '准备就绪！',
+      content: '教程已完成，已切换回<strong>常规模式</strong>。<br><br>💡 小贴士：由于棋子会随时间自动消失，防守往往比进攻更重要，注意观察棋子的新旧顺序。<br><br>祝您游玩愉快！',
+      position: 'center',
+      onEnter: function () {
+        XOApp.resetGame(MODE_NORMAL);
+      },
+    },
+  ];
+
+  function renderTutorial() {
+    var step = TUTORIAL_STEPS[state.tutorial.currentStep];
+
+    els.tutorialOverlay.classList.remove('button-interaction-mode');
+
+    if (typeof step.onEnter === 'function') {
+      step.onEnter();
+    }
+
+    els.tutorialOverlay.classList.toggle('interaction-mode', state.tutorial.waitingForInteraction && !!state.tutorial.interactionCell);
+
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">' + step.title + '</h3><p style="margin:0;">' + step.content + '</p>';
+
+    els.tutorialPrev.hidden = state.tutorial.currentStep === 0;
+
+    if (state.tutorial.currentStep === state.tutorial.totalSteps - 1) {
+      els.tutorialNext.textContent = '开始游戏';
+    } else {
+      els.tutorialNext.textContent = '下一步';
+    }
+
+    if (step.target && !els.tutorialOverlay.classList.contains('modal-mode')) {
+      var targetEl = document.querySelector(step.target);
+      var rect, targetPosition;
+      if (step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) {
+        var cellRow = state.tutorial.interactionCell[0];
+        var cellCol = state.tutorial.interactionCell[1];
+        var cell = document.querySelector('.cell[data-row="' + cellRow + '"][data-col="' + cellCol + '"]');
+        if (cell) {
+          rect = cell.getBoundingClientRect();
+          targetPosition = 'right';
+          targetEl = cell;
+        } else if (targetEl) {
+          rect = targetEl.getBoundingClientRect();
+          targetPosition = step.position;
+        }
+      } else if (targetEl) {
+        rect = targetEl.getBoundingClientRect();
+        targetPosition = step.position;
+      }
+      if (rect) {
+        var padding = 8;
+        if (targetEl && targetEl.classList && targetEl.classList.contains('cell')) {
+          els.tutorialHighlight.style.display = 'none';
+        } else {
+          els.tutorialHighlight.style.display = 'block';
+          els.tutorialHighlight.style.left = (rect.left - padding) + 'px';
+          els.tutorialHighlight.style.top = (rect.top - padding) + 'px';
+          els.tutorialHighlight.style.width = (rect.width + padding * 2) + 'px';
+          els.tutorialHighlight.style.height = (rect.height + padding * 2) + 'px';
+        }
+        positionTutorialTooltip(rect, targetPosition);
+      }
+    } else {
+      els.tutorialHighlight.style.display = 'none';
+      if (els.tutorialOverlay.classList.contains('modal-mode')) {
+        var modalDialog = null;
+        if (state.tutorial.helpStage === 2) {
+          modalDialog = els.helpModal.querySelector('.modal-dialog');
+        } else if (state.tutorial.settingsStage >= 2 && state.tutorial.settingsStage <= 6) {
+          modalDialog = els.settingsModal.querySelector('.modal-dialog');
+        } else if (state.tutorial.modeStage === 2) {
+          modalDialog = els.modeModal.querySelector('.modal-dialog');
+        } else if (state.tutorial.aiStage === 2 || state.tutorial.aiStage === 3) {
+          modalDialog = els.aiModal.querySelector('.modal-dialog');
+        }
+        if (modalDialog) {
+          var modalRect = modalDialog.getBoundingClientRect();
+          var sideTooltipWidth = 240;
+          var sideTooltipHeight = 160;
+          var sideGap = 16;
+          var sideLeft = modalRect.left - sideTooltipWidth - sideGap;
+          var sideArrow = 'arrow-right';
+          if (sideLeft < 16) {
+            sideLeft = modalRect.right + sideGap;
+            sideArrow = 'arrow-left';
+          }
+          var sideTop;
+          if (state.tutorial.modeStage === 2) {
+            var funModeTile = document.querySelector('.mode-tile[data-mode="fun"]');
+            if (funModeTile) {
+              var funTileRect = funModeTile.getBoundingClientRect();
+              sideTop = funTileRect.top + funTileRect.height / 2 - sideTooltipHeight / 2;
+            } else {
+              sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
+            }
+          } else if (state.tutorial.aiStage === 2 || state.tutorial.aiStage === 3) {
+            sideTooltipHeight = 260;
+            sideTooltipWidth = 260;
+            sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
+          } else {
+            sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
+          }
+          if (sideTop < 16) sideTop = 16;
+          if (sideTop + sideTooltipHeight > window.innerHeight - 16) sideTop = window.innerHeight - sideTooltipHeight - 16;
+          els.tutorialTooltip.className = 'tutorial-tooltip ' + sideArrow;
+          els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+          els.tutorialTooltip.style.left = sideLeft + 'px';
+          els.tutorialTooltip.style.top = sideTop + 'px';
+          els.tutorialTooltip.style.transform = 'none';
+        } else {
+          var targetEl = document.querySelector(step.target);
+          if (targetEl) {
+            var rect = targetEl.getBoundingClientRect();
+            var padding = 8;
+            els.tutorialHighlight.style.display = 'block';
+            els.tutorialHighlight.style.left = (rect.left - padding) + 'px';
+            els.tutorialHighlight.style.top = (rect.top - padding) + 'px';
+            els.tutorialHighlight.style.width = (rect.width + padding * 2) + 'px';
+            els.tutorialHighlight.style.height = (rect.height + padding * 2) + 'px';
+            positionTutorialTooltip(rect, step.position);
+          } else {
+            els.tutorialTooltip.style.left = '50%';
+            els.tutorialTooltip.style.top = '50%';
+            els.tutorialTooltip.style.transform = 'translate(-50%, -50%)';
+            els.tutorialTooltip.style.width = '';
+            els.tutorialTooltip.className = 'tutorial-tooltip no-arrow';
+          }
+        }
+      } else {
+        els.tutorialTooltip.style.left = '50%';
+        els.tutorialTooltip.style.top = '50%';
+        els.tutorialTooltip.style.transform = 'translate(-50%, -50%)';
+        els.tutorialTooltip.style.width = '';
+        els.tutorialTooltip.className = 'tutorial-tooltip no-arrow';
+      }
+    }
+  }
+
+  function tutorialNext() {
+    if (state.tutorial.currentStep >= state.tutorial.totalSteps - 1) {
+      endTutorial();
+      return;
+    }
+    if (state.tutorial.pendingAutoAdvance) {
+      clearTimeout(state.tutorial.pendingAutoAdvance);
+      state.tutorial.pendingAutoAdvance = null;
+    }
+    if (state.tutorial.waitingForInteraction) {
+      if (state.tutorial.interactionCell) {
+        XOApp.handleCellClick(state.tutorial.interactionCell[0], state.tutorial.interactionCell[1]);
+        return;
+      }
+      if (state.tutorial.allowedButton) {
+        var btn = document.querySelector(state.tutorial.allowedButton);
+        if (btn) btn.click();
+        return;
+      }
+    }
+    if (state.tutorial.persistStage === 9) {
+      state.tutorial.persistStage = 0;
+      state.tutorial.persistStepIndex++;
+      if (state.tutorial.persistAutoNextOMove) {
+        state.tutorial.persistAutoNextOMove();
+      }
+      return;
+    }
+    if (state.tutorial.helpStage === 2) {
+      state.tutorial.helpStage = 0;
+      XOApp.hideModal(els.helpModal);
+      els.tutorialOverlay.classList.remove('modal-mode');
+    }
+    if (state.tutorial.settingsStage === 2) {
+      state.tutorial.settingsStage = 0;
+      XOApp.hideModal(els.settingsModal);
+      els.tutorialOverlay.classList.remove('modal-mode');
+    }
+    if (state.tutorial.modeStage === 2) {
+      state.tutorial.modeStage = 0;
+      XOApp.hideModal(els.modeModal);
+      els.tutorialOverlay.classList.remove('modal-mode');
+    }
+    if (state.tutorial.aiStage === 3) {
+      state.tutorial.aiStage = 0;
+      XOApp.hideModal(els.aiModal);
+      els.tutorialOverlay.classList.remove('modal-mode');
+      els.tutorialOverlay.classList.remove('button-interaction-mode');
+    }
+    state.tutorial.currentStep++;
+    renderTutorial();
+  }
+
+  function tutorialPrev() {
+    if (state.tutorial.currentStep > 0) {
+      if (state.tutorial.pendingAutoAdvance) {
+        clearTimeout(state.tutorial.pendingAutoAdvance);
+        state.tutorial.pendingAutoAdvance = null;
+      }
+      state.tutorial.waitingForInteraction = false;
+      state.tutorial.interactionCell = null;
+      state.tutorial.isWinStep = false;
+      state.tutorial.animateDisappear = false;
+      state.tutorial.disappearCell = null;
+      state.tutorial.freezeCell = null;
+      state.tutorial.animateFreezeDisappear = false;
+      state.tutorial.freezeDisappearCell = null;
+      state.tutorial.persistCell = null;
+      state.tutorial.animatePersistDisappear = false;
+      state.tutorial.persistDisappearCell = null;
+      state.tutorial.persistSecondDisappearCell = null;
+      state.tutorial.persistStepIndex = 0;
+      state.tutorial.persistAutoNextOMove = null;
+      state.tutorial.allowedButton = null;
+      state.tutorial.freezeTriedFrozenCell = false;
+      state.tutorial.helpStage = 0;
+      state.tutorial.settingsStage = 0;
+      state.tutorial.modeStage = 0;
+      state.tutorial.aiStage = 0;
+      state.tutorial.undoStage = 0;
+      state.tutorial.freezeStage = 0;
+      state.tutorial.persistStage = 0;
+      hideTutorialCellGuide();
+      els.tutorialOverlay.classList.remove('interaction-mode');
+      els.tutorialOverlay.classList.remove('modal-mode');
+      els.tutorialOverlay.classList.remove('button-interaction-mode');
+      XOApp.hideModal(els.helpModal);
+      XOApp.hideModal(els.settingsModal);
+      XOApp.hideModal(els.modeModal);
+      XOApp.hideModal(els.aiModal);
+      state.tutorial.currentStep--;
+      renderTutorial();
+    }
+  }
+
+  function endTutorial() {
+    if (state.tutorial.pendingAutoAdvance) {
+      clearTimeout(state.tutorial.pendingAutoAdvance);
+      state.tutorial.pendingAutoAdvance = null;
+    }
+    state.tutorial.active = false;
+    state.tutorial.waitingForInteraction = false;
+    state.tutorial.interactionCell = null;
+    state.tutorial.isWinStep = false;
+    state.tutorial.pausedForWinModal = false;
+    state.tutorial.undoStage = 0;
+    state.tutorial.animateDisappear = false;
+    state.tutorial.disappearCell = null;
+    state.tutorial.freezeStage = 0;
+    state.tutorial.freezeCell = null;
+    state.tutorial.animateFreezeDisappear = false;
+    state.tutorial.freezeDisappearCell = null;
+    state.tutorial.persistStage = 0;
+    state.tutorial.persistCell = null;
+    state.tutorial.animatePersistDisappear = false;
+    state.tutorial.persistDisappearCell = null;
+    state.tutorial.persistSecondDisappearCell = null;
+    state.tutorial.allowedButton = null;
+    state.tutorial.freezeTriedFrozenCell = false;
+    state.tutorial.helpStage = 0;
+    state.tutorial.settingsStage = 0;
+    state.tutorial.modeStage = 0;
+    state.tutorial.aiStage = 0;
+    if (state.tutorial.preTutorialSettings) {
+      state.settings.boardSize = state.tutorial.preTutorialSettings.boardSize;
+      state.settings.pieceSize = state.tutorial.preTutorialSettings.pieceSize;
+      state.settings.theme = state.tutorial.preTutorialSettings.theme;
+      if (state.tutorial.preTutorialSettings.gameMode !== undefined) {
+        state.settings.gameMode = state.tutorial.preTutorialSettings.gameMode;
+        localStorage.setItem('xando-gameMode', state.tutorial.preTutorialSettings.gameMode);
+      }
+      if (state.tutorial.preTutorialSettings.aiDifficulty !== undefined) {
+        state.settings.aiDifficulty = state.tutorial.preTutorialSettings.aiDifficulty;
+        localStorage.setItem('xando-aiDifficulty', state.tutorial.preTutorialSettings.aiDifficulty);
+      }
+      if (state.tutorial.preTutorialSettings.aiFirstMove !== undefined) {
+        state.settings.aiFirstMove = state.tutorial.preTutorialSettings.aiFirstMove;
+        localStorage.setItem('xando-aiFirstMove', state.tutorial.preTutorialSettings.aiFirstMove);
+      }
+      XOApp.applyBoardSize();
+      XOApp.applyPieceSize();
+      XOApp.applyTheme();
+      state.tutorial.preTutorialSettings = null;
+    }
+    hideTutorialCellGuide();
+    els.tutorialOverlay.hidden = true;
+    els.tutorialOverlay.classList.remove('modal-mode');
+    els.tutorialOverlay.classList.remove('interaction-mode');
+    els.tutorialOverlay.classList.remove('button-interaction-mode');
+    XOApp.hideModal(els.modeModal);
+    XOApp.hideModal(els.winModal);
+    XOApp.hideModal(els.helpModal);
+    XOApp.hideModal(els.settingsModal);
+    XOApp.hideModal(els.aiModal);
+    els.btnWinClose.textContent = '再来一局';
+    localStorage.setItem('xando-tutorial-seen', 'true');
+    XOApp.resetGame(MODE_NORMAL);
+  }
+
+  function initTutorial() {
+    var hasSeen = localStorage.getItem('xando-tutorial-seen');
+    if (!hasSeen) {
+      state.tutorial.preTutorialSettings = {
+        boardSize: state.settings.boardSize,
+        pieceSize: state.settings.pieceSize,
+        theme: state.settings.theme,
+      };
+      state.tutorial.active = true;
+      state.tutorial.currentStep = 0;
+      state.tutorial.totalSteps = TUTORIAL_STEPS.length;
+      els.tutorialOverlay.hidden = false;
+      renderTutorial();
+    }
+  }
+
+  XOApp.TUTORIAL_STEPS = TUTORIAL_STEPS;
+  XOApp.renderTutorial = renderTutorial;
+  XOApp.tutorialNext = tutorialNext;
+  XOApp.tutorialPrev = tutorialPrev;
+  XOApp.endTutorial = endTutorial;
+  XOApp.initTutorial = initTutorial;
+  XOApp.positionTutorialTooltip = positionTutorialTooltip;
+  XOApp.showTutorialCellGuide = showTutorialCellGuide;
+  XOApp.hideTutorialCellGuide = hideTutorialCellGuide;
+  XOApp.showTutorialUndoGuide = showTutorialUndoGuide;
+  XOApp.showTutorialFreezeBtnGuide = showTutorialFreezeBtnGuide;
+  XOApp.showTutorialFreezeCellGuide = showTutorialFreezeCellGuide;
+  XOApp.showTutorialCancelFreezeBtnGuide = showTutorialCancelFreezeBtnGuide;
+  XOApp.showTutorialCancelPersistBtnGuide = showTutorialCancelPersistBtnGuide;
+  XOApp.showTutorialPersistBtnGuide = showTutorialPersistBtnGuide;
+  XOApp.showTutorialHelpBtnGuide = showTutorialHelpBtnGuide;
+  XOApp.showTutorialSettingsBtnGuide = showTutorialSettingsBtnGuide;
+  XOApp.startPersistAutoDemo = startPersistAutoDemo;
+})();

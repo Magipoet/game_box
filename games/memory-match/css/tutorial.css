@@ -1,0 +1,210 @@
+.tutorial-section {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid #f0f0f5;
+}
+
+.tutorial-section h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.tutorial-desc {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+#tutorial-modal .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.tutorial-content {
+    text-align: left;
+}
+
+.tutorial-step {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f8fc;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.tutorial-step h3 {
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 16px;
+}
+
+.tutorial-step p {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.danger-text {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.tutorial-welcome {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.tutorial-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.tutorial-desc-large {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.tutorial-features {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.feature-icon {
+    font-size: 32px;
+}
+
+.feature-item span:last-child {
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+}
+
+.tutorial-guide {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1500;
+    pointer-events: none;
+}
+
+.tutorial-guide-content {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 16px;
+    padding: 20px 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    pointer-events: auto;
+    z-index: 1501;
+    animation: slideUp 0.3s ease;
+}
+
+.tutorial-guide-content.hidden {
+    display: none;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.tutorial-step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: all 0.3s ease;
+}
+
+.step-dot.active {
+    background: #667eea;
+    transform: scale(1.2);
+}
+
+.tutorial-guide-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.tutorial-guide-text {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.tutorial-guide-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tutorial-highlight {
+    position: fixed;
+    border: 3px solid #667eea;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    z-index: 1499;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.tutorial-highlight.hidden {
+    display: block !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tutorial-arrow {
+    position: fixed;
+    font-size: 40px;
+    color: #667eea;
+    z-index: 1502;
+    pointer-events: none;
+    animation: bounceArrow 1s ease infinite;
+}
+
+@keyframes bounceArrow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}

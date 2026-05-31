@@ -1,0 +1,87 @@
+@media (max-width: 1000px) {
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .controls-section {
+    max-width: 540px;
+    width: 100%;
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 10px;
+  }
+
+  .game-title {
+    font-size: 32px;
+  }
+
+  .board {
+    width: 360px;
+    height: 360px;
+    padding: 8px;
+  }
+
+  .tile {
+    font-size: 26px;
+  }
+
+  .tile.wood-block .wood-label {
+    font-size: 16px;
+  }
+
+  .tile[data-value="128"],
+  .tile[data-value="256"],
+  .tile[data-value="512"],
+  body.theme-dark .tile[data-value="128"],
+  body.theme-dark .tile[data-value="256"],
+  body.theme-dark .tile[data-value="512"],
+  body.theme-ocean .tile[data-value="128"],
+  body.theme-ocean .tile[data-value="256"],
+  body.theme-ocean .tile[data-value="512"],
+  body.theme-forest .tile[data-value="128"],
+  body.theme-forest .tile[data-value="256"],
+  body.theme-forest .tile[data-value="512"] {
+    font-size: 22px;
+  }
+
+  .tile[data-value="1024"],
+  body.theme-dark .tile[data-value="1024"],
+  body.theme-dark .tile[data-value="2048"],
+  body.theme-ocean .tile[data-value="1024"],
+  body.theme-ocean .tile[data-value="2048"],
+  body.theme-forest .tile[data-value="1024"],
+  body.theme-forest .tile[data-value="2048"],
+  .tile[data-value="2048"] {
+    font-size: 18px;
+  }
+
+  .score-value,
+  .time-value {
+    font-size: 26px;
+  }
+
+  .achievement-category-tabs {
+    gap: 6px;
+  }
+
+  .achievement-category-tab {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 60px;
+  }
+
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .achievement-toast {
+    left: 10px;
+    right: 10px;
+    top: 10px;
+  }
+}

@@ -1,0 +1,573 @@
+.stats {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.stat-item {
+    text-align: center;
+    position: relative;
+}
+
+.stat-item .label {
+    display: block;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.stat-item .value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-item.level-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.level-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.level-btn {
+    padding: 6px 16px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.level-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+.current-level {
+    display: inline-block;
+    color: #666;
+    font-size: 13px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.level-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    max-height: 55vh;
+    margin-top: 4px;
+    min-width: 420px;
+    overflow: hidden;
+}
+
+.level-dropdown.hidden {
+    display: none;
+}
+
+.level-dropdown-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e0e0e8;
+    flex-shrink: 0;
+}
+
+.level-dropdown-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f5f5f8;
+    user-select: none;
+}
+
+.level-dropdown-tab:first-child {
+    border-radius: 12px 0 0 0;
+}
+
+.level-dropdown-tab:last-child {
+    border-radius: 0 12px 0 0;
+}
+
+.level-dropdown-tab:hover {
+    background: #e8e8f0;
+}
+
+.level-dropdown-tab.active {
+    background: rgba(102, 126, 234, 0.15);
+    color: #667eea;
+    border-bottom: 2px solid #667eea;
+    margin-bottom: -2px;
+}
+
+.tab-stars {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.level-dropdown-tab.active .tab-stars {
+    opacity: 1;
+}
+
+.level-dropdown-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: calc(55vh - 44px);
+}
+
+.level-option {
+    padding: 12px 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    position: relative;
+}
+
+.level-option .level-name {
+    display: block;
+    text-align: center;
+    position: relative;
+    padding-left: 14px;
+}
+
+.level-option.locked .level-name::before {
+    content: '🔒';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+}
+
+.level-option .level-dims {
+    font-size: 13px;
+    font-weight: 500;
+    color: #888;
+    display: block;
+    text-align: center;
+}
+
+.level-option .level-bomb {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ff6b6b;
+    display: block;
+    text-align: center;
+}
+
+.level-option:hover {
+    background: #f0f0f8;
+}
+
+.level-option.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.level-option.active .level-name {
+    color: white;
+}
+
+.level-option.active .level-dims {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.level-option.active .level-bomb {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.level-option.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: #999;
+}
+
+.level-option.locked:hover {
+    background: transparent;
+}
+
+.mode-toggle {
+    display: flex;
+    gap: 4px;
+    background: #f0f0f8;
+    border-radius: 20px;
+    padding: 4px;
+}
+
+.mode-btn {
+    padding: 6px 14px;
+    border: none;
+    background: transparent;
+    color: #666;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.mode-btn:hover:not(.active) {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.combo-display {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 700;
+    animation: comboSlideIn 0.3s ease;
+    line-height: 1;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translate(calc(100% + 8px), -50%);
+    white-space: nowrap;
+    z-index: 10;
+}
+
+@keyframes comboSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.combo-display.combo-good {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.combo-display.combo-epic {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    animation: comboSlideIn 0.3s ease, comboPulseEpic 0.5s ease infinite alternate;
+}
+
+.combo-display.combo-legendary {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    animation: comboSlideIn 0.3s ease, comboPulseLegendary 0.4s ease infinite alternate;
+}
+
+@keyframes comboPulseEpic {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+@keyframes comboPulseLegendary {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+}
+
+.combo-text {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.combo-count {
+    font-size: 14px;
+    font-weight: 900;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    line-height: 1.4;
+}
+
+.countdown-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+    padding: 8px 20px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: all 0.3s ease;
+}
+
+.pause-btn {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+    margin-left: 8px;
+}
+
+.pause-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+}
+
+.countdown-display.countdown-warning {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    animation: countdownPulse 0.5s ease infinite alternate;
+}
+
+@keyframes countdownPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+.countdown-value {
+    font-size: 22px;
+    font-weight: 900;
+    min-width: 60px;
+    text-align: center;
+}
+
+.time-bonus {
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+.level-stars {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+    justify-content: center;
+}
+
+.level-star {
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.level-star.filled {
+    filter: drop-shadow(0 0 2px #ffd700);
+}
+
+.level-star.empty {
+    opacity: 0.3;
+    filter: grayscale(1);
+}
+
+.level-option.hidden-level .level-name {
+    color: #9c27b0;
+}
+
+.level-option.active.hidden-level .level-name {
+    color: #e1bee7;
+}
+
+.level-locked-text {
+    font-size: 11px;
+    color: #ff9800;
+    font-weight: 600;
+}
+
+.level-option.active .level-locked-text {
+    color: #ffe082;
+}
+
+.level-option.locked .level-stars {
+    opacity: 0.5;
+}
+
+.current-level-stars {
+    display: inline-flex;
+    gap: 2px;
+    margin-left: 6px;
+    align-items: center;
+    vertical-align: middle;
+}
+
+.current-star {
+    font-size: 14px;
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.current-star.filled {
+    filter: drop-shadow(0 0 2px #ffd700);
+    color: #ffd700;
+}
+
+.current-star.empty {
+    opacity: 0.25;
+    filter: grayscale(1);
+    color: #999;
+}
+
+.level-dropdown-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(102, 126, 234, 0.15);
+    border-radius: 8px 8px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #667eea;
+    text-align: center;
+}
+
+.level-dropdown-header strong {
+    color: #ffb700;
+    font-size: 16px;
+}
+
+body.theme-dark .level-dropdown-tabs {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.theme-dark .level-dropdown-tab {
+    background: rgba(255, 255, 255, 0.05);
+    color: #9fa8da;
+}
+
+body.theme-dark .level-dropdown-tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.theme-dark .level-dropdown-tab.active {
+    background: rgba(102, 126, 234, 0.2);
+    color: #b39ddb;
+    border-bottom-color: #b39ddb;
+}
+
+.step-reduction-bonus {
+    position: fixed;
+    color: #4caf50;
+    font-weight: 900;
+    font-size: 18px;
+    pointer-events: none;
+    z-index: 2000;
+    animation: stepBonusFloat 1s ease-out forwards;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes stepBonusFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+}
+
+@media (max-width: 768px) {
+    .stats {
+        gap: 15px;
+    }
+    
+    .stat-item .value {
+        font-size: 20px;
+    }
+    
+    .stat-item .label {
+        font-size: 12px;
+    }
+    
+    .level-btn {
+        padding: 5px 12px;
+        font-size: 13px;
+    }
+    
+    .current-level {
+        font-size: 12px;
+    }
+    
+    .countdown-display {
+        font-size: 16px;
+        padding: 6px 16px;
+        max-width: 280px;
+    }
+    
+    .countdown-value {
+        font-size: 18px;
+    }
+    
+    .pause-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats {
+        gap: 10px;
+    }
+    
+    .stat-item .value {
+        font-size: 18px;
+    }
+    
+    .combo-display {
+        padding: 3px 8px;
+        font-size: 12px;
+    }
+    
+    .combo-text {
+        font-size: 11px;
+    }
+    
+    .combo-count {
+        font-size: 12px;
+    }
+}

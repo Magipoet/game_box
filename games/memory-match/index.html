@@ -4,1024 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>记忆配对游戏</title>
-    <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 800px;
-    width: 100%;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-h1 {
-    color: #333;
-    font-size: 2.5rem;
-    margin: 0 0 25px 0;
-    text-align: center;
-}
-
-.stats {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 30px;
-    flex-wrap: wrap;
-    position: relative;
-}
-
-.stat-item {
-    text-align: center;
-    position: relative;
-}
-
-.stat-item .label {
-    display: block;
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-
-.stat-item .value {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
-
-.stat-item.level-selector {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
-
-.level-btn {
-    padding: 6px 16px;
-    border: 2px solid #667eea;
-    background: white;
-    color: #667eea;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.level-btn:hover {
-    background: #667eea;
-    color: white;
-}
-
-.current-level {
-    display: block;
-    color: #666;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.level-dropdown {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 100;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    padding: 10px;
-    max-height: 55vh;
-    overflow-y: auto;
-    margin-top: 4px;
-    min-width: 420px;
-}
-
-.level-dropdown.hidden {
-    display: none;
-}
-
-.level-option {
-    padding: 12px 8px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    position: relative;
-}
-
-.level-option .level-name {
-    display: block;
-    text-align: center;
-    position: relative;
-    padding-left: 14px;
-}
-
-.level-option.locked .level-name::before {
-    content: '🔒';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 11px;
-}
-
-.level-option .level-dims {
-    font-size: 13px;
-    font-weight: 500;
-    color: #888;
-    display: block;
-    text-align: center;
-}
-
-.level-option .level-bomb {
-    font-size: 13px;
-    font-weight: 500;
-    color: #ff6b6b;
-    display: block;
-    text-align: center;
-}
-
-.level-option:hover {
-    background: #f0f0f8;
-}
-
-.level-option.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.level-option.active .level-name {
-    color: white;
-}
-
-.level-option.active .level-dims {
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.level-option.active .level-bomb {
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.level-option.locked {
-    opacity: 0.5;
-    cursor: not-allowed;
-    color: #999;
-}
-
-.level-option.locked:hover {
-    background: transparent;
-}
-
-.game-board {
-    display: grid;
-    gap: 12px;
-    justify-content: center;
-    margin: 0 auto 30px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 15px;
-}
-
-.card {
-    aspect-ratio: 1;
-    perspective: 1000px;
-    cursor: pointer;
-    min-width: 60px;
-}
-
-.card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
-
-.card.flipped .card-inner {
-    transform: rotateY(180deg);
-}
-
-.card.matched .card-inner {
-    transform: rotateY(180deg);
-    animation: pulse 0.5s ease;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: rotateY(180deg) scale(1); }
-    50% { transform: rotateY(180deg) scale(1.1); }
-}
-
-.card-front,
-.card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.card-back {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.card-front {
-    background: white;
-    transform: rotateY(180deg);
-    border: 3px solid #667eea;
-}
-
-footer {
-    text-align: center;
-}
-
-.btn {
-    padding: 15px 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 30px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-}
-
-.btn:active {
-    transform: translateY(0);
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-}
-
-.btn-danger:hover {
-    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-}
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-}
-
-.modal.hidden {
-    display: none;
-}
-
-.modal-content {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 450px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: modalIn 0.3s ease;
-    position: relative;
-}
-
-@keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.modal-content h2 {
-    color: #333;
-    font-size: 2rem;
-    margin-bottom: 25px;
-}
-
-.modal-content h3 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-}
-
-.modal-content p {
-    color: #666;
-    margin-bottom: 15px;
-    font-size: 16px;
-}
-
-.win-stats {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-}
-
-.win-stats p {
-    font-size: 18px;
-    margin: 10px 0;
-}
-
-.win-stats span {
-    font-weight: bold;
-    color: #667eea;
-}
-
-.next-level-info {
-    background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
-    color: white;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    font-weight: bold;
-}
-
-.next-level-info p {
-    color: white;
-    margin: 0;
-}
-
-.next-level-info.hidden {
-    display: none;
-}
-
-.modal-buttons {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.modal-buttons .btn {
-    padding: 12px 30px;
-    font-size: 16px;
-}
-
-.modal-buttons .btn.hidden {
-    display: none;
-}
-
-.close-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: none;
-    border: none;
-    font-size: 32px;
-    color: #999;
-    cursor: pointer;
-    padding: 0;
-    width: 35px;
-    height: 35px;
-    line-height: 1;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-.close-btn:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.btn-secondary {
-    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-}
-
-.btn-secondary:hover {
-    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
-}
-
-.btn-reset {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    margin-left: 10px;
-}
-
-.btn-reset:hover {
-    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
-}
-
-.new-record {
-    color: #ffc107;
-    font-weight: bold;
-    font-size: 18px;
-    margin-top: 10px;
-    animation: pulseRecord 1s infinite;
-}
-
-@keyframes pulseRecord {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.header-title {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    padding: 0 10px;
-}
-
-.header-title h1 {
-    margin: 0;
-    text-align: center;
-}
-
-.header-buttons {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 10px;
-}
-
-.icon-btn {
-    width: 36px;
-    height: 36px;
-    border: 2px solid #667eea;
-    background: white;
-    color: #667eea;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    line-height: 1;
-}
-
-.icon-btn:hover {
-    background: #667eea;
-    color: white;
-    transform: scale(1.1);
-}
-
-.help-content {
-    text-align: left;
-    margin-bottom: 25px;
-}
-
-.help-content p {
-    color: #555;
-    margin-bottom: 10px;
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-.help-content strong {
-    color: #333;
-}
-
-.theme-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.theme-item {
-    cursor: pointer;
-    border-radius: 12px;
-    padding: 12px;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.theme-item:hover {
-    background: #f5f5f8;
-}
-
-.theme-item.active {
-    border-color: #667eea;
-    background: #f0f0f8;
-}
-
-.theme-preview {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 8px;
-    height: 40px;
-}
-
-.theme-card {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: white;
-    font-weight: bold;
-}
-
-.theme-name {
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #333;
-}
-
-.theme-preview-classic .theme-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.theme-preview-forest .theme-card {
-    background: linear-gradient(135deg, #4a7c3f 0%, #8bb37f 100%);
-}
-
-.theme-preview-sunset .theme-card {
-    background: linear-gradient(135deg, #b87a8a 0%, #c8956e 100%);
-}
-
-.theme-preview-ocean .theme-card {
-    background: linear-gradient(135deg, #5a8fb5 0%, #7eb3c9 100%);
-}
-
-.theme-preview-dark .theme-card {
-    background: linear-gradient(135deg, #434343 0%, #000000 100%);
-}
-
-body.theme-classic {
-    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --card-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --card-border: #667eea;
-    --primary-color: #667eea;
-}
-
-body.theme-forest {
-    --bg-gradient: linear-gradient(135deg, #4a7c3f 0%, #8bb37f 100%);
-    --card-bg: linear-gradient(135deg, #4a7c3f 0%, #8bb37f 100%);
-    --card-border: #4a7c3f;
-    --primary-color: #4a7c3f;
-}
-
-body.theme-sunset {
-    --bg-gradient: linear-gradient(135deg, #b87a8a 0%, #c8956e 100%);
-    --card-bg: linear-gradient(135deg, #b87a8a 0%, #c8956e 100%);
-    --card-border: #b87a8a;
-    --primary-color: #b87a8a;
-}
-
-body.theme-ocean {
-    --bg-gradient: linear-gradient(135deg, #5a8fb5 0%, #7eb3c9 100%);
-    --card-bg: linear-gradient(135deg, #5a8fb5 0%, #7eb3c9 100%);
-    --card-border: #5a8fb5;
-    --primary-color: #5a8fb5;
-}
-
-body.theme-dark {
-    --bg-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
-    --card-bg: linear-gradient(135deg, #434343 0%, #000000 100%);
-    --card-border: #666;
-    --primary-color: #888;
-}
-
-body {
-    background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-}
-
-.card-back {
-    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-}
-
-.card-front {
-    border-color: var(--card-border, #667eea);
-}
-
-.btn {
-    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-}
-
-.btn-secondary {
-    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-    filter: brightness(0.7);
-}
-
-.level-btn {
-    border-color: var(--primary-color, #667eea);
-    color: var(--primary-color, #667eea);
-}
-
-.level-btn:hover {
-    background: var(--primary-color, #667eea);
-}
-
-.icon-btn {
-    border-color: var(--primary-color, #667eea);
-    color: var(--primary-color, #667eea);
-}
-
-.icon-btn:hover {
-    background: var(--primary-color, #667eea);
-}
-
-.theme-item.active {
-    border-color: var(--primary-color, #667eea);
-}
-
-body.theme-dark .container {
-    background: #2a2a2a;
-}
-
-body.theme-dark h1 {
-    color: #e0e0e0;
-}
-
-body.theme-dark .stat-item .label,
-body.theme-dark .current-level {
-    color: #aaa;
-}
-
-body.theme-dark .stat-item .value,
-body.theme-dark h2,
-body.theme-dark h3 {
-    color: #e0e0e0;
-}
-
-body.theme-dark .modal-content {
-    background: #2a2a2a;
-}
-
-body.theme-dark .theme-item:hover {
-    background: #3a3a3a;
-}
-
-body.theme-dark .theme-name {
-    color: #ddd;
-}
-
-body.theme-dark .icon-btn {
-    background: #2a2a2a;
-    border-color: #764ba2;
-    color: #764ba2;
-}
-
-body.theme-dark .icon-btn:hover {
-    background: #3a3a3a;
-    transform: scale(1.1);
-}
-
-body.theme-dark .game-board {
-    background: #1e1e1e;
-}
-
-body.theme-dark .level-dropdown {
-    background: #2a2a2a;
-}
-
-body.theme-dark .level-option {
-    color: #ddd;
-}
-
-body.theme-dark .level-option:hover {
-    background: #3a3a3a;
-}
-
-body.theme-dark .level-option .level-dims {
-    color: #aaa;
-}
-
-body.theme-dark .level-option .level-name {
-    color: #ddd;
-}
-
-body.theme-dark .level-option .level-bomb {
-    color: #ff8a8a;
-}
-
-body.theme-dark .level-option.locked:hover {
-    background: transparent;
-}
-
-.settings-modal-content {
-    max-width: 550px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.settings-tabs {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 12px;
-}
-
-.settings-tab {
-    padding: 8px 18px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    color: #666;
-    transition: all 0.3s ease;
-}
-
-.settings-tab:hover {
-    background: #f0f0f8;
-}
-
-.settings-tab.active {
-    background: var(--card-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-    color: white;
-}
-
-.settings-panel {
-    display: none;
-}
-
-.settings-panel.active {
-    display: block;
-}
-
-.records-section {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.records-section h3 {
-    color: #333;
-    font-size: 1.2rem;
-    margin-bottom: 12px;
-}
-
-.records-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.record-item {
-    background: #f5f5f8;
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.record-label {
-    font-size: 12px;
-    color: #888;
-    font-weight: 500;
-}
-
-.record-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: #333;
-}
-
-.level-record {
-    background: #f5f5f8;
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-}
-
-.level-record .level-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: #555;
-    margin-bottom: 6px;
-}
-
-.level-record .level-stats {
-    font-size: 12px;
-    color: #777;
-    line-height: 1.6;
-}
-
-.level-record .level-stats span {
-    font-weight: 700;
-    color: #333;
-}
-
-.achievements-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-}
-
-.achievement-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 12px;
-    background: #f5f5f8;
-    transition: all 0.3s ease;
-}
-
-.achievement-item.unlocked {
-    background: #f0f0f8;
-}
-
-.achievement-icon {
-    font-size: 28px;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.achievement-item:not(.unlocked) .achievement-icon {
-    background: #ccc;
-    filter: grayscale(1);
-}
-
-.achievement-info {
-    flex: 1;
-    text-align: left;
-}
-
-.achievement-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 2px;
-}
-
-.achievement-desc {
-    font-size: 12px;
-    color: #777;
-    line-height: 1.4;
-}
-
-.achievement-item:not(.unlocked) .achievement-name {
-    color: #888;
-}
-
-.achievement-date {
-    font-size: 11px;
-    color: #667eea;
-    margin-top: 4px;
-    font-weight: 600;
-}
-
-body.theme-dark .settings-tab {
-    color: #aaa;
-}
-
-body.theme-dark .settings-tab:hover {
-    background: #3a3a3a;
-}
-
-body.theme-dark .record-item,
-body.theme-dark .level-record,
-body.theme-dark .achievement-item {
-    background: #3a3a3a;
-}
-
-body.theme-dark .record-label,
-body.theme-dark .achievement-desc {
-    color: #999;
-}
-
-body.theme-dark .record-value,
-body.theme-dark .level-record .level-stats span,
-body.theme-dark .achievement-name {
-    color: #e0e0e0;
-}
-
-body.theme-dark .level-record .level-name {
-    color: #bbb;
-}
-
-body.theme-dark .achievement-item.unlocked {
-    background: #3a3a5a;
-}
-
-body.theme-dark .achievement-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.achievement-notification {
-    position: fixed;
-    top: 30px;
-    right: 30px;
-    z-index: 2000;
-    animation: slideInRight 0.4s ease;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(120%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.achievement-notif-content {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 18px 24px;
-    border-radius: 14px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    min-width: 220px;
-}
-
-.achievement-notif-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.achievement-notif-items {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.card.bomb .card-front {
-    background: linear-gradient(135deg, #333 0%, #000 100%);
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-}
-
-.card.bomb-explode .card-inner {
-    animation: bombExplode 0.6s ease;
-}
-
-@keyframes bombExplode {
-    0% { transform: rotateY(180deg) scale(1); }
-    25% { transform: rotateY(180deg) scale(1.15) rotate(-5deg); }
-    50% { transform: rotateY(180deg) scale(1.2) rotate(5deg); }
-    75% { transform: rotateY(180deg) scale(1.1) rotate(-2deg); }
-    100% { transform: rotateY(180deg) scale(1); }
-}
-</style>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/board.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/tutorial.css">
+    <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>
     <div class="container">
         <header>
             <div class="header-title">
+                <div class="header-left">
+                    <div class="mode-toggle" id="mode-toggle">
+                        <button id="mode-normal" class="mode-btn active">常规</button>
+                        <button id="mode-timed" class="mode-btn">限时</button>
+                    </div>
+                </div>
                 <h1>🎴 记忆配对游戏</h1>
                 <div class="header-buttons">
                     <button id="sound-btn" class="icon-btn" title="音效开关">🔊</button>
                     <button id="help-btn" class="icon-btn" title="游戏说明">?</button>
                     <button id="settings-btn" class="icon-btn" title="设置">⚙️</button>
                 </div>
+            </div>
+            <div id="countdown-display" class="countdown-display hidden">
+                <span class="countdown-icon">⏱️</span>
+                <span id="countdown" class="countdown-value">00:00</span>
+                <span id="time-bonus" class="time-bonus hidden">+0 时间奖励</span>
+                <button id="pause-btn" class="pause-btn" title="暂停游戏">⏸️</button>
             </div>
             <div class="stats">
                 <div class="stat-item">
@@ -1042,13 +55,27 @@ body.theme-dark .achievement-icon {
                 </div>
                 <div class="stat-item level-selector">
                     <button id="level-btn" class="level-btn">关卡 ▾</button>
-                    <span class="current-level" id="current-level-label">第1关 (3×2)</span>
-                    <div id="level-dropdown" class="level-dropdown hidden"></div>
+                    <div class="level-info">
+                        <span class="current-level" id="current-level-label">第1关 (3×2)</span>
+                        <span class="current-level-stars" id="current-level-stars"></span>
+                    </div>
+                    <div id="combo-display" class="combo-display hidden">
+                        <span id="combo-text" class="combo-text">连击!</span>
+                        <span id="combo-count" class="combo-count">0次!</span>
+                    </div>
+                    <div id="level-dropdown" class="level-dropdown hidden">
+                        <div class="level-dropdown-header">
+                            <span>⭐ 总星星: <strong id="total-stars">0</strong></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
 
         <main>
+            <div id="particle-container" class="particle-container"></div>
+            <div id="combo-effect" class="combo-effect hidden"></div>
+            <div id="fullscreen-effect" class="fullscreen-effect hidden"></div>
             <div id="game-board" class="game-board"></div>
         </main>
 
@@ -1069,6 +96,18 @@ body.theme-dark .achievement-icon {
                     <p><strong>🏆 挑战目标：</strong>用最少的步数和最短的时间完成配对</p>
                     <p><strong>🔓 解锁关卡：</strong>通关当前关卡后自动解锁下一关</p>
                     <p><strong>💣 炸弹机制：</strong>部分关卡中会出现💣炸弹卡片，翻开两张炸弹配对会立即失败！请谨慎避开炸弹，专注于配对普通卡片</p>
+                    <p><strong>⭐ 星级系统：</strong>根据步数获得1-3星评价：
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;• ⭐⭐⭐ 3星：步数 ≤ 配对数 × 3（出色发挥）
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;• ⭐⭐ 2星：步数 ≤ 配对数 × 4（表现良好）
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;• ⭐ 1星：通关即可获得
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;集齐一定星星可解锁隐藏关卡！</p>
+                    <p><strong>🔥 连击系统：</strong>连续配对成功可累积连击：
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;• 3连击：闪烁特效 + "+1步数减免"
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;• 5连击：彩色粒子 + "+2步数减免"
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;• 10连击：全屏特效 + 解锁"连击大师"成就</p>
+                    <p><strong>⏱️ 限时模式：</strong>每关有时间限制，时间归零则失败！
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;剩余时间按比例奖励步数减免
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;完成所有限时挑战解锁"时间领主"成就</p>
                 </div>
                 <div class="modal-buttons">
                     <button id="help-close-btn" class="btn">我知道了</button>
@@ -1081,11 +120,12 @@ body.theme-dark .achievement-icon {
                 <button id="close-settings-modal" class="close-btn">×</button>
                 <h2>⚙️ 设置</h2>
                 <div class="settings-tabs">
-                    <div class="settings-tab active" data-tab="theme">🎨 主题</div>
+                    <div class="settings-tab active" data-tab="basic">⚙️ 基础设置</div>
                     <div class="settings-tab" data-tab="records">📊 记录</div>
                     <div class="settings-tab" data-tab="achievements">🏆 成就</div>
                 </div>
-                <div class="settings-panel active" data-panel="theme">
+                <div class="settings-panel active" data-panel="basic">
+                    <h3>🎨 主题</h3>
                     <div class="theme-grid">
                         <div class="theme-item" data-theme="classic">
                             <div class="theme-preview theme-preview-classic">
@@ -1123,6 +163,11 @@ body.theme-dark .achievement-icon {
                             <div class="theme-name">暗黑模式</div>
                         </div>
                     </div>
+                    <div class="tutorial-section">
+                        <h3>📚 新手教程</h3>
+                        <p class="tutorial-desc">重新查看游戏操作说明</p>
+                        <button id="show-tutorial-btn" class="btn">打开新手教程</button>
+                    </div>
                 </div>
                 <div class="settings-panel" data-panel="records">
                     <div class="records-section">
@@ -1148,18 +193,45 @@ body.theme-dark .achievement-icon {
             <div class="modal-content">
                 <button id="close-win-modal" class="close-btn">×</button>
                 <h2>🎉 恭喜通关！ 🎉</h2>
+                <div id="final-stars" class="final-stars">
+                    <span class="star empty">⭐</span>
+                    <span class="star empty">⭐</span>
+                    <span class="star empty">⭐</span>
+                </div>
                 <div class="win-stats">
                     <p>总步数: <span id="final-moves">0</span></p>
                     <p>用时: <span id="final-time">00:00</span></p>
+                    <p id="final-combo" class="final-combo hidden">最高连击: <span id="final-max-combo">0</span></p>
+                    <p id="time-bonus-info" class="time-bonus-info hidden">时间奖励: <span id="final-time-bonus">0</span> 步数减免</p>
+                    <p id="star-criteria" class="star-criteria"></p>
                     <p id="new-record" class="new-record hidden">🏆 新纪录！</p>
                 </div>
                 <div id="next-level-info" class="next-level-info hidden">
                     <p>🌟 已解锁第 <span id="unlocked-level-num"></span> 关！</p>
                 </div>
+                <div id="hidden-level-notice" class="hidden-level-notice hidden">
+                    <p>🔓 隐藏关卡已解锁！需要 <span id="stars-required">15</span> 颗星星</p>
+                </div>
                 <div class="modal-buttons">
                     <button id="play-again-btn" class="btn">重玩本关</button>
                     <button id="next-level-btn" class="btn hidden">下一关 →</button>
                     <button id="select-level-btn" class="btn btn-secondary">选择关卡</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="time-up-modal" class="modal hidden">
+            <div class="modal-content">
+                <button id="close-time-up-modal" class="close-btn">×</button>
+                <h2>⏱️ 时间到！</h2>
+                <div class="win-stats">
+                    <p>很遗憾，时间已用完！</p>
+                    <p>总步数: <span id="timeup-moves">0</span></p>
+                    <p>已配对: <span id="timeup-pairs">0</span></p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="timeup-retry-btn" class="btn">🔄 重新开始</button>
+                    <button id="timeup-close-btn" class="btn btn-secondary">关闭</button>
                 </div>
             </div>
         </div>
@@ -1176,6 +248,98 @@ body.theme-dark .achievement-icon {
                 <div class="modal-buttons">
                     <button id="bomb-retry-btn" class="btn">🔄 重新开始</button>
                     <button id="bomb-close-btn" class="btn btn-secondary">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="bomb-intro-modal" class="modal hidden">
+            <div class="modal-content">
+                <button id="close-bomb-intro-modal" class="close-btn">×</button>
+                <h2>挑战升级！炸弹卡片登场！</h2>
+                <div class="help-content">
+                    <p><strong>🎮 恭喜你通过了前8关！</strong></p>
+                    <p>从第9关开始，游戏中将出现<span style="color: #ff6b6b; font-weight: bold;">💣 炸弹卡片</span>，游戏难度大幅提升！</p>
+                    <p style="margin-top: 20px;"><strong>💣 炸弹规则说明：</strong></p>
+                    <p>• 关卡中会混入成对的炸弹卡片（💣）</p>
+                    <p>• 如果你翻开了<strong style="color: #ff6b6b;">两张炸弹</strong>并配对成功，游戏将<strong style="color: #ff6b6b;">立即失败</strong>！</p>
+                    <p>• 你需要避开炸弹，专注于配对普通卡片</p>
+                    <p>• 炸弹卡片的数量会随着关卡递增而增加</p>
+                    <p style="margin-top: 20px;"><strong>💡 温馨提示：</strong></p>
+                    <p>记住炸弹的位置，合理规划翻牌顺序，祝你好运！</p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="bomb-intro-close-btn" class="btn">我已准备好，开始挑战！</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tutorial-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>🎉 欢迎来到记忆配对游戏！</h2>
+                <div class="tutorial-welcome">
+                    <div class="tutorial-icon">🎴</div>
+                    <p class="tutorial-desc-large">让我来教你如何玩这个游戏，只需简单几步！</p>
+                    <div class="tutorial-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">🧠</span>
+                            <span>锻炼记忆力</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">�</span>
+                            <span>挑战更高关卡</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🏆</span>
+                            <span>解锁成就</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="tutorial-start-btn" class="btn">开始教程</button>
+                    <button id="tutorial-skip-btn" class="btn btn-secondary">跳过教程</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tutorial-guide" class="tutorial-guide hidden">
+            <div class="tutorial-guide-content">
+                <div class="tutorial-step-indicator">
+                    <span class="step-dot active" data-step="1"></span>
+                    <span class="step-dot" data-step="2"></span>
+                    <span class="step-dot" data-step="3"></span>
+                    <span class="step-dot" data-step="4"></span>
+                    <span class="step-dot" data-step="5"></span>
+                    <span class="step-dot" data-step="6"></span>
+                    <span class="step-dot" data-step="7"></span>
+                    <span class="step-dot" data-step="8"></span>
+                    <span class="step-dot" data-step="9"></span>
+                    <span class="step-dot" data-step="10"></span>
+                    <span class="step-dot" data-step="11"></span>
+                </div>
+                <h3 id="tutorial-guide-title" class="tutorial-guide-title"></h3>
+                <p id="tutorial-guide-text" class="tutorial-guide-text"></p>
+                <div class="tutorial-guide-buttons">
+                    <button id="tutorial-prev-btn" class="btn btn-secondary hidden">上一步</button>
+                    <button id="tutorial-next-btn" class="btn">下一步</button>
+                </div>
+            </div>
+            <div id="tutorial-highlight" class="tutorial-highlight hidden"></div>
+            <div id="tutorial-arrow" class="tutorial-arrow hidden"></div>
+        </div>
+
+        <div id="tutorial-bomb-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>💥 炸弹爆炸！</h2>
+                <div class="help-content">
+                    <p><strong>这就是炸弹卡片的效果！</strong></p>
+                    <p>如果你翻到了两张炸弹卡片并配对成功，游戏将立即失败！</p>
+                    <p style="margin-top: 15px;">在实际游戏中，你需要：</p>
+                    <p>• 记住炸弹的位置</p>
+                    <p>• 避开炸弹，专注于配对普通卡片</p>
+                    <p>• 合理规划翻牌顺序</p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="tutorial-bomb-close-btn" class="btn">我知道了，继续教程</button>
                 </div>
             </div>
         </div>
@@ -1203,947 +367,32 @@ body.theme-dark .achievement-icon {
             </div>
         </div>
 
+        <div id="pause-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>⏸️ 游戏暂停</h2>
+                <div class="win-stats">
+                    <p>游戏已暂停，休息一下吧！</p>
+                    <p>当前步数: <span id="pause-moves">0</span></p>
+                    <p>已配对: <span id="pause-pairs">0/0</span></p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="resume-btn" class="btn">▶️ 继续游戏</button>
+                    <button id="pause-restart-btn" class="btn btn-secondary">🔄 重新开始</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <script>
-const gameLevels = [
-    { rows: 2, cols: 3, pairs: 3, bomb: 0 },
-    { rows: 2, cols: 4, pairs: 4, bomb: 0 },
-    { rows: 2, cols: 5, pairs: 5, bomb: 0 },
-    { rows: 3, cols: 4, pairs: 6, bomb: 0 },
-    { rows: 4, cols: 4, pairs: 8, bomb: 0 },
-    { rows: 3, cols: 6, pairs: 9, bomb: 0 },
-    { rows: 5, cols: 6, pairs: 15, bomb: 0 },
-    { rows: 6, cols: 6, pairs: 18, bomb: 0 },
-    { rows: 2, cols: 3, pairs: 2, bomb: 1 },
-    { rows: 2, cols: 4, pairs: 3, bomb: 1 },
-    { rows: 2, cols: 5, pairs: 4, bomb: 1 },
-    { rows: 3, cols: 4, pairs: 5, bomb: 1 },
-    { rows: 4, cols: 4, pairs: 6, bomb: 2 },
-    { rows: 3, cols: 6, pairs: 7, bomb: 2 },
-    { rows: 5, cols: 6, pairs: 12, bomb: 3 },
-    { rows: 6, cols: 6, pairs: 15, bomb: 3 }
-];
-
-const cardEmojis = [
-    '🐱', '🐶', '🐼', '🦊', '🦁', '🐯', '🐨', '🐸',
-    '🐵', '🐔', '🐧', '🐦', '🦋', '🐝', '🐙', '🦀',
-    '🐠', '🐬'
-];
-
-const themes = {
-    classic: { name: '经典蓝紫', cardBack: '?' },
-    forest:  { name: '清新森林', cardBack: '🍃' },
-    sunset:  { name: '温暖日落', cardBack: '☀️' },
-    ocean:   { name: '深海蓝',   cardBack: '💧' },
-    dark:    { name: '暗黑模式', cardBack: '⭐' }
-};
-
-let currentTheme = 'classic';
-
-let soundEnabled = true;
-let regularPairs = 0;
-let audioCtx = null;
-
-function ensureAudio() {
-    if (!audioCtx) {
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        } catch (e) {
-            audioCtx = null;
-        }
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-    return audioCtx;
-}
-
-function playSound(type) {
-    if (!soundEnabled) return;
-    const ctx = ensureAudio();
-    if (!ctx) return;
-
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    let freq = 440, duration = 0.15, volume = 0.2, wave = 'sine';
-
-    switch (type) {
-        case 'flip':
-            freq = 320; duration = 0.08; volume = 0.15; wave = 'triangle';
-            break;
-        case 'match':
-            playSequence([
-                { f: 523, d: 0.1 }, { f: 659, d: 0.12 }, { f: 784, d: 0.18 }
-            ], 0.25);
-            return;
-        case 'wrong':
-            freq = 180; duration = 0.2; volume = 0.2; wave = 'sawtooth';
-            break;
-        case 'win':
-            playSequence([
-                { f: 523, d: 0.12 }, { f: 659, d: 0.12 }, { f: 784, d: 0.12 },
-                { f: 1047, d: 0.25 }
-            ], 0.3);
-            return;
-        case 'record':
-            playSequence([
-                { f: 784, d: 0.1 }, { f: 988, d: 0.1 }, { f: 1175, d: 0.1 },
-                { f: 1319, d: 0.25 }
-            ], 0.35);
-            return;
-        case 'click':
-            freq = 600; duration = 0.05; volume = 0.1; wave = 'square';
-            break;
-        case 'bomb':
-            playSequence([
-                { f: 120, d: 0.15 }, { f: 80, d: 0.2 }, { f: 50, d: 0.3 }
-            ], 0.4);
-            return;
-    }
-
-    osc.type = wave;
-    osc.frequency.setValueAtTime(freq, now);
-    gain.gain.setValueAtTime(volume, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    osc.start(now);
-    osc.stop(now + duration);
-}
-
-function playSequence(notes, volume) {
-    const ctx = ensureAudio();
-    if (!ctx) return;
-    let t = ctx.currentTime;
-    notes.forEach(n => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(n.f, t);
-        gain.gain.setValueAtTime(volume, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + n.d);
-        osc.start(t);
-        osc.stop(t + n.d);
-        t += n.d * 0.85;
-    });
-}
-
-const achievementList = [
-    { id: 'ACH001', name: '初出茅庐', icon: '🎯', desc: '完成第1关' },
-    { id: 'ACH002', name: '记忆高手', icon: '🧠', desc: '完成第2关' },
-    { id: 'ACH003', name: '最强大脑', icon: '💪', desc: '完成第3关' },
-    { id: 'ACH004', name: '挑战者', icon: '🔥', desc: '完成第4关' },
-    { id: 'ACH005', name: '征服者', icon: '⚔️', desc: '完成第5关' },
-    { id: 'ACH006', name: '大师级', icon: '🏅', desc: '完成第6关' },
-    { id: 'ACH007', name: '传奇记忆', icon: '🌟', desc: '完成第7关' },
-    { id: 'ACH008', name: '终极挑战者', icon: '👑', desc: '完成第8关' },
-    { id: 'ACH009', name: '完美通关', icon: '✨', desc: '第1关最佳步数（6步）完成' },
-    { id: 'ACH010', name: '闪电反应', icon: '⚡', desc: '第1关10秒内完成' },
-    { id: 'ACH011', name: '零失误', icon: '🎪', desc: '任意关卡零失误完成' },
-    { id: 'ACH012', name: '坚持不懈', icon: '🔄', desc: '累计游戏100次' },
-    { id: 'ACH013', name: '速度大师', icon: '🚀', desc: '任意关卡以最佳步数完成' },
-    { id: 'ACH015', name: '炸弹初体验', icon: '💣', desc: '完成第9关（首个炸弹关）' },
-    { id: 'ACH016', name: '炸弹专家', icon: '💥', desc: '完成第12关' },
-    { id: 'ACH017', name: '拆弹大师', icon: '🛠️', desc: '完成第16关（终极炸弹关）' },
-    { id: 'ACH018', name: '炸弹零失误', icon: '🎯', desc: '炸弹关卡零失误完成' },
-    { id: 'ACH014', name: '收藏家', icon: '🏆', desc: '解锁全部成就' }
-];
-
-let currentLevel = 0;
-let cards = [];
-let lockBoard = false;
-let firstCard = null;
-let secondCard = null;
-let matchedPairs = 0;
-let moves = 0;
-let timer = null;
-let seconds = 0;
-let gameStarted = false;
-let gameWon = false;
-let bestScores = {};
-let unlockedLevels = {};
-let achievements = {};
-let gameStats = {
-    totalGames: 0,
-    totalTime: 0,
-    totalPairs: 0,
-    perLevel: {}
-};
-let misses = 0;
-let newlyUnlockedAchievements = [];
-
-const STORAGE_KEYS = {
-    progress: 'memoryGameProgress',
-    bestScores: 'memoryGameBestScores',
-    theme: 'memoryGameTheme',
-    achievements: 'memoryGameAchievements',
-    stats: 'memoryGameStats',
-    sound: 'memoryGameSound'
-};
-
-const gameBoard = document.getElementById('game-board');
-const movesDisplay = document.getElementById('moves');
-const timerDisplay = document.getElementById('timer');
-const pairsDisplay = document.getElementById('pairs');
-const bestScoreDisplay = document.getElementById('best-score');
-const restartBtn = document.getElementById('restart-btn');
-const resetProgressBtn = document.getElementById('reset-progress-btn');
-const winModal = document.getElementById('win-modal');
-const finalMoves = document.getElementById('final-moves');
-const finalTime = document.getElementById('final-time');
-const newRecord = document.getElementById('new-record');
-const playAgainBtn = document.getElementById('play-again-btn');
-const nextLevelBtn = document.getElementById('next-level-btn');
-const selectLevelBtn = document.getElementById('select-level-btn');
-const closeWinModalBtn = document.getElementById('close-win-modal');
-const nextLevelInfo = document.getElementById('next-level-info');
-const unlockedLevelNum = document.getElementById('unlocked-level-num');
-const confirmModal = document.getElementById('confirm-modal');
-const confirmYesBtn = document.getElementById('confirm-yes-btn');
-const confirmNoBtn = document.getElementById('confirm-no-btn');
-const resetProgressModal = document.getElementById('reset-progress-modal');
-const resetCurrentBtn = document.getElementById('reset-current-btn');
-const resetAllBtn = document.getElementById('reset-all-btn');
-const resetCancelBtn = document.getElementById('reset-cancel-btn');
-const levelBtn = document.getElementById('level-btn');
-const levelDropdown = document.getElementById('level-dropdown');
-const currentLevelLabel = document.getElementById('current-level-label');
-const helpBtn = document.getElementById('help-btn');
-const helpModal = document.getElementById('help-modal');
-const helpCloseBtn = document.getElementById('help-close-btn');
-const closeHelpModalBtn = document.getElementById('close-help-modal');
-const settingsBtn = document.getElementById('settings-btn');
-const soundBtn = document.getElementById('sound-btn');
-const settingsModal = document.getElementById('settings-modal');
-const closeSettingsModalBtn = document.getElementById('close-settings-modal');
-const themeItems = document.querySelectorAll('.theme-item');
-const settingsTabs = document.querySelectorAll('.settings-tab');
-const settingsPanels = document.querySelectorAll('.settings-panel');
-const recordGamesEl = document.getElementById('record-games');
-const recordTimeEl = document.getElementById('record-time');
-const recordPairsEl = document.getElementById('record-pairs');
-const recordsPerLevelEl = document.getElementById('records-per-level');
-const achievementsGridEl = document.getElementById('achievements-grid');
-
-function getStorageKey(baseKey) {
-    return baseKey;
-}
-
-function loadGameData() {
-    const savedScores = localStorage.getItem(getStorageKey(STORAGE_KEYS.bestScores));
-    if (savedScores) {
-        bestScores = JSON.parse(savedScores);
-    }
-    const savedProgress = localStorage.getItem(getStorageKey(STORAGE_KEYS.progress));
-    if (savedProgress) {
-        unlockedLevels = JSON.parse(savedProgress);
-    } else {
-        unlockedLevels = { 0: true };
-    }
-    const savedTheme = localStorage.getItem(getStorageKey(STORAGE_KEYS.theme));
-    if (savedTheme && themes[savedTheme]) {
-        currentTheme = savedTheme;
-    }
-    const savedAchievements = localStorage.getItem(getStorageKey(STORAGE_KEYS.achievements));
-    if (savedAchievements) {
-        achievements = JSON.parse(savedAchievements);
-    }
-    const savedStats = localStorage.getItem(getStorageKey(STORAGE_KEYS.stats));
-    if (savedStats) {
-        gameStats = JSON.parse(savedStats);
-    }
-    const savedSound = localStorage.getItem(getStorageKey(STORAGE_KEYS.sound));
-    if (savedSound !== null) {
-        soundEnabled = savedSound === 'true';
-    }
-    if (soundBtn) soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-    applyTheme(currentTheme);
-}
-
-function saveProgress(silent) {
-    localStorage.setItem(getStorageKey(STORAGE_KEYS.progress), JSON.stringify(unlockedLevels));
-}
-
-function unlockNextLevel(level) {
-    if (level + 1 < gameLevels.length) {
-        unlockedLevels[level + 1] = true;
-        saveProgress();
-    }
-}
-
-function resetAllProgress() {
-    unlockedLevels = { 0: true };
-    saveProgress();
-    currentLevel = 0;
-}
-
-function resetCurrentLevelProgress() {
-    delete bestScores[currentLevel];
-    localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
-    if (gameStats.perLevel[currentLevel]) {
-        delete gameStats.perLevel[currentLevel];
-        saveStats();
-    }
-}
-
-function saveBestScore(level, score) {
-    if (!bestScores[level] || score < bestScores[level]) {
-        bestScores[level] = score;
-        localStorage.setItem(getStorageKey(STORAGE_KEYS.bestScores), JSON.stringify(bestScores));
-        return true;
-    }
-    return false;
-}
-
-function updateBestScoreDisplay() {
-    const best = bestScores[currentLevel];
-    bestScoreDisplay.textContent = best ? best : '-';
-}
-
-function applyTheme(themeName) {
-    document.body.className = `theme-${themeName}`;
-    updateThemeItems();
-}
-
-function setTheme(themeName) {
-    if (!themes[themeName]) return;
-    currentTheme = themeName;
-    localStorage.setItem(getStorageKey(STORAGE_KEYS.theme), themeName);
-    applyTheme(themeName);
-    createBoard();
-}
-
-function updateThemeItems() {
-    themeItems.forEach(item => {
-        const themeName = item.dataset.theme;
-        item.classList.toggle('active', themeName === currentTheme);
-    });
-}
-
-function saveAchievements(silent) {
-    localStorage.setItem(getStorageKey(STORAGE_KEYS.achievements), JSON.stringify(achievements));
-}
-
-function saveStats(silent) {
-    localStorage.setItem(getStorageKey(STORAGE_KEYS.stats), JSON.stringify(gameStats));
-}
-
-function unlockAchievement(achId) {
-    if (achievements[achId]) return;
-    achievements[achId] = { unlocked: true, date: new Date().toLocaleDateString('zh-CN') };
-    newlyUnlockedAchievements.push(achId);
-    saveAchievements();
-}
-
-function checkAchievements() {
-    const level = gameLevels[currentLevel];
-
-    const levelAchievements = {
-        0: 'ACH001', 1: 'ACH002', 2: 'ACH003', 3: 'ACH004',
-        4: 'ACH005', 5: 'ACH006', 6: 'ACH007', 7: 'ACH008',
-        8: 'ACH015', 11: 'ACH016', 15: 'ACH017'
-    };
-    if (gameWon && levelAchievements[currentLevel]) {
-        unlockAchievement(levelAchievements[currentLevel]);
-    }
-    if (currentLevel === 0 && gameWon && moves <= 6) {
-        unlockAchievement('ACH009');
-    }
-    if (currentLevel === 0 && gameWon && seconds <= 10) {
-        unlockAchievement('ACH010');
-    }
-    if (gameWon && misses === 0) {
-        unlockAchievement('ACH011');
-        if (level.bomb > 0) {
-            unlockAchievement('ACH018');
-        }
-    }
-    if (gameStats.totalGames >= 100) {
-        unlockAchievement('ACH012');
-    }
-    if (gameWon && bestScores[currentLevel] && moves <= bestScores[currentLevel]) {
-        unlockAchievement('ACH013');
-    }
-
-    const allOtherAchievements = achievementList
-        .filter(a => a.id !== 'ACH014')
-        .every(a => achievements[a.id]);
-    if (allOtherAchievements) {
-        unlockAchievement('ACH014');
-    }
-}
-
-function showAchievementNotification() {
-    if (newlyUnlockedAchievements.length === 0) return;
-
-    const names = newlyUnlockedAchievements
-        .map(id => achievementList.find(a => a.id === id))
-        .filter(Boolean)
-        .map(a => `${a.icon} ${a.name}`);
-
-    newlyUnlockedAchievements = [];
-
-    const existingNotif = document.querySelector('.achievement-notification');
-    if (existingNotif) existingNotif.remove();
-
-    const notif = document.createElement('div');
-    notif.className = 'achievement-notification';
-    notif.innerHTML = `
-        <div class="achievement-notif-content">
-            <div class="achievement-notif-title">🏆 新成就解锁！</div>
-            <div class="achievement-notif-items">${names.join('<br>')}</div>
-        </div>
-    `;
-    document.body.appendChild(notif);
-    setTimeout(() => notif.remove(), 3500);
-}
-
-function renderRecords() {
-    recordGamesEl.textContent = gameStats.totalGames;
-    const totalMins = Math.floor(gameStats.totalTime / 60).toString().padStart(2, '0');
-    const totalSecs = (gameStats.totalTime % 60).toString().padStart(2, '0');
-    recordTimeEl.textContent = `${totalMins}:${totalSecs}`;
-    recordPairsEl.textContent = gameStats.totalPairs;
-
-    recordsPerLevelEl.innerHTML = '';
-    gameLevels.forEach((level, index) => {
-        const rec = gameStats.perLevel[index];
-        const div = document.createElement('div');
-        div.className = 'level-record';
-        const bombText = level.bomb > 0 ? ` 炸弹×${level.bomb}` : '';
-        if (rec) {
-            div.innerHTML = `
-                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombText}</div>
-                <div class="level-stats">最佳步数: <span>${rec.bestMoves || '-'}</span></div>
-                <div class="level-stats">完成次数: <span>${rec.completions || 0}</span></div>
-            `;
-        } else {
-            div.innerHTML = `
-                <div class="level-name">第${index + 1}关 (${level.cols}×${level.rows})${bombText}</div>
-                <div class="level-stats">最佳步数: <span>-</span></div>
-                <div class="level-stats">完成次数: <span>0</span></div>
-            `;
-        }
-        recordsPerLevelEl.appendChild(div);
-    });
-}
-
-function renderAchievements() {
-    achievementsGridEl.innerHTML = '';
-    achievementList.forEach(ach => {
-        const unlocked = achievements[ach.id];
-        const div = document.createElement('div');
-        div.className = 'achievement-item' + (unlocked ? ' unlocked' : '');
-        div.innerHTML = `
-            <div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div>
-            <div class="achievement-info">
-                <div class="achievement-name">${ach.name}</div>
-                <div class="achievement-desc">${ach.desc}</div>
-                ${unlocked ? `<div class="achievement-date">${unlocked.date}</div>` : ''}
-            </div>
-        `;
-        achievementsGridEl.appendChild(div);
-    });
-}
-
-function switchSettingsTab(tabName) {
-    settingsTabs.forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.tab === tabName);
-    });
-    settingsPanels.forEach(panel => {
-        panel.classList.toggle('active', panel.dataset.panel === tabName);
-    });
-    if (tabName === 'records') {
-        renderRecords();
-    }
-    if (tabName === 'achievements') {
-        renderAchievements();
-    }
-}
-
-function updateGameStats() {
-    gameStats.totalGames++;
-    gameStats.totalTime += seconds;
-    gameStats.totalPairs += regularPairs;
-
-    if (!gameStats.perLevel[currentLevel]) {
-        gameStats.perLevel[currentLevel] = { completions: 0, bestMoves: null };
-    }
-    const levelStat = gameStats.perLevel[currentLevel];
-    levelStat.completions++;
-    if (!levelStat.bestMoves || moves < levelStat.bestMoves) {
-        levelStat.bestMoves = moves;
-    }
-    saveStats();
-}
-
-function initGame() {
-    loadGameData();
-    createBoard();
-    resetStats();
-    updateDifficultyButtons();
-    updateBestScoreDisplay();
-}
-
-function updateDifficultyButtons() {
-    levelDropdown.innerHTML = '';
-    gameLevels.forEach((level, index) => {
-        const option = document.createElement('div');
-        option.className = 'level-option';
-        option.dataset.level = index;
-        if (index === currentLevel) option.classList.add('active');
-        if (!unlockedLevels[index]) option.classList.add('locked');
-        const bombLine = level.bomb > 0 ? `<span class="level-bomb">炸弹×${level.bomb}</span>` : '';
-        option.innerHTML = `
-            <span class="level-name">第${index + 1}关</span>
-            <span class="level-dims">(${level.cols}×${level.rows})</span>
-            ${bombLine}
-        `;
-        option.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const lvl = parseInt(option.dataset.level);
-            if (!unlockedLevels[lvl]) return;
-            changeLevel(lvl);
-            closeLevelDropdown();
-        });
-        levelDropdown.appendChild(option);
-    });
-    const curLevel = gameLevels[currentLevel];
-    const curBombText = curLevel.bomb > 0 ? ` 炸弹×${curLevel.bomb}` : '';
-    currentLevelLabel.textContent = `第${currentLevel + 1}关 (${curLevel.cols}×${curLevel.rows})${curBombText}`;
-}
-
-function createBoard() {
-    const level = gameLevels[currentLevel];
-    const totalCards = level.rows * level.cols;
-
-    let bombPairs;
-    if (level.bomb > 0) {
-        bombPairs = level.bomb;
-        regularPairs = level.pairs;
-    } else {
-        bombPairs = 0;
-        regularPairs = level.pairs;
-    }
-
-    gameBoard.innerHTML = '';
-    gameBoard.className = 'game-board';
-    gameBoard.style.gridTemplateColumns = `repeat(${level.cols}, minmax(auto, 150px))`;
-    
-    cards = [];
-    const emojis = cardEmojis.slice(0, regularPairs);
-    const regularCardPairs = [...emojis, ...emojis];
-    const bombCardPairs = bombPairs > 0 ? Array(bombPairs * 2).fill('💣') : [];
-    const cardPairs = [...regularCardPairs, ...bombCardPairs];
-    
-    shuffleArray(cardPairs);
-    
-    cardPairs.forEach((emoji, index) => {
-        const isBomb = emoji === '💣';
-        cards.push({
-            id: index,
-            type: emoji,
-            flipped: false,
-            matched: false,
-            isBomb: isBomb
-        });
-        
-        const card = document.createElement('div');
-        card.className = 'card' + (isBomb ? ' bomb' : '');
-        card.dataset.index = index;
-        card.innerHTML = `
-            <div class="card-inner">
-                <div class="card-back">${themes[currentTheme].cardBack}</div>
-                <div class="card-front">${emoji}</div>
-            </div>
-        `;
-        card.addEventListener('click', flipCard);
-        gameBoard.appendChild(card);
-    });
-    
-    pairsDisplay.textContent = `0/${regularPairs}`;
-}
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-function flipCard(e) {
-    const cardElement = e.currentTarget;
-    const index = parseInt(cardElement.dataset.index);
-    const card = cards[index];
-    
-    if (lockBoard || card.matched || card.flipped || 
-        (firstCard && firstCard.id === index)) {
-        return;
-    }
-    
-    if (!gameStarted) {
-        startTimer();
-        gameStarted = true;
-    }
-    
-    card.flipped = true;
-    cardElement.classList.add('flipped');
-    playSound('flip');
-    
-    if (!firstCard) {
-        firstCard = { element: cardElement, ...card };
-    } else {
-        secondCard = { element: cardElement, ...card };
-        moves++;
-        movesDisplay.textContent = moves;
-        checkMatch();
-    }
-}
-
-function checkMatch() {
-    const isMatch = firstCard.type === secondCard.type;
-    
-    if (isMatch) {
-        if (firstCard.isBomb && secondCard.isBomb) {
-            bombExplode();
-        } else {
-            disableCards();
-        }
-    } else {
-        unflipCards();
-    }
-}
-
-function disableCards() {
-    firstCard.element.classList.add('matched');
-    secondCard.element.classList.add('matched');
-    cards[firstCard.id].matched = true;
-    cards[secondCard.id].matched = true;
-    
-    matchedPairs++;
-    pairsDisplay.textContent = `${matchedPairs}/${regularPairs}`;
-    
-    playSound('match');
-    resetBoard();
-    
-    if (matchedPairs === regularPairs) {
-        setTimeout(showWinModal, 500);
-    }
-}
-
-function bombExplode() {
-    lockBoard = true;
-    firstCard.element.classList.add('matched', 'bomb-explode');
-    secondCard.element.classList.add('matched', 'bomb-explode');
-    cards[firstCard.id].matched = true;
-    cards[secondCard.id].matched = true;
-    playSound('bomb');
-    setTimeout(showBombModal, 700);
-}
-
-function unflipCards() {
-    lockBoard = true;
-    misses++;
-    playSound('wrong');
-    
-    setTimeout(() => {
-        firstCard.element.classList.remove('flipped');
-        secondCard.element.classList.remove('flipped');
-        cards[firstCard.id].flipped = false;
-        cards[secondCard.id].flipped = false;
-        resetBoard();
-    }, 1000);
-}
-
-function resetBoard() {
-    [firstCard, secondCard, lockBoard] = [null, null, false];
-}
-
-function startTimer() {
-    stopTimer();
-    seconds = 0;
-    timer = setInterval(() => {
-        seconds++;
-        updateTimerDisplay();
-    }, 1000);
-}
-
-function stopTimer() {
-    if (timer) {
-        clearInterval(timer);
-        timer = null;
-    }
-}
-
-function updateTimerDisplay() {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
-    timerDisplay.textContent = `${mins}:${secs}`;
-}
-
-function resetStats() {
-    stopTimer();
-    moves = 0;
-    seconds = 0;
-    matchedPairs = 0;
-    gameStarted = false;
-    gameWon = false;
-    misses = 0;
-    lockBoard = false;
-    firstCard = null;
-    secondCard = null;
-    movesDisplay.textContent = '0';
-    timerDisplay.textContent = '00:00';
-    newRecord.classList.add('hidden');
-}
-
-function showWinModal() {
-    stopTimer();
-    gameWon = true;
-    
-    updateGameStats();
-    checkAchievements();
-    showAchievementNotification();
-    
-    unlockNextLevel(currentLevel);
-    
-    finalMoves.textContent = moves;
-    finalTime.textContent = timerDisplay.textContent;
-    
-    const isNewRecord = saveBestScore(currentLevel, moves);
-    if (isNewRecord) {
-        newRecord.classList.remove('hidden');
-        updateBestScoreDisplay();
-        playSound('record');
-    } else {
-        playSound('win');
-    }
-    
-    if (currentLevel < gameLevels.length - 1) {
-        nextLevelInfo.classList.remove('hidden');
-        nextLevelBtn.classList.remove('hidden');
-        unlockedLevelNum.textContent = currentLevel + 2;
-    } else {
-        nextLevelInfo.classList.add('hidden');
-        nextLevelBtn.classList.add('hidden');
-    }
-    
-    updateDifficultyButtons();
-    winModal.classList.remove('hidden');
-}
-
-function hideWinModal() {
-    winModal.classList.add('hidden');
-}
-
-function showBombModal() {
-    stopTimer();
-    const bombMovesEl = document.getElementById('bomb-moves');
-    const bombTimeEl = document.getElementById('bomb-time');
-    if (bombMovesEl) bombMovesEl.textContent = moves;
-    if (bombTimeEl) bombTimeEl.textContent = timerDisplay.textContent;
-    const bombModal = document.getElementById('bomb-modal');
-    if (bombModal) bombModal.classList.remove('hidden');
-}
-
-function hideBombModal() {
-    const bombModal = document.getElementById('bomb-modal');
-    if (bombModal) bombModal.classList.add('hidden');
-}
-
-function showConfirmModal() {
-    confirmModal.classList.remove('hidden');
-}
-
-function hideConfirmModal() {
-    confirmModal.classList.add('hidden');
-}
-
-function restartGame() {
-    resetStats();
-    createBoard();
-    hideWinModal();
-}
-
-function nextLevel() {
-    if (currentLevel < gameLevels.length - 1 && unlockedLevels[currentLevel + 1]) {
-        currentLevel++;
-        updateDifficultyButtons();
-        updateBestScoreDisplay();
-        restartGame();
-    }
-}
-
-function selectLevel() {
-    hideWinModal();
-    levelDropdown.classList.toggle('hidden');
-}
-
-function toggleLevelDropdown() {
-    levelDropdown.classList.toggle('hidden');
-}
-
-function closeLevelDropdown() {
-    levelDropdown.classList.add('hidden');
-}
-
-function changeLevel(levelIndex) {
-    if (levelIndex === currentLevel) return;
-    
-    if (!unlockedLevels[levelIndex]) {
-        return;
-    }
-    
-    if (!gameWon && (gameStarted || moves > 0)) {
-        showConfirmModal();
-        confirmYesBtn.onclick = () => {
-            currentLevel = levelIndex;
-            updateDifficultyButtons();
-            updateBestScoreDisplay();
-            restartGame();
-            hideConfirmModal();
-        };
-        confirmNoBtn.onclick = hideConfirmModal;
-        confirmYesBtn.textContent = '确定';
-        confirmModal.querySelector('h3').textContent = '⚠️ 确认重置';
-        confirmModal.querySelector('p').textContent = '当前进度将丢失，确定重置吗？';
-    } else {
-        currentLevel = levelIndex;
-        updateDifficultyButtons();
-        updateBestScoreDisplay();
-        restartGame();
-    }
-}
-
-restartBtn.addEventListener('click', () => {
-    if (gameStarted || moves > 0) {
-        showConfirmModal();
-        confirmYesBtn.onclick = () => {
-            restartGame();
-            hideConfirmModal();
-        };
-        confirmNoBtn.onclick = hideConfirmModal;
-        confirmYesBtn.textContent = '确定';
-        confirmModal.querySelector('h3').textContent = '⚠️ 确认重置';
-        confirmModal.querySelector('p').textContent = '当前进度将丢失，确定重置吗？';
-    } else {
-        restartGame();
-    }
-});
-
-resetProgressBtn.addEventListener('click', () => {
-    resetProgressModal.classList.remove('hidden');
-});
-
-resetCurrentBtn.addEventListener('click', () => {
-    resetCurrentLevelProgress();
-    updateDifficultyButtons();
-    updateBestScoreDisplay();
-    restartGame();
-    resetProgressModal.classList.add('hidden');
-});
-
-resetAllBtn.addEventListener('click', () => {
-    resetAllProgress();
-    updateDifficultyButtons();
-    updateBestScoreDisplay();
-    restartGame();
-    resetProgressModal.classList.add('hidden');
-});
-
-resetCancelBtn.addEventListener('click', () => {
-    resetProgressModal.classList.add('hidden');
-});
-
-playAgainBtn.addEventListener('click', restartGame);
-nextLevelBtn.addEventListener('click', nextLevel);
-selectLevelBtn.addEventListener('click', selectLevel);
-closeWinModalBtn.addEventListener('click', hideWinModal);
-
-const closeBombModalBtn = document.getElementById('close-bomb-modal');
-const bombRetryBtn = document.getElementById('bomb-retry-btn');
-const bombCloseBtn = document.getElementById('bomb-close-btn');
-if (closeBombModalBtn) closeBombModalBtn.addEventListener('click', hideBombModal);
-if (bombRetryBtn) bombRetryBtn.addEventListener('click', () => { hideBombModal(); restartGame(); });
-if (bombCloseBtn) bombCloseBtn.addEventListener('click', hideBombModal);
-
-levelBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleLevelDropdown();
-});
-
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.level-selector')) {
-        closeLevelDropdown();
-    }
-});
-
-helpBtn.addEventListener('click', () => {
-    helpModal.classList.remove('hidden');
-});
-
-helpCloseBtn.addEventListener('click', () => {
-    helpModal.classList.add('hidden');
-});
-
-closeHelpModalBtn.addEventListener('click', () => {
-    helpModal.classList.add('hidden');
-});
-
-settingsBtn.addEventListener('click', () => {
-    settingsModal.classList.remove('hidden');
-    switchSettingsTab('theme');
-});
-
-closeSettingsModalBtn.addEventListener('click', () => {
-    settingsModal.classList.add('hidden');
-});
-
-themeItems.forEach(item => {
-    item.addEventListener('click', () => {
-        const themeName = item.dataset.theme;
-        setTheme(themeName);
-    });
-});
-
-if (soundBtn) {
-    soundBtn.addEventListener('click', () => {
-        soundEnabled = !soundEnabled;
-        localStorage.setItem(getStorageKey(STORAGE_KEYS.sound), soundEnabled);
-        soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-        if (soundEnabled) playSound('click');
-    });
-}
-
-settingsTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        switchSettingsTab(tab.dataset.tab);
-    });
-});
-
-document.addEventListener('click', (e) => {
-    if (e.target === helpModal) {
-        helpModal.classList.add('hidden');
-    }
-    if (e.target === settingsModal) {
-        settingsModal.classList.add('hidden');
-    }
-    const bombModal = document.getElementById('bomb-modal');
-    if (e.target === bombModal) {
-        bombModal.classList.add('hidden');
-    }
-    if (e.target === resetProgressModal) {
-        resetProgressModal.classList.add('hidden');
-    }
-});
-
-document.addEventListener('DOMContentLoaded', initGame);
-    </script>
-
-
+    <script src="js/config.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/tutorial.js"></script>
+    <script src="js/events.js"></script>
+</body>
 </html>

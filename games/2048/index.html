@@ -4,7 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2048消消乐</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/tiles.css">
+  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/settings.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
   <div class="game-container">
@@ -13,8 +19,11 @@
         <div class="board-header">
           <h1 class="game-title">2048消消乐</h1>
           <div class="header-buttons">
+            <button class="shuffle-btn" id="shuffleBtn" title="洗牌">
+              <span class="shuffle-icon">🔀</span>
+            </button>
             <button class="undo-btn" id="undoBtn" title="撤回上一步" disabled>
-              <span class="undo-text">撤销</span><span class="undo-icon">↶</span>
+              <span class="undo-icon">↶</span><span class="undo-count" id="undoCount">5</span>
             </button>
           </div>
         </div>
@@ -38,7 +47,7 @@
             <span class="mode-label">时间模式：</span>
             <div class="mode-buttons">
               <button class="mode-btn active" data-mode="unlimited">不限时</button>
-              <button class="mode-btn" data-mode="timed">限时10分钟</button>
+              <button class="mode-btn" data-mode="timed">限时30秒</button>
             </div>
           </div>
           <div class="variant-group">
@@ -61,7 +70,13 @@
           </div>
         </div>
 
-        <button class="new-game-btn" id="newGameBtn">新一局</button>
+        <div class="game-buttons">
+          <button class="pause-btn" id="pauseBtn" title="暂停/继续计时">
+            <span class="pause-icon">⏸</span>
+            <span class="pause-text">暂停</span>
+          </button>
+          <button class="new-game-btn" id="newGameBtn">新一局</button>
+        </div>
       </div>
     </div>
   </div>
@@ -89,7 +104,7 @@
             <div class="help-section">
               <h4>⏱️ 时间模式</h4>
               <ul>
-                <li>限时 10 分钟：在 10 分钟内尽可能获得高分</li>
+                <li>限时 30 秒：在 30 秒内尽可能获得高分</li>
                 <li>不限时：无时间限制，但会记录游戏时间</li>
               </ul>
             </div>
@@ -131,6 +146,29 @@
                 <li>若冻结的数字参与了合并，冰块倒计时额外 -1（即总共 -2）</li>
               </ul>
             </div>
+            <div class="help-section">
+              <h4>🌀 传送门</h4>
+              <ul>
+                <li>紫色漩涡外观的特殊空白格子（无数字）</li>
+                <li>随机出现在棋盘的空白格上</li>
+                <li>其他数字如果移动进入这个格子，会被随机传送到棋盘上的另一个空白格</li>
+                <li>传送这一步不参与合并，只是单纯的位置转移</li>
+                <li>传送一次后传送门消失，并进入冷却期</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h4>⛓️ 锁链方块</h4>
+              <ul>
+                <li>灰色铁链外观的特殊数字方块</li>
+                <li><strong>绑定前</strong>：锁链方块无法与任何方块合并</li>
+                <li>当锁链方块移动后与某个普通数字相邻时，会自动与其绑定</li>
+                <li><strong>绑定后</strong>：两个方块同步移动、同时被挡住</li>
+                <li>绑定后的两个方块可以和<strong>其他</strong>数字合并，但<strong>相互之间不能合并</strong></li>
+                <li>绑定后有 <strong>5 次滑动</strong>的倒计时，每次滑动减 1</li>
+                <li>如果绑定的数字参与了合并，每次合并额外减 1（两个都合并则额外减 2）</li>
+                <li>倒计时归零后自动解锁，锁链方块变为普通数字，可自由滑动</li>
+              </ul>
+            </div>
           </div>
           <div class="help-page">
             <div class="help-final">
@@ -166,6 +204,7 @@
       <div class="settings-tabs">
         <button class="settings-tab active" data-tab="records">游戏记录</button>
         <button class="settings-tab" data-tab="achievements">成就</button>
+        <button class="settings-tab" data-tab="theme">主题</button>
       </div>
       <div class="modal-body" id="settingsModalBody">
         <div class="settings-page active" id="recordsPage">
@@ -179,37 +218,56 @@
               <span class="score-item-label">限时·趣味</span>
               <span class="score-item-value" id="timedFunHighest">0</span>
             </div>
-            <div class="score-item">
+            <div class="score-item score-item-with-time">
               <span class="score-item-label">不限时·普通</span>
               <span class="score-item-value" id="unlimitedNormalHighest">0</span>
+              <span class="score-item-time" id="unlimitedNormalBestTime">用时 --:--</span>
             </div>
-            <div class="score-item">
+            <div class="score-item score-item-with-time">
               <span class="score-item-label">不限时·趣味</span>
               <span class="score-item-value" id="unlimitedFunHighest">0</span>
-            </div>
-          </div>
-          <h3 class="settings-section-title">最快通关记录</h3>
-          <div class="best-times">
-            <div class="best-time-item">
-              <span class="best-time-label">不限时·普通最快</span>
-              <span class="best-time-value" id="unlimitedNormalBestTime">--:--</span>
-            </div>
-            <div class="best-time-item">
-              <span class="best-time-label">不限时·趣味最快</span>
-              <span class="best-time-value" id="unlimitedFunBestTime">--:--</span>
-            </div>
-            <div class="best-time-item">
-              <span class="best-time-label">限时·普通最快</span>
-              <span class="best-time-value" id="timedNormalBestTime">--:--</span>
-            </div>
-            <div class="best-time-item">
-              <span class="best-time-label">限时·趣味最快</span>
-              <span class="best-time-value" id="timedFunBestTime">--:--</span>
+              <span class="score-item-time" id="unlimitedFunBestTime">用时 --:--</span>
             </div>
           </div>
         </div>
         <div class="settings-page" id="achievementsPage">
+          <div class="achievement-category-tabs" id="achievementCategoryTabs">
+            <button class="achievement-category-tab active" data-category="all">全部成就</button>
+            <button class="achievement-category-tab" data-category="tile">数字合成</button>
+            <button class="achievement-category-tab" data-category="score">得分成就</button>
+            <button class="achievement-category-tab" data-category="fun">趣味模式</button>
+            <button class="achievement-category-tab" data-category="special">特殊成就</button>
+          </div>
           <div class="achievements-grid" id="achievementsGrid">
+          </div>
+        </div>
+        <div class="settings-page" id="themePage">
+          <h3 class="settings-section-title">选择主题</h3>
+          <div class="themes-grid" id="themesGrid">
+            <div class="theme-card active" data-theme="classic">
+              <div class="theme-preview theme-preview-classic">
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              </div>
+              <div class="theme-name">经典</div>
+            </div>
+            <div class="theme-card" data-theme="dark">
+              <div class="theme-preview theme-preview-dark">
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              </div>
+              <div class="theme-name">深色</div>
+            </div>
+            <div class="theme-card" data-theme="ocean">
+              <div class="theme-preview theme-preview-ocean">
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              </div>
+              <div class="theme-name">海洋</div>
+            </div>
+            <div class="theme-card" data-theme="forest">
+              <div class="theme-preview theme-preview-forest">
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              </div>
+              <div class="theme-name">森林</div>
+            </div>
           </div>
         </div>
       </div>
@@ -281,6 +339,14 @@
     </div>
   </div>
 
-  <script src="game.js"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/cell.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/snapshot.js"></script>
+  <script src="js/game-core.js"></script>
+  <script src="js/game-movement.js"></script>
+  <script src="js/game-fun-mode.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/ui.js"></script>
 </body>
 </html>

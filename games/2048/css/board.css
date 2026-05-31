@@ -1,0 +1,83 @@
+.board.paused-overlay {
+  position: relative;
+}
+
+.board.paused-overlay::after {
+  content: '⏸ 已暂停';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.board-wrapper {
+  position: relative;
+}
+
+.board {
+  position: relative;
+  background: var(--board-background);
+  border-radius: 14px;
+  width: 540px;
+  height: 540px;
+  touch-action: none;
+  user-select: none;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.board-bg-cell {
+  position: absolute;
+  background: var(--empty-tile);
+  border-radius: 10px;
+}
+
+.tile {
+  position: absolute;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 38px;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.tile.empty {
+  background: var(--empty-tile);
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.board.idle-hint:has(.tile.mergeable) .tile.mergeable {
+  animation: idlePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes idlePulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(0.92);
+    filter: brightness(1.2);
+  }
+}
