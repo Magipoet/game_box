@@ -53,20 +53,20 @@
   }
 
   .board {
-    width: min(78vw, 360px);
-    height: min(78vw, 360px);
+    width: min(88vw, 400px);
+    height: min(88vw, 400px);
     padding: 8px;
   }
 
   .board-header {
     margin-bottom: 4px;
     width: 100%;
-    max-width: min(78vw, 360px);
+    max-width: min(88vw, 400px);
   }
 
   .controls-section {
     flex: 0 1 auto;
-    max-height: 42vh;
+    max-height: 32vh;
     overflow-y: auto;
     overflow-x: hidden;
     gap: 6px;
