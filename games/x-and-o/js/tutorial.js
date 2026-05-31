@@ -45,9 +45,18 @@
     var gap = 16;
     var arrowOffset = 24;
 
+    if (window.innerWidth <= 800 && (position === 'left' || position === 'right') && targetRect.width > window.innerWidth * 0.5) {
+      position = 'top';
+    }
+
     if (position === 'left') {
       tooltipWidth = 260;
       tooltipHeight = 280;
+    }
+
+    if (window.innerWidth <= 800) {
+      tooltipWidth = Math.min(tooltipWidth, window.innerWidth - 32);
+      tooltipHeight = 140;
     }
 
     tooltip.classList.remove('arrow-top', 'arrow-bottom', 'arrow-left', 'arrow-right');

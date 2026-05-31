@@ -1362,6 +1362,32 @@ html, body {
     width: calc(var(--piece-size-ratio) * 100%);
     height: calc(var(--piece-size-ratio) * 100%);
   }
+
+  .tutorial-tooltip {
+    min-width: 200px;
+    max-width: calc(100vw - 32px);
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .tutorial-content {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .tutorial-content h3 {
+    font-size: 14px !important;
+  }
+
+  .tutorial-nav {
+    margin-top: 8px;
+  }
+
+  .tutorial-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
 }
 
 .tutorial-overlay {
