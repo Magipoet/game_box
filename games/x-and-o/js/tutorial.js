@@ -1050,7 +1050,16 @@
       els.tutorialNext.textContent = '下一步';
     }
 
-    if (step.target && !els.tutorialOverlay.classList.contains('modal-mode')) {
+    var skipPositioning = false;
+    if (step.target === '#btnUndoX' && state.tutorial.undoStage === 1) {
+      skipPositioning = true;
+    } else if (step.target === '#btnFreezeX' && (state.tutorial.freezeStage === 1 || state.tutorial.freezeStage === 5)) {
+      skipPositioning = true;
+    } else if (step.target === '#btnPersistX' && (state.tutorial.persistStage === 1 || state.tutorial.persistStage === 10)) {
+      skipPositioning = true;
+    }
+
+    if (step.target && !els.tutorialOverlay.classList.contains('modal-mode') && !skipPositioning) {
       var targetEl = document.querySelector(step.target);
       var rect, targetPosition;
       if (step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) {
