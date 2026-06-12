@@ -157,7 +157,14 @@
     state.tutorial.allowedButton = '#btnUndoX';
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">撤回能力</h3><p style="margin:0;">刚刚你在右下角落下了一枚 X 棋子。<br><br>现在请点击<strong>闪烁的撤回按钮</strong>，撤回刚才的落子，观察棋子消失的效果。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
-    var position = window.innerWidth <= 800 ? 'top' : 'left';
+    var position;
+    if (window.innerWidth <= 800) {
+      var spaceAbove = rect.top - 16 - 16;
+      var tooltipHeight = 140;
+      position = spaceAbove >= tooltipHeight ? 'top' : 'bottom';
+    } else {
+      position = 'left';
+    }
     positionTutorialTooltip(rect, position, targetEl);
   }
 
@@ -177,7 +184,14 @@
     state.tutorial.allowedButton = '#btnFreezeX';
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">固定能力</h3><p style="margin:0;"><strong>固定</strong>：点击后选择一个空格子，对方无法在此落子，固定会在对方下一次落子后解除。<br><br>现在请点击<strong>闪烁的固定按钮</strong>，激活固定能力。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
-    var position = window.innerWidth <= 800 ? 'top' : 'left';
+    var position;
+    if (window.innerWidth <= 800) {
+      var spaceAbove = rect.top - 16 - 16;
+      var tooltipHeight = 140;
+      position = spaceAbove >= tooltipHeight ? 'top' : 'bottom';
+    } else {
+      position = 'left';
+    }
     positionTutorialTooltip(rect, position, targetEl);
   }
 
@@ -235,7 +249,14 @@
     state.tutorial.allowedButton = '#btnPersistX';
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留能力</h3><p style="margin:0;"><strong>保留</strong>：点击激活后，下一步落子的棋子将保留五个回合，不会因为后续放置新棋子而被自动移除。<br><br>这是趣味模式中最具策略性的能力，善用它可锁定胜局！<br><br>现在请点击<strong>闪烁的保留按钮</strong>，激活保留能力。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
-    var position = window.innerWidth <= 800 ? 'top' : 'left';
+    var position;
+    if (window.innerWidth <= 800) {
+      var spaceAbove = rect.top - 16 - 16;
+      var tooltipHeight = 140;
+      position = spaceAbove >= tooltipHeight ? 'top' : 'bottom';
+    } else {
+      position = 'left';
+    }
     positionTutorialTooltip(rect, position, targetEl);
   }
 

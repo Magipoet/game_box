@@ -1348,14 +1348,28 @@ html, body {
 
   .ability-buttons {
     flex-direction: row;
-    gap: 8px;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
   }
 
   .ability-btn {
-    min-width: 88px;
+    flex: 1;
+    min-width: 0;
     height: 40px;
     flex-direction: row;
-    font-size: 13px;
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+
+  .ability-btn .ability-icon {
+    font-size: 14px;
+  }
+
+  .ability-btn .ability-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .piece {
