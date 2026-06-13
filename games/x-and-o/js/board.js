@@ -319,11 +319,6 @@
         XOApp.hideTutorialCellGuide();
         XOApp.render();
         XOApp.showTutorialUndoGuide();
-        var undoBtn = document.querySelector('#btnUndoX');
-        if (undoBtn) {
-          var undoBtnRect = undoBtn.getBoundingClientRect();
-          XOApp.positionTutorialTooltip(undoBtnRect, 'left');
-        }
       } else if (state.tutorial.persistStage === 2) {
         state.tutorial.persistStage = 0;
         state.tutorial.waitingForInteraction = false;
