@@ -56,6 +56,7 @@
       modeStage: 0,
       pendingAutoAdvance: null,
       preTutorialSettings: null,
+      manualPositioning: false,
     },
   };
 

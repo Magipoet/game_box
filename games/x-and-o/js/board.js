@@ -1335,6 +1335,7 @@
         state.tutorial.persistStepIndex = 0;
         state.tutorial.persistAutoNextOMove = null;
         state.tutorial.allowedButton = null;
+        state.tutorial.manualPositioning = false;
         state.tutorial.freezeTriedFrozenCell = false;
         state.tutorial.helpStage = 0;
         state.tutorial.settingsStage = 0;

@@ -38,7 +38,7 @@
     }
   }
 
-  function positionTutorialTooltip(targetRect, position, targetEl) {
+  function positionTutorialTooltip(targetRect, position, targetEl, forcePosition) {
     var tooltip = els.tutorialTooltip;
     var tooltipWidth = 400;
     var tooltipHeight = 180;
@@ -89,25 +89,27 @@
         break;
     }
 
-    if (position === 'top' && targetEl) {
-      var spaceAbove = targetRect.top - gap - 16;
-      if (spaceAbove >= tooltipHeight) {
-        top = targetRect.top - tooltipHeight - gap;
-      } else {
-        position = 'bottom';
-        top = targetRect.bottom + gap;
-        tooltip.classList.remove('arrow-bottom');
-        tooltip.classList.add('arrow-top');
+    if (!forcePosition) {
+      if (position === 'top' && targetEl) {
+        var spaceAbove = targetRect.top - gap - 16;
+        if (spaceAbove >= tooltipHeight) {
+          top = targetRect.top - tooltipHeight - gap;
+        } else {
+          position = 'bottom';
+          top = targetRect.bottom + gap;
+          tooltip.classList.remove('arrow-bottom');
+          tooltip.classList.add('arrow-top');
+        }
       }
-    }
 
-    if (position === 'bottom' && targetEl) {
-      var spaceBelow = window.innerHeight - targetRect.bottom - gap - 16;
-      if (spaceBelow < tooltipHeight) {
-        position = 'top';
-        top = targetRect.top - tooltipHeight - gap;
-        tooltip.classList.remove('arrow-top');
-        tooltip.classList.add('arrow-bottom');
+      if (position === 'bottom' && targetEl) {
+        var spaceBelow = window.innerHeight - targetRect.bottom - gap - 16;
+        if (spaceBelow < tooltipHeight) {
+          position = 'top';
+          top = targetRect.top - tooltipHeight - gap;
+          tooltip.classList.remove('arrow-top');
+          tooltip.classList.add('arrow-bottom');
+        }
       }
     }
 
@@ -155,17 +157,18 @@
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnUndoX';
+    state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">撤回能力</h3><p style="margin:0;">刚刚你在右下角落下了一枚 X 棋子。<br><br>现在请点击<strong>闪烁的撤回按钮</strong>，撤回刚才的落子，观察棋子消失的效果。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
     var position;
+    var forcePosition = false;
     if (window.innerWidth <= 800) {
-      var spaceAbove = rect.top - 16 - 16;
-      var tooltipHeight = 140;
-      position = spaceAbove >= tooltipHeight ? 'top' : 'bottom';
+      position = 'bottom';
+      forcePosition = true;
     } else {
       position = 'left';
     }
-    positionTutorialTooltip(rect, position, targetEl);
+    positionTutorialTooltip(rect, position, targetEl, forcePosition);
   }
 
   function showTutorialFreezeBtnGuide() {
@@ -182,17 +185,18 @@
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnFreezeX';
+    state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">固定能力</h3><p style="margin:0;"><strong>固定</strong>：点击后选择一个空格子，对方无法在此落子，固定会在对方下一次落子后解除。<br><br>现在请点击<strong>闪烁的固定按钮</strong>，激活固定能力。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
     var position;
+    var forcePosition = false;
     if (window.innerWidth <= 800) {
-      var spaceAbove = rect.top - 16 - 16;
-      var tooltipHeight = 140;
-      position = spaceAbove >= tooltipHeight ? 'top' : 'bottom';
+      position = 'bottom';
+      forcePosition = true;
     } else {
       position = 'left';
     }
-    positionTutorialTooltip(rect, position, targetEl);
+    positionTutorialTooltip(rect, position, targetEl, forcePosition);
   }
 
   function showTutorialFreezeCellGuide() {
@@ -247,17 +251,18 @@
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnPersistX';
+    state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留能力</h3><p style="margin:0;"><strong>保留</strong>：点击激活后，下一步落子的棋子将保留五个回合，不会因为后续放置新棋子而被自动移除。<br><br>这是趣味模式中最具策略性的能力，善用它可锁定胜局！<br><br>现在请点击<strong>闪烁的保留按钮</strong>，激活保留能力。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
     var position;
+    var forcePosition = false;
     if (window.innerWidth <= 800) {
-      var spaceAbove = rect.top - 16 - 16;
-      var tooltipHeight = 140;
-      position = spaceAbove >= tooltipHeight ? 'top' : 'bottom';
+      position = 'bottom';
+      forcePosition = true;
     } else {
       position = 'left';
     }
-    positionTutorialTooltip(rect, position, targetEl);
+    positionTutorialTooltip(rect, position, targetEl, forcePosition);
   }
 
   function showTutorialCancelPersistBtnGuide() {
@@ -1032,6 +1037,10 @@
   function renderTutorial() {
     var step = TUTORIAL_STEPS[state.tutorial.currentStep];
 
+    if (state.tutorial.manualPositioning) {
+      return;
+    }
+
     els.tutorialOverlay.classList.remove('button-interaction-mode');
 
     if (typeof step.onEnter === 'function') {
@@ -1050,16 +1059,7 @@
       els.tutorialNext.textContent = '下一步';
     }
 
-    var skipPositioning = false;
-    if (step.target === '#btnUndoX' && state.tutorial.undoStage === 1) {
-      skipPositioning = true;
-    } else if (step.target === '#btnFreezeX' && (state.tutorial.freezeStage === 1 || state.tutorial.freezeStage === 5)) {
-      skipPositioning = true;
-    } else if (step.target === '#btnPersistX' && (state.tutorial.persistStage === 1 || state.tutorial.persistStage === 10)) {
-      skipPositioning = true;
-    }
-
-    if (step.target && !els.tutorialOverlay.classList.contains('modal-mode') && !skipPositioning) {
+    if (step.target && !els.tutorialOverlay.classList.contains('modal-mode')) {
       var targetEl = document.querySelector(step.target);
       var rect, targetPosition;
       if (step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) {
@@ -1217,6 +1217,7 @@
       els.tutorialOverlay.classList.remove('button-interaction-mode');
     }
     state.tutorial.currentStep++;
+    state.tutorial.manualPositioning = false;
     renderTutorial();
   }
 
@@ -1249,6 +1250,7 @@
       state.tutorial.undoStage = 0;
       state.tutorial.freezeStage = 0;
       state.tutorial.persistStage = 0;
+      state.tutorial.manualPositioning = false;
       hideTutorialCellGuide();
       els.tutorialOverlay.classList.remove('interaction-mode');
       els.tutorialOverlay.classList.remove('modal-mode');
@@ -1285,6 +1287,7 @@
     state.tutorial.persistDisappearCell = null;
     state.tutorial.persistSecondDisappearCell = null;
     state.tutorial.allowedButton = null;
+    state.tutorial.manualPositioning = false;
     state.tutorial.freezeTriedFrozenCell = false;
     state.tutorial.helpStage = 0;
     state.tutorial.settingsStage = 0;
