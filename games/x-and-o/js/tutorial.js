@@ -31,6 +31,21 @@
     state.tutorial.guideElement = guide;
   }
 
+  function updateTutorialHighlightPosition() {
+    var step = TUTORIAL_STEPS[state.tutorial.currentStep];
+    if (!step || !step.target) return;
+    if (els.tutorialOverlay.classList.contains('modal-mode')) return;
+    var targetEl = document.querySelector(step.target);
+    if (!targetEl) return;
+    if (targetEl.classList && targetEl.classList.contains('cell')) return;
+    var rect = targetEl.getBoundingClientRect();
+    var padding = 8;
+    els.tutorialHighlight.style.left = (rect.left - padding) + 'px';
+    els.tutorialHighlight.style.top = (rect.top - padding) + 'px';
+    els.tutorialHighlight.style.width = (rect.width + padding * 2) + 'px';
+    els.tutorialHighlight.style.height = (rect.height + padding * 2) + 'px';
+  }
+
   function hideTutorialCellGuide() {
     if (state.tutorial.guideElement) {
       state.tutorial.guideElement.remove();
@@ -341,7 +356,8 @@
       hideTutorialCellGuide();
       var persistCell = els.board.querySelector('.cell[data-row="2"][data-col="0"]');
       if (persistCell) {
-        persistCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        persistCell.scrollIntoView({ behavior: 'auto', block: 'center' });
+        updateTutorialHighlightPosition();
       }
     }
 
@@ -852,7 +868,7 @@
               var targetRect = targetEl.getBoundingClientRect();
               var pageRect = settingsPage.getBoundingClientRect();
               if (targetRect.bottom > pageRect.bottom || targetRect.top < pageRect.top) {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetEl.scrollIntoView({ behavior: 'auto', block: 'center' });
               }
             }
           }
@@ -902,7 +918,7 @@
               var targetRect = targetEl.getBoundingClientRect();
               var pageRect = settingsPage.getBoundingClientRect();
               if (targetRect.bottom > pageRect.bottom || targetRect.top < pageRect.top) {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetEl.scrollIntoView({ behavior: 'auto', block: 'center' });
               }
             }
           }
@@ -975,7 +991,7 @@
               var targetRect = targetEl.getBoundingClientRect();
               var pageRect = settingsPage.getBoundingClientRect();
               if (targetRect.bottom > pageRect.bottom || targetRect.top < pageRect.top) {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetEl.scrollIntoView({ behavior: 'auto', block: 'center' });
               }
             }
           }
@@ -1111,33 +1127,72 @@
           var sideGap = 16;
           var sideLeft = modalRect.left - sideTooltipWidth - sideGap;
           var sideArrow = 'arrow-right';
+          var isNarrowScreen = window.innerWidth < sideTooltipWidth * 2 + sideGap * 2 + 100;
+          var useVerticalPosition = false;
           if (sideLeft < 16) {
             sideLeft = modalRect.right + sideGap;
             sideArrow = 'arrow-left';
+            if (sideLeft + sideTooltipWidth > window.innerWidth - 16) {
+              useVerticalPosition = true;
+            }
           }
-          var sideTop;
-          if (state.tutorial.modeStage === 2) {
+          if (isNarrowScreen) {
+            useVerticalPosition = true;
+          }
+          if (useVerticalPosition && state.tutorial.modeStage === 2) {
             var funModeTile = document.querySelector('.mode-tile[data-mode="fun"]');
             if (funModeTile) {
               var funTileRect = funModeTile.getBoundingClientRect();
-              sideTop = funTileRect.top + funTileRect.height / 2 - sideTooltipHeight / 2;
+              var vertTop = funTileRect.top - sideTooltipHeight - sideGap;
+              var vertArrow = 'arrow-bottom';
+              if (vertTop < 16) {
+                vertTop = funTileRect.bottom + sideGap;
+                vertArrow = 'arrow-top';
+              }
+              if (vertTop + sideTooltipHeight > window.innerHeight - 16) {
+                vertTop = window.innerHeight - sideTooltipHeight - 16;
+              }
+              var vertLeft = funTileRect.left + funTileRect.width / 2 - sideTooltipWidth / 2;
+              if (vertLeft < 16) vertLeft = 16;
+              if (vertLeft + sideTooltipWidth > window.innerWidth - 16) {
+                vertLeft = window.innerWidth - sideTooltipWidth - 16;
+              }
+              var arrowOffsetX = sideTooltipWidth / 2;
+              els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
+              els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+              els.tutorialTooltip.style.left = vertLeft + 'px';
+              els.tutorialTooltip.style.top = vertTop + 'px';
+              els.tutorialTooltip.style.transform = 'none';
+              els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+            } else {
+              useVerticalPosition = false;
+            }
+          }
+          if (!useVerticalPosition) {
+            var sideTop;
+            if (state.tutorial.modeStage === 2) {
+              var funModeTile = document.querySelector('.mode-tile[data-mode="fun"]');
+              if (funModeTile) {
+                var funTileRect = funModeTile.getBoundingClientRect();
+                sideTop = funTileRect.top + funTileRect.height / 2 - sideTooltipHeight / 2;
+              } else {
+                sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
+              }
+            } else if (state.tutorial.aiStage === 2 || state.tutorial.aiStage === 3) {
+              sideTooltipHeight = 260;
+              sideTooltipWidth = 260;
+              sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
             } else {
               sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
             }
-          } else if (state.tutorial.aiStage === 2 || state.tutorial.aiStage === 3) {
-            sideTooltipHeight = 260;
-            sideTooltipWidth = 260;
-            sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
-          } else {
-            sideTop = modalRect.top + modalRect.height / 2 - sideTooltipHeight / 2;
+            if (sideTop < 16) sideTop = 16;
+            if (sideTop + sideTooltipHeight > window.innerHeight - 16) sideTop = window.innerHeight - sideTooltipHeight - 16;
+            els.tutorialTooltip.className = 'tutorial-tooltip ' + sideArrow;
+            els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+            els.tutorialTooltip.style.left = sideLeft + 'px';
+            els.tutorialTooltip.style.top = sideTop + 'px';
+            els.tutorialTooltip.style.transform = 'none';
           }
-          if (sideTop < 16) sideTop = 16;
-          if (sideTop + sideTooltipHeight > window.innerHeight - 16) sideTop = window.innerHeight - sideTooltipHeight - 16;
-          els.tutorialTooltip.className = 'tutorial-tooltip ' + sideArrow;
-          els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
-          els.tutorialTooltip.style.left = sideLeft + 'px';
-          els.tutorialTooltip.style.top = sideTop + 'px';
-          els.tutorialTooltip.style.transform = 'none';
         } else {
           var targetEl = document.querySelector(step.target);
           if (targetEl) {

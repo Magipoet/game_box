@@ -1446,7 +1446,7 @@ html, body {
 }
 
 .tutorial-cell-guide {
-  position: absolute;
+  position: fixed;
   border: 3px dashed #3b82f6;
   border-radius: 8px;
   background: rgba(59, 130, 246, 0.25);
