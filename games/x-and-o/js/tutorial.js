@@ -53,11 +53,11 @@
     }
   }
 
-  function positionTutorialTooltip(targetRect, position, targetEl, forcePosition) {
+  function positionTutorialTooltip(targetRect, position, targetEl, forcePosition, extraGap) {
     var tooltip = els.tutorialTooltip;
     var tooltipWidth = 400;
     var tooltipHeight = 180;
-    var gap = 16;
+    var gap = 16 + (extraGap || 0);
     var arrowOffset = 24;
 
     if (window.innerWidth <= 800 && (position === 'left' || position === 'right') && targetRect.width > window.innerWidth * 0.5) {
@@ -1101,6 +1101,7 @@
     if (step.target && !els.tutorialOverlay.classList.contains('modal-mode')) {
       var targetEl = document.querySelector(step.target);
       var rect, targetPosition;
+      var tooltipExtraGap = 0;
       if (step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) {
         var cellRow = state.tutorial.interactionCell[0];
         var cellCol = state.tutorial.interactionCell[1];
@@ -1109,6 +1110,7 @@
           rect = cell.getBoundingClientRect();
           targetPosition = window.innerWidth <= 800 ? 'top' : 'right';
           targetEl = cell;
+          tooltipExtraGap = window.innerWidth <= 800 ? 28 : 20;
         } else if (targetEl) {
           rect = targetEl.getBoundingClientRect();
           targetPosition = step.position;
@@ -1128,7 +1130,7 @@
           els.tutorialHighlight.style.width = (rect.width + padding * 2) + 'px';
           els.tutorialHighlight.style.height = (rect.height + padding * 2) + 'px';
         }
-        positionTutorialTooltip(rect, targetPosition, targetEl);
+        positionTutorialTooltip(rect, targetPosition, targetEl, false, tooltipExtraGap);
       }
     } else {
       els.tutorialHighlight.style.display = 'none';
@@ -1168,48 +1170,68 @@
           }
           if (useVerticalPosition && state.tutorial.modeStage === 2) {
             var arrowSize = 6;
-            var extraGap = 12;
+            var vertLeft = modalRect.left + modalRect.width / 2 - sideTooltipWidth / 2;
+            if (vertLeft < 16) vertLeft = 16;
+            if (vertLeft + sideTooltipWidth > window.innerWidth - 16) {
+              vertLeft = window.innerWidth - sideTooltipWidth - 16;
+            }
+            var funModeTile = document.querySelector('.mode-tile[data-mode="fun"]');
+            var funTileRect = null;
+            if (funModeTile) {
+              funTileRect = funModeTile.getBoundingClientRect();
+            }
+            var vertArrow = 'arrow-bottom';
+            var vertTop;
+            if (funTileRect) {
+              vertTop = funTileRect.top - sideTooltipHeight - arrowSize;
+            } else {
+              vertTop = modalRect.top - sideTooltipHeight - arrowSize;
+            }
+            if (vertTop < 16) {
+              if (funTileRect) {
+                vertTop = funTileRect.bottom + arrowSize;
+              } else {
+                vertTop = modalRect.bottom + arrowSize;
+              }
+              vertArrow = 'arrow-top';
+            }
+            if (vertTop + sideTooltipHeight > window.innerHeight - 16) {
+              vertTop = window.innerHeight - sideTooltipHeight - 16;
+            }
+            var arrowOffsetX;
+            if (funTileRect) {
+              arrowOffsetX = (funTileRect.left + funTileRect.width / 2) - vertLeft - 6;
+            } else {
+              arrowOffsetX = sideTooltipWidth / 2;
+            }
+            if (arrowOffsetX < 24) arrowOffsetX = 24;
+            if (arrowOffsetX > sideTooltipWidth - 24) arrowOffsetX = sideTooltipWidth - 24;
+            els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
             els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+            els.tutorialTooltip.style.left = vertLeft + 'px';
+            els.tutorialTooltip.style.top = vertTop + 'px';
             els.tutorialTooltip.style.transform = 'none';
+            els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
             requestAnimationFrame(function () {
               requestAnimationFrame(function () {
                 var curFunTile = document.querySelector('.mode-tile[data-mode="fun"]');
+                if (!curFunTile) return;
+                var curFunRect = curFunTile.getBoundingClientRect();
                 var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
                 var curTooltipHeight = curTooltipRect.height;
-                var curTooltipWidth = curTooltipRect.width;
-                var modalRectNow = els.modeModal.querySelector('.modal-dialog').getBoundingClientRect();
-                var vertLeft = modalRectNow.left + modalRectNow.width / 2 - curTooltipWidth / 2;
-                if (vertLeft < 16) vertLeft = 16;
-                if (vertLeft + curTooltipWidth > window.innerWidth - 16) {
-                  vertLeft = window.innerWidth - curTooltipWidth - 16;
-                }
-                var vertArrow = 'arrow-bottom';
-                var targetTop;
-                if (curFunTile) {
-                  var curFunRect = curFunTile.getBoundingClientRect();
-                  targetTop = curFunRect.top - curTooltipHeight - arrowSize - extraGap;
-                  var arrowOffsetX = (curFunRect.left + curFunRect.width / 2) - vertLeft;
-                  if (arrowOffsetX < 24) arrowOffsetX = 24;
-                  if (arrowOffsetX > curTooltipWidth - 24) arrowOffsetX = curTooltipWidth - 24;
-                  els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
-                } else {
-                  targetTop = modalRectNow.top - curTooltipHeight - arrowSize - extraGap;
-                  els.tutorialTooltip.style.setProperty('--arrow-offset-x', (curTooltipWidth / 2) + 'px');
-                }
+                var targetTop = curFunRect.top - curTooltipHeight - arrowSize;
+                var newArrow = 'arrow-bottom';
                 if (targetTop < 16) {
-                  if (curFunTile) {
-                    var curFunRect2 = curFunTile.getBoundingClientRect();
-                    targetTop = curFunRect2.bottom + arrowSize + extraGap;
-                  } else {
-                    targetTop = modalRectNow.bottom + arrowSize + extraGap;
-                  }
-                  vertArrow = 'arrow-top';
+                  targetTop = curFunRect.bottom + arrowSize;
+                  newArrow = 'arrow-top';
                 }
                 if (targetTop + curTooltipHeight > window.innerHeight - 16) {
                   targetTop = window.innerHeight - curTooltipHeight - 16;
                 }
-                els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
-                els.tutorialTooltip.style.left = vertLeft + 'px';
+                if (newArrow !== vertArrow) {
+                  vertArrow = newArrow;
+                  els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
+                }
                 els.tutorialTooltip.style.top = targetTop + 'px';
               });
             });
