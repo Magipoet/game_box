@@ -1125,9 +1125,13 @@
           var sideTooltipWidth = 240;
           var sideTooltipHeight = 160;
           var sideGap = 16;
+          if (state.tutorial.modeStage === 2) {
+            sideTooltipWidth = Math.min(window.innerWidth - 32, 320);
+            sideTooltipHeight = 110;
+          }
           var sideLeft = modalRect.left - sideTooltipWidth - sideGap;
           var sideArrow = 'arrow-right';
-          var isNarrowScreen = window.innerWidth < sideTooltipWidth * 2 + sideGap * 2 + 100;
+          var isNarrowScreen = window.innerWidth < sideTooltipWidth * 2 + sideGap * 2 + 100 || state.tutorial.modeStage === 2;
           var useVerticalPosition = false;
           if (sideLeft < 16) {
             sideLeft = modalRect.right + sideGap;
@@ -1141,32 +1145,71 @@
           }
           if (useVerticalPosition && state.tutorial.modeStage === 2) {
             var funModeTile = document.querySelector('.mode-tile[data-mode="fun"]');
+            var arrowSize = 6;
+            var vertTop;
+            var vertArrow = 'arrow-bottom';
+            var funTileRect = null;
             if (funModeTile) {
-              var funTileRect = funModeTile.getBoundingClientRect();
-              var vertTop = funTileRect.top - sideTooltipHeight - sideGap;
-              var vertArrow = 'arrow-bottom';
-              if (vertTop < 16) {
-                vertTop = funTileRect.bottom + sideGap;
-                vertArrow = 'arrow-top';
-              }
-              if (vertTop + sideTooltipHeight > window.innerHeight - 16) {
-                vertTop = window.innerHeight - sideTooltipHeight - 16;
-              }
-              var vertLeft = funTileRect.left + funTileRect.width / 2 - sideTooltipWidth / 2;
-              if (vertLeft < 16) vertLeft = 16;
-              if (vertLeft + sideTooltipWidth > window.innerWidth - 16) {
-                vertLeft = window.innerWidth - sideTooltipWidth - 16;
-              }
-              var arrowOffsetX = sideTooltipWidth / 2;
-              els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
-              els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
-              els.tutorialTooltip.style.left = vertLeft + 'px';
-              els.tutorialTooltip.style.top = vertTop + 'px';
-              els.tutorialTooltip.style.transform = 'none';
-              els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
-            } else {
-              useVerticalPosition = false;
+              funTileRect = funModeTile.getBoundingClientRect();
             }
+            var vertLeft = modalRect.left + modalRect.width / 2 - sideTooltipWidth / 2;
+            if (vertLeft < 16) vertLeft = 16;
+            if (vertLeft + sideTooltipWidth > window.innerWidth - 16) {
+              vertLeft = window.innerWidth - sideTooltipWidth - 16;
+            }
+            els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
+            els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+            els.tutorialTooltip.style.left = vertLeft + 'px';
+            els.tutorialTooltip.style.transform = 'none';
+            var actualTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+            var actualTooltipHeight = actualTooltipRect.height;
+            if (funTileRect) {
+              vertTop = funTileRect.top - actualTooltipHeight - arrowSize;
+            } else {
+              vertTop = modalRect.top - actualTooltipHeight - arrowSize;
+            }
+            if (vertTop < 16) {
+              if (funTileRect) {
+                vertTop = funTileRect.bottom + arrowSize;
+              } else {
+                vertTop = modalRect.bottom + arrowSize;
+              }
+              vertArrow = 'arrow-top';
+            }
+            if (vertTop + actualTooltipHeight > window.innerHeight - 16) {
+              vertTop = window.innerHeight - actualTooltipHeight - 16;
+            }
+            var arrowOffsetX;
+            if (funTileRect) {
+              arrowOffsetX = (funTileRect.left + funTileRect.width / 2) - vertLeft;
+            } else {
+              arrowOffsetX = sideTooltipWidth / 2;
+            }
+            if (arrowOffsetX < 24) arrowOffsetX = 24;
+            if (arrowOffsetX > sideTooltipWidth - 24) arrowOffsetX = sideTooltipWidth - 24;
+            els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
+            els.tutorialTooltip.style.top = vertTop + 'px';
+            els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+            requestAnimationFrame(function () {
+              var curFunTile = document.querySelector('.mode-tile[data-mode="fun"]');
+              if (!curFunTile) return;
+              var curFunRect = curFunTile.getBoundingClientRect();
+              var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+              var curTooltipHeight = curTooltipRect.height;
+              var targetTop = curFunRect.top - curTooltipHeight - arrowSize;
+              if (targetTop < 16) {
+                targetTop = curFunRect.bottom + arrowSize;
+                var newArrow = 'arrow-top';
+                if (newArrow !== vertArrow) {
+                  vertArrow = newArrow;
+                  els.tutorialTooltip.className = 'tutorial-tooltip ' + vertArrow;
+                }
+              }
+              if (targetTop + curTooltipHeight > window.innerHeight - 16) {
+                targetTop = window.innerHeight - curTooltipHeight - 16;
+              }
+              els.tutorialTooltip.style.top = targetTop + 'px';
+            });
           }
           if (!useVerticalPosition) {
             var sideTop;
