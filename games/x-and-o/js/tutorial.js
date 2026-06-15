@@ -74,6 +74,11 @@
       tooltipHeight = 140;
     }
 
+    var currentTransform = tooltip.style.transform;
+    var currentLeft = tooltip.style.left;
+    var currentTop = tooltip.style.top;
+    var isFromCenter = currentTransform && currentTransform.indexOf('translate') !== -1 && currentLeft === '50%' && currentTop === '50%';
+
     tooltip.classList.remove('arrow-top', 'arrow-bottom', 'arrow-left', 'arrow-right');
     tooltip.style.transform = 'none';
     tooltip.style.setProperty('--arrow-offset-x', '24px');
@@ -154,8 +159,40 @@
     } else {
       tooltip.style.width = '';
     }
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
+
+    function setFinalPosition() {
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    }
+
+    if (isFromCenter) {
+      var curRect = tooltip.getBoundingClientRect();
+      tooltip.style.transition = 'none';
+      if (position === 'left') {
+        tooltip.style.width = tooltipWidth + 'px';
+      } else {
+        tooltip.style.width = '';
+      }
+      if (window.innerWidth <= 800) {
+        tooltip.style.minHeight = '140px';
+        tooltip.style.boxSizing = 'border-box';
+      }
+      tooltip.style.left = curRect.left + 'px';
+      tooltip.style.top = curRect.top + 'px';
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          tooltip.style.transition = 'left 0.3s ease, top 0.3s ease';
+          setFinalPosition();
+          setTimeout(function () {
+            tooltip.style.transition = '';
+            tooltip.style.minHeight = '';
+            tooltip.style.boxSizing = '';
+          }, 350);
+        });
+      });
+    } else {
+      setFinalPosition();
+    }
   }
 
   function showTutorialUndoGuide() {
@@ -1232,7 +1269,9 @@
       var targetEl = document.querySelector(step.target);
       var rect, targetPosition;
       var tooltipExtraGap = 0;
-      if (step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) {
+      var forcePosition = false;
+      var isPersistDemo = state.tutorial.persistStage >= 3 && state.tutorial.persistStage <= 8 && state.tutorial.interactionCell;
+      if ((step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) || isPersistDemo) {
         var cellRow = state.tutorial.interactionCell[0];
         var cellCol = state.tutorial.interactionCell[1];
         var cell = document.querySelector('.cell[data-row="' + cellRow + '"][data-col="' + cellCol + '"]');
@@ -1240,7 +1279,8 @@
           rect = cell.getBoundingClientRect();
           targetPosition = window.innerWidth <= 800 ? 'top' : 'right';
           targetEl = cell;
-          tooltipExtraGap = window.innerWidth <= 800 ? 48 : 20;
+          tooltipExtraGap = window.innerWidth <= 800 ? 80 : 20;
+          forcePosition = true;
         } else if (targetEl) {
           rect = targetEl.getBoundingClientRect();
           targetPosition = step.position;
@@ -1249,7 +1289,6 @@
         rect = targetEl.getBoundingClientRect();
         targetPosition = step.position;
       }
-      var forcePosition = false;
       if (state.tutorial.currentStep === 3 && window.innerWidth <= 800 && state.tutorial._dynamicStepMovedDown) {
         targetPosition = 'bottom';
         forcePosition = true;
