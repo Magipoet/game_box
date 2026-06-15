@@ -298,9 +298,52 @@
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnCancelFreeze';
+    state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">取消固定</h3><p style="margin:0;">在选择目标格子前，你可以随时<strong>取消固定</strong>操作。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>固定按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次固定操作。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
-    positionTutorialTooltip(rect, 'bottom');
+    var sideTooltipWidth = Math.min(window.innerWidth - 32, 400);
+    var sideTooltipHeight = 120;
+    var sideGap = 10;
+    els.tutorialTooltip.style.transition = 'none';
+    els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+    els.tutorialTooltip.style.visibility = 'hidden';
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var curTargetEl = document.querySelector('#btnCancelFreeze');
+        if (!curTargetEl) {
+          els.tutorialTooltip.style.visibility = '';
+          els.tutorialTooltip.style.transition = '';
+          return;
+        }
+        var curRect = curTargetEl.getBoundingClientRect();
+        var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+        var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
+        var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
+        var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
+        if (curLeft < 16) curLeft = 16;
+        if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
+        var curTop = curRect.top - curTooltipHeight - sideGap - 8;
+        var curArrow = 'arrow-bottom';
+        if (curTop < 16) {
+          curTop = curRect.bottom + sideGap + 8;
+          curArrow = 'arrow-top';
+        }
+        if (curTop + curTooltipHeight > window.innerHeight - 16) {
+          curTop = window.innerHeight - curTooltipHeight - 16;
+        }
+        var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
+        arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
+        els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
+        els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+        els.tutorialTooltip.style.left = curLeft + 'px';
+        els.tutorialTooltip.style.top = curTop + 'px';
+        els.tutorialTooltip.style.transform = 'none';
+        els.tutorialTooltip.style.visibility = '';
+        requestAnimationFrame(function () {
+          els.tutorialTooltip.style.transition = '';
+        });
+      });
+    });
   }
 
   function showTutorialPersistBtnGuide() {
@@ -345,9 +388,52 @@
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnCancelPersist';
+    state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">取消保留</h3><p style="margin:0;">在落下保留棋子前，你可以随时<strong>取消保留</strong>操作。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>保留按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次保留操作。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
-    positionTutorialTooltip(rect, 'bottom');
+    var sideTooltipWidth = Math.min(window.innerWidth - 32, 400);
+    var sideTooltipHeight = 120;
+    var sideGap = 10;
+    els.tutorialTooltip.style.transition = 'none';
+    els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+    els.tutorialTooltip.style.visibility = 'hidden';
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var curTargetEl = document.querySelector('#btnCancelPersist');
+        if (!curTargetEl) {
+          els.tutorialTooltip.style.visibility = '';
+          els.tutorialTooltip.style.transition = '';
+          return;
+        }
+        var curRect = curTargetEl.getBoundingClientRect();
+        var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+        var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
+        var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
+        var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
+        if (curLeft < 16) curLeft = 16;
+        if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
+        var curTop = curRect.top - curTooltipHeight - sideGap - 8;
+        var curArrow = 'arrow-bottom';
+        if (curTop < 16) {
+          curTop = curRect.bottom + sideGap + 8;
+          curArrow = 'arrow-top';
+        }
+        if (curTop + curTooltipHeight > window.innerHeight - 16) {
+          curTop = window.innerHeight - curTooltipHeight - 16;
+        }
+        var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
+        arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
+        els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
+        els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+        els.tutorialTooltip.style.left = curLeft + 'px';
+        els.tutorialTooltip.style.top = curTop + 'px';
+        els.tutorialTooltip.style.transform = 'none';
+        els.tutorialTooltip.style.visibility = '';
+        requestAnimationFrame(function () {
+          els.tutorialTooltip.style.transition = '';
+        });
+      });
+    });
   }
 
   function showTutorialHelpBtnGuide() {
@@ -712,6 +798,17 @@
       content: '固定能力已激活！下方出现了"取消"按钮。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>固定按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次固定操作。',
       position: 'bottom',
       onEnter: function () {
+        if (state.tutorial.freezeStage !== 5) {
+          XOApp.resetGame(MODE_FUN);
+          var demoMoves = [[0, 0], [1, 0], [0, 1], [2, 0]];
+          for (var i = 0; i < demoMoves.length; i++) {
+            var move = demoMoves[i];
+            state.game = makeMove(state.game, move[0], move[1]);
+          }
+          state.game = window.XOGame.startFreezeSelection(state.game, 'X');
+          state.freezeInitiator = 'X';
+          XOApp.render();
+        }
         state.tutorial.freezeStage = 6;
         state.tutorial.waitingForInteraction = true;
         setTimeout(XOApp.showTutorialCancelFreezeBtnGuide, 100);
@@ -768,6 +865,11 @@
       content: '保留能力已激活！下方出现了"取消"按钮。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>保留按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次保留操作。',
       position: 'bottom',
       onEnter: function () {
+        if (state.tutorial.persistStage !== 10) {
+          XOApp.resetGame(MODE_FUN);
+          state.game = window.XOGame.usePersist(state.game, 'X');
+          XOApp.render();
+        }
         state.tutorial.persistStage = 11;
         state.tutorial.waitingForInteraction = true;
         setTimeout(XOApp.showTutorialCancelPersistBtnGuide, 100);
@@ -1148,10 +1250,10 @@
         targetPosition = step.position;
       }
       var forcePosition = false;
-      if (state.tutorial.currentStep === 3 && window.innerWidth <= 800) {
+      if (state.tutorial.currentStep === 3 && window.innerWidth <= 800 && state.tutorial._dynamicStepMovedDown) {
         targetPosition = 'bottom';
         forcePosition = true;
-        tooltipExtraGap = Math.max(tooltipExtraGap, 24);
+        tooltipExtraGap = Math.max(tooltipExtraGap, 20);
       }
       if (rect) {
         var padding = 8;
@@ -1406,6 +1508,7 @@
       state.tutorial.freezeStage = 0;
       state.tutorial.persistStage = 0;
       state.tutorial.manualPositioning = false;
+      state.tutorial._dynamicStepMovedDown = false;
       hideTutorialCellGuide();
       els.tutorialOverlay.classList.remove('interaction-mode');
       els.tutorialOverlay.classList.remove('modal-mode');
@@ -1448,6 +1551,7 @@
     state.tutorial.settingsStage = 0;
     state.tutorial.modeStage = 0;
     state.tutorial.aiStage = 0;
+    state.tutorial._dynamicStepMovedDown = false;
     if (state.tutorial.preTutorialSettings) {
       state.settings.boardSize = state.tutorial.preTutorialSettings.boardSize;
       state.settings.pieceSize = state.tutorial.preTutorialSettings.pieceSize;
@@ -1518,4 +1622,31 @@
   XOApp.showTutorialHelpBtnGuide = showTutorialHelpBtnGuide;
   XOApp.showTutorialSettingsBtnGuide = showTutorialSettingsBtnGuide;
   XOApp.startPersistAutoDemo = startPersistAutoDemo;
+
+  function moveDynamicStepTooltipDown() {
+    if (state.tutorial.currentStep !== 3 || !state.tutorial.animateDisappear) return;
+    state.tutorial._dynamicStepMovedDown = true;
+    var targetEl = document.querySelector(TUTORIAL_STEPS[3].target);
+    if (!targetEl) return;
+    var rect = targetEl.getBoundingClientRect();
+    state.tutorial.manualPositioning = true;
+    var tooltipWidth = Math.min(window.innerWidth - 32, 400);
+    var tooltipHeight = window.innerWidth <= 800 ? 160 : 200;
+    var gap = 16;
+    var left = rect.left + rect.width / 2 - tooltipWidth / 2;
+    if (left < 16) left = 16;
+    if (left + tooltipWidth > window.innerWidth - 16) left = window.innerWidth - tooltipWidth - 16;
+    var top = rect.bottom + gap + 20;
+    if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
+    var arrowOffsetX = (rect.left + rect.width / 2) - left - 6;
+    arrowOffsetX = Math.max(20, Math.min(tooltipWidth - 20, arrowOffsetX));
+    els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
+    els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+    els.tutorialTooltip.style.left = left + 'px';
+    els.tutorialTooltip.style.top = top + 'px';
+    els.tutorialTooltip.style.transform = 'none';
+    els.tutorialTooltip.style.width = window.innerWidth <= 800 ? tooltipWidth + 'px' : '';
+  }
+
+  XOApp.moveDynamicStepTooltipDown = moveDynamicStepTooltipDown;
 })();

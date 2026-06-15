@@ -191,6 +191,10 @@
       var disappearCellEl = els.board.querySelector('.cell[data-row="' + disappearRow + '"][data-col="' + disappearCol + '"]');
       var oldPieceHTML = disappearCellEl ? disappearCellEl.innerHTML : '';
 
+      if (window.innerWidth <= 800 && XOApp.moveDynamicStepTooltipDown) {
+        XOApp.moveDynamicStepTooltipDown();
+      }
+
       XOApp.render();
 
       if (oldPieceHTML) {
