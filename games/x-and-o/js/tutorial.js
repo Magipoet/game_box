@@ -1138,7 +1138,7 @@
           rect = cell.getBoundingClientRect();
           targetPosition = window.innerWidth <= 800 ? 'top' : 'right';
           targetEl = cell;
-          tooltipExtraGap = window.innerWidth <= 800 ? 28 : 20;
+          tooltipExtraGap = window.innerWidth <= 800 ? 48 : 20;
         } else if (targetEl) {
           rect = targetEl.getBoundingClientRect();
           targetPosition = step.position;
@@ -1146,6 +1146,12 @@
       } else if (targetEl) {
         rect = targetEl.getBoundingClientRect();
         targetPosition = step.position;
+      }
+      var forcePosition = false;
+      if (state.tutorial.currentStep === 3 && window.innerWidth <= 800) {
+        targetPosition = 'bottom';
+        forcePosition = true;
+        tooltipExtraGap = Math.max(tooltipExtraGap, 24);
       }
       if (rect) {
         var padding = 8;
@@ -1158,7 +1164,7 @@
           els.tutorialHighlight.style.width = (rect.width + padding * 2) + 'px';
           els.tutorialHighlight.style.height = (rect.height + padding * 2) + 'px';
         }
-        positionTutorialTooltip(rect, targetPosition, targetEl, false, tooltipExtraGap);
+        positionTutorialTooltip(rect, targetPosition, targetEl, forcePosition, tooltipExtraGap);
       }
     } else {
       els.tutorialHighlight.style.display = 'none';
@@ -1227,23 +1233,24 @@
                 }
                 var curArrow = 'arrow-bottom';
                 var targetTop;
+                var extraGap = 8;
                 if (curFunTile) {
                   var curFunRect = curFunTile.getBoundingClientRect();
-                  targetTop = curFunRect.top - curTooltipHeight - arrowSize;
+                  targetTop = curFunRect.top - curTooltipHeight - arrowSize - extraGap;
                   var arrowOffsetX = (curFunRect.left + curFunRect.width / 2) - curLeft - 6;
                   if (arrowOffsetX < 24) arrowOffsetX = 24;
                   if (arrowOffsetX > curTooltipWidth - 24) arrowOffsetX = curTooltipWidth - 24;
                   els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
                 } else {
-                  targetTop = curModalRect.top - curTooltipHeight - arrowSize;
+                  targetTop = curModalRect.top - curTooltipHeight - arrowSize - extraGap;
                   els.tutorialTooltip.style.setProperty('--arrow-offset-x', (curTooltipWidth / 2) + 'px');
                 }
                 if (targetTop < 16) {
                   if (curFunTile) {
                     var curFunRect2 = curFunTile.getBoundingClientRect();
-                    targetTop = curFunRect2.bottom + arrowSize;
+                    targetTop = curFunRect2.bottom + arrowSize + extraGap;
                   } else {
-                    targetTop = curModalRect.bottom + arrowSize;
+                    targetTop = curModalRect.bottom + arrowSize + extraGap;
                   }
                   curArrow = 'arrow-top';
                 }
