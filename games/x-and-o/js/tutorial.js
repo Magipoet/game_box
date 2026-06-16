@@ -1064,7 +1064,7 @@
     {
       target: null,
       title: 'AI对局设置 - 人机对局',
-      content: '切换到<strong>人机对局</strong>后，下方会显示额外的设置选项：<br><br><strong>AI难度</strong>：<span style="display:inline-block;margin-left:8px;">初级 · 中级 · 高级</span><br><br><strong>先手选择</strong>：<span style="display:inline-block;margin-left:8px;">玩家先手（X） · AI先手（O）</span>',
+      content: '切换到<strong>人机对局</strong>后，下方会显示额外的设置选项：<br><br><strong>AI难度</strong>：<span style="display:inline-block;margin-left:8px;">初级 · 中级 · 高级</span>',
       position: 'center',
       onEnter: function () {
         XOApp.showModal(els.aiModal);
@@ -1075,6 +1075,8 @@
         state.tutorial.waitingForInteraction = false;
         state.tutorial.allowedButton = null;
         state.tutorial.manualPositioning = true;
+        var curStep = TUTORIAL_STEPS[state.tutorial.currentStep];
+        els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">' + curStep.title + '</h3><p style="margin:0;">' + curStep.content + '</p>';
         els.tutorialTooltip.style.transition = 'none';
         els.tutorialTooltip.style.visibility = 'hidden';
         els.tutorialTooltip.style.padding = '14px 18px';
@@ -1101,11 +1103,9 @@
             }
             var topPos = modalRect.top - tooltipHeight - 12;
             if (topPos < 16) {
-              topPos = modalRect.bottom + 12;
-              els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
-            } else {
-              els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
+              topPos = 16;
             }
+            els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
             els.tutorialTooltip.style.left = leftPos + 'px';
             els.tutorialTooltip.style.top = topPos + 'px';
             els.tutorialTooltip.style.transform = 'none';
@@ -1147,6 +1147,45 @@
         els.tutorialOverlay.classList.add('modal-mode');
         state.tutorial.helpStage = 2;
         state.tutorial.waitingForInteraction = false;
+        state.tutorial.manualPositioning = true;
+        var curStep = TUTORIAL_STEPS[state.tutorial.currentStep];
+        els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">' + curStep.title + '</h3><p style="margin:0;">' + curStep.content + '</p>';
+        els.tutorialTooltip.style.transition = 'none';
+        els.tutorialTooltip.style.visibility = 'hidden';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            var modalDialog = els.helpModal.querySelector('.modal-dialog');
+            if (!modalDialog) {
+              els.tutorialTooltip.style.visibility = '';
+              els.tutorialTooltip.style.transition = '';
+              state.tutorial.manualPositioning = false;
+              return;
+            }
+            var modalRect = modalDialog.getBoundingClientRect();
+            var tooltipWidth = Math.max(modalRect.width - 16, Math.min(window.innerWidth - 32, 480));
+            els.tutorialTooltip.style.width = tooltipWidth + 'px';
+            var tooltipRect = els.tutorialTooltip.getBoundingClientRect();
+            var tooltipHeight = tooltipRect.height;
+            var leftPos = modalRect.left + modalRect.width / 2 - tooltipWidth / 2;
+            if (leftPos < 16) leftPos = 16;
+            if (leftPos + tooltipWidth > window.innerWidth - 16) {
+              leftPos = window.innerWidth - tooltipWidth - 16;
+            }
+            var topPos = modalRect.top - tooltipHeight - 12;
+            if (topPos < 16) {
+              topPos = 16;
+            }
+            els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
+            els.tutorialTooltip.style.left = leftPos + 'px';
+            els.tutorialTooltip.style.top = topPos + 'px';
+            els.tutorialTooltip.style.transform = 'none';
+            els.tutorialTooltip.style.visibility = '';
+            requestAnimationFrame(function () {
+              els.tutorialTooltip.style.transition = '';
+              state.tutorial.manualPositioning = false;
+            });
+          });
+        });
       },
     },
     {
@@ -1383,15 +1422,23 @@
   function renderTutorial() {
     var step = TUTORIAL_STEPS[state.tutorial.currentStep];
 
-    if (state.tutorial.manualPositioning) {
-      return;
-    }
+    var isManual = !!state.tutorial.manualPositioning;
 
     els.tutorialOverlay.classList.remove('button-interaction-mode');
 
     if (typeof step.onEnter === 'function' && state.tutorial.lastOnEnterStep !== state.tutorial.currentStep) {
       state.tutorial.lastOnEnterStep = state.tutorial.currentStep;
       step.onEnter();
+    }
+
+    if (state.tutorial.manualPositioning) {
+      els.tutorialPrev.hidden = state.tutorial.currentStep === 0;
+      if (state.tutorial.currentStep === state.tutorial.totalSteps - 1) {
+        els.tutorialNext.textContent = '开始游戏';
+      } else {
+        els.tutorialNext.textContent = '下一步';
+      }
+      return;
     }
 
     els.tutorialOverlay.classList.toggle('interaction-mode', state.tutorial.waitingForInteraction && !!state.tutorial.interactionCell);
