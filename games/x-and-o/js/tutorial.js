@@ -37,14 +37,21 @@
   function showTutorialCellGuide() {
     hideTutorialCellGuide();
     if (!state.tutorial.interactionCell) return;
-    var cell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
-    if (!cell) return;
-    var rect = cell.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (!state.tutorial.interactionCell) return;
+          var cell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
+          if (!cell) return;
+          var rect = cell.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, rect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+        });
+      });
+    });
   }
 
   function updateTutorialHighlightPosition() {
@@ -214,14 +221,6 @@
 
   function showTutorialUndoGuide() {
     hideTutorialCellGuide();
-    var targetEl = document.querySelector('#btnUndoX');
-    if (!targetEl) return;
-    var rect = targetEl.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnUndoX';
     state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">撤回能力</h3><p style="margin:0;">刚刚你在右下角落下了一枚 X 棋子。<br><br>现在请点击<strong>闪烁的撤回按钮</strong>，撤回刚才的落子，观察棋子消失的效果。</p>';
@@ -234,19 +233,25 @@
     } else {
       position = 'left';
     }
-    positionTutorialTooltip(rect, position, targetEl, forcePosition);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var targetEl = document.querySelector('#btnUndoX');
+          if (!targetEl) return;
+          var rect = targetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, rect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          positionTutorialTooltip(rect, position, targetEl, forcePosition);
+        });
+      });
+    });
   }
 
   function showTutorialFreezeBtnGuide() {
     hideTutorialCellGuide();
-    var targetEl = document.querySelector('#btnFreezeX');
-    if (!targetEl) return;
-    var rect = targetEl.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnFreezeX';
     state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">固定能力</h3><p style="margin:0;"><strong>固定</strong>：点击后选择一个空格子，对方无法在此落子，固定会在对方下一次落子后解除。<br><br>现在请点击<strong>闪烁的固定按钮</strong>，激活固定能力。</p>';
@@ -259,84 +264,107 @@
     } else {
       position = 'left';
     }
-    positionTutorialTooltip(rect, position, targetEl, forcePosition);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var targetEl = document.querySelector('#btnFreezeX');
+          if (!targetEl) return;
+          var rect = targetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, rect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          positionTutorialTooltip(rect, position, targetEl, forcePosition);
+        });
+      });
+    });
   }
 
   function showTutorialFreezeCellGuide() {
     hideTutorialCellGuide();
     if (!state.tutorial.interactionCell) return;
-    var cell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
-    if (!cell) return;
-    var rect = cell.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">固定能力</h3><p style="margin:0;">固定能力已激活！<br><br>现在请点击棋盘上<strong>闪烁的格子</strong>，将该格子设为固定状态。</p>';
     var extraTopGap = window.innerWidth <= 800 ? 36 : 28;
     var tooltipWidth = window.innerWidth <= 800 ? Math.min(window.innerWidth - 32, 400) : 400;
     var tooltipHeight = window.innerWidth <= 800 ? 160 : 200;
     var gap = 16;
-    var left = rect.left + rect.width / 2 - tooltipWidth / 2;
-    if (left < 16) left = 16;
-    if (left + tooltipWidth > window.innerWidth - 16) left = window.innerWidth - tooltipWidth - 16;
-
-    var spaceAbove = rect.top - gap - extraTopGap - 16;
-    var spaceBelow = window.innerHeight - rect.bottom - gap - extraTopGap - 16;
-    var top;
-    if (spaceAbove >= tooltipHeight || spaceAbove >= spaceBelow) {
-      top = rect.top - tooltipHeight - gap - extraTopGap;
-      if (top < 16) {
-        top = Math.max(16, rect.bottom + gap + extraTopGap);
-        els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
-      } else {
-        els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
-      }
-    } else {
-      top = rect.bottom + gap + extraTopGap;
-      if (top + tooltipHeight > window.innerHeight - 16) {
-        top = Math.min(window.innerHeight - tooltipHeight - 16, rect.top - tooltipHeight - gap - extraTopGap);
-        els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
-      } else {
-        els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
-      }
-    }
-    if (top < 16) top = 16;
-    if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
-    var arrowOffsetX = (rect.left + rect.width / 2) - left - 6;
-    arrowOffsetX = Math.max(20, Math.min(tooltipWidth - 20, arrowOffsetX));
-    els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
-    els.tutorialTooltip.style.left = left + 'px';
-    els.tutorialTooltip.style.top = top + 'px';
-    els.tutorialTooltip.style.transform = 'none';
-    els.tutorialTooltip.style.width = window.innerWidth <= 800 ? tooltipWidth + 'px' : '';
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        var curCell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
-        if (!curCell) return;
-        var curRect = curCell.getBoundingClientRect();
-        var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
-        var curTooltipHeight = curTooltipRect.height;
-        var curTooltipWidth = curTooltipRect.width;
-        var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
-        if (curLeft < 16) curLeft = 16;
-        if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
-        var curTop = curRect.top - curTooltipHeight - gap - extraTopGap;
-        var curArrow = 'arrow-bottom';
-        if (curTop < 16) {
-          curTop = curRect.bottom + gap + extraTopGap;
-          curArrow = 'arrow-top';
-        }
-        if (curTop + curTooltipHeight > window.innerHeight - 16) {
-          curTop = window.innerHeight - curTooltipHeight - 16;
-        }
-        var curArrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
-        curArrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, curArrowOffsetX));
-        els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
-        els.tutorialTooltip.style.setProperty('--arrow-offset-x', curArrowOffsetX + 'px');
-        els.tutorialTooltip.style.left = curLeft + 'px';
-        els.tutorialTooltip.style.top = curTop + 'px';
+        requestAnimationFrame(function () {
+          var cell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
+          if (!cell) return;
+          var rect = cell.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, rect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          var left = rect.left + rect.width / 2 - tooltipWidth / 2;
+          if (left < 16) left = 16;
+          if (left + tooltipWidth > window.innerWidth - 16) left = window.innerWidth - tooltipWidth - 16;
+
+          var spaceAbove = rect.top - gap - extraTopGap - 16;
+          var spaceBelow = window.innerHeight - rect.bottom - gap - extraTopGap - 16;
+          var top;
+          if (spaceAbove >= tooltipHeight || spaceAbove >= spaceBelow) {
+            top = rect.top - tooltipHeight - gap - extraTopGap;
+            if (top < 16) {
+              top = Math.max(16, rect.bottom + gap + extraTopGap);
+              els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
+            } else {
+              els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
+            }
+          } else {
+            top = rect.bottom + gap + extraTopGap;
+            if (top + tooltipHeight > window.innerHeight - 16) {
+              top = Math.min(window.innerHeight - tooltipHeight - 16, rect.top - tooltipHeight - gap - extraTopGap);
+              els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
+            } else {
+              els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
+            }
+          }
+          if (top < 16) top = 16;
+          if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
+          var arrowOffsetX = (rect.left + rect.width / 2) - left - 6;
+          arrowOffsetX = Math.max(20, Math.min(tooltipWidth - 20, arrowOffsetX));
+          els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+          els.tutorialTooltip.style.left = left + 'px';
+          els.tutorialTooltip.style.top = top + 'px';
+          els.tutorialTooltip.style.transform = 'none';
+          els.tutorialTooltip.style.width = window.innerWidth <= 800 ? tooltipWidth + 'px' : '';
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              var curCell = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
+              if (!curCell) return;
+              var curRect = curCell.getBoundingClientRect();
+              if (state.tutorial.guideElement) {
+                setGuidePosition(state.tutorial.guideElement, curRect, 4);
+              }
+              var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+              var curTooltipHeight = curTooltipRect.height;
+              var curTooltipWidth = curTooltipRect.width;
+              var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
+              if (curLeft < 16) curLeft = 16;
+              if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
+              var curTop = curRect.top - curTooltipHeight - gap - extraTopGap;
+              var curArrow = 'arrow-bottom';
+              if (curTop < 16) {
+                curTop = curRect.bottom + gap + extraTopGap;
+                curArrow = 'arrow-top';
+              }
+              if (curTop + curTooltipHeight > window.innerHeight - 16) {
+                curTop = window.innerHeight - curTooltipHeight - 16;
+              }
+              var curArrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
+              curArrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, curArrowOffsetX));
+              els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
+              els.tutorialTooltip.style.setProperty('--arrow-offset-x', curArrowOffsetX + 'px');
+              els.tutorialTooltip.style.left = curLeft + 'px';
+              els.tutorialTooltip.style.top = curTop + 'px';
+            });
+          });
+        });
       });
     });
   }
@@ -403,14 +431,6 @@
 
   function showTutorialPersistBtnGuide() {
     hideTutorialCellGuide();
-    var targetEl = document.querySelector('#btnPersistX');
-    if (!targetEl) return;
-    var rect = targetEl.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnPersistX';
     state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留能力</h3><p style="margin:0;"><strong>保留</strong>：点击激活后，下一步落子的棋子将保留五个回合，不会因为后续放置新棋子而被自动移除。<br><br>这是趣味模式中最具策略性的能力，善用它可锁定胜局！<br><br>现在请点击<strong>闪烁的保留按钮</strong>，激活保留能力。</p>';
@@ -423,7 +443,21 @@
     } else {
       position = 'left';
     }
-    positionTutorialTooltip(rect, position, targetEl, forcePosition);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var targetEl = document.querySelector('#btnPersistX');
+          if (!targetEl) return;
+          var rect = targetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, rect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          positionTutorialTooltip(rect, position, targetEl, forcePosition);
+        });
+      });
+    });
   }
 
   function showTutorialCancelPersistBtnGuide() {
@@ -509,34 +543,46 @@
 
   function showTutorialHelpBtnGuide() {
     hideTutorialCellGuide();
-    var targetEl = document.querySelector('#btnHelp');
-    if (!targetEl) return;
-    var rect = targetEl.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnHelp';
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">游戏帮助</h3><p style="margin:0;">点击此按钮可随时查看<strong>游戏帮助</strong>，了解完整的游戏规则和玩法说明。<br><br>现在请点击<strong>闪烁的帮助按钮</strong>，打开帮助弹窗查看。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
-    positionTutorialTooltip(rect, 'bottom');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var targetEl = document.querySelector('#btnHelp');
+          if (!targetEl) return;
+          var rect = targetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, rect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          positionTutorialTooltip(rect, 'bottom');
+        });
+      });
+    });
   }
 
   function showTutorialSettingsBtnGuide() {
     hideTutorialCellGuide();
-    var targetEl = document.querySelector('#btnSettings');
-    if (!targetEl) return;
-    var rect = targetEl.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnSettings';
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">游戏设置</h3><p style="margin:0;">点击此按钮可打开<strong>设置</strong>，调整棋盘大小、棋子大小和主题配色，也可以在这里重新查看本教程。<br><br>现在请点击<strong>闪烁的设置按钮</strong>，打开设置弹窗查看。</p>';
     els.tutorialOverlay.classList.add('interaction-mode');
-    positionTutorialTooltip(rect, 'bottom');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var targetEl = document.querySelector('#btnSettings');
+          if (!targetEl) return;
+          var rect = targetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, rect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          positionTutorialTooltip(rect, 'bottom');
+        });
+      });
+    });
   }
 
   function startPersistAutoDemo() {
@@ -745,15 +791,21 @@
         state.tutorial.allowedButton = '.mode-tile[data-mode="fun"]';
         var t1 = setTimeout(function () {
           hideTutorialCellGuide();
-          var targetEl = document.querySelector(state.tutorial.allowedButton);
-          if (targetEl) {
-            var rect = targetEl.getBoundingClientRect();
-            var guide = document.createElement('div');
-            guide.className = 'tutorial-cell-guide';
-            setGuidePosition(guide, rect, 4);
-            document.body.appendChild(guide);
-            state.tutorial.guideElement = guide;
-          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var targetEl = document.querySelector(state.tutorial.allowedButton);
+                if (targetEl) {
+                  var rect = targetEl.getBoundingClientRect();
+                  var guide = document.createElement('div');
+                  guide.className = 'tutorial-cell-guide';
+                  setGuidePosition(guide, rect, 4);
+                  document.body.appendChild(guide);
+                  state.tutorial.guideElement = guide;
+                }
+              });
+            });
+          });
         }, 100);
         addGuideTimeout(t1);
       },
@@ -1023,16 +1075,22 @@
         XOApp.render();
         var t2 = setTimeout(function () {
           hideTutorialCellGuide();
-          var targetEl = document.querySelector('#btnAI');
-          if (targetEl) {
-            var rect = targetEl.getBoundingClientRect();
-            var guide = document.createElement('div');
-            guide.className = 'tutorial-cell-guide';
-            setGuidePosition(guide, rect, 4);
-            document.body.appendChild(guide);
-            state.tutorial.guideElement = guide;
-            state.tutorial.allowedButton = '#btnAI';
-          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var targetEl = document.querySelector('#btnAI');
+                if (targetEl) {
+                  var rect = targetEl.getBoundingClientRect();
+                  var guide = document.createElement('div');
+                  guide.className = 'tutorial-cell-guide';
+                  setGuidePosition(guide, rect, 4);
+                  document.body.appendChild(guide);
+                  state.tutorial.guideElement = guide;
+                  state.tutorial.allowedButton = '#btnAI';
+                }
+              });
+            });
+          });
         }, 100);
         addGuideTimeout(t2);
       },
@@ -1051,15 +1109,21 @@
         state.tutorial.allowedButton = '.option-btn[data-ai-setting="gameMode"][data-value="pve"]';
         var t3 = setTimeout(function () {
           hideTutorialCellGuide();
-          var targetEl = document.querySelector(state.tutorial.allowedButton);
-          if (targetEl) {
-            var rect = targetEl.getBoundingClientRect();
-            var guide = document.createElement('div');
-            guide.className = 'tutorial-cell-guide';
-            setGuidePosition(guide, rect, 4);
-            document.body.appendChild(guide);
-            state.tutorial.guideElement = guide;
-          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var targetEl = document.querySelector(state.tutorial.allowedButton);
+                if (targetEl) {
+                  var rect = targetEl.getBoundingClientRect();
+                  var guide = document.createElement('div');
+                  guide.className = 'tutorial-cell-guide';
+                  setGuidePosition(guide, rect, 4);
+                  document.body.appendChild(guide);
+                  state.tutorial.guideElement = guide;
+                }
+              });
+            });
+          });
         }, 100);
         addGuideTimeout(t3);
       },
@@ -1424,6 +1488,16 @@
 
   function renderTutorial() {
     var step = TUTORIAL_STEPS[state.tutorial.currentStep];
+
+    if (!(state.tutorial.helpStage === 2 && state.tutorial.helpTooltipHidden)) {
+      state.tutorial.helpTooltipHidden = false;
+      els.tutorialTooltip.style.visibility = '';
+      els.tutorialTooltip.style.opacity = '';
+      if (state.tutorial.guideElement) {
+        state.tutorial.guideElement.style.visibility = '';
+        state.tutorial.guideElement.style.opacity = '';
+      }
+    }
 
     var isManual = !!state.tutorial.manualPositioning;
 
@@ -1839,7 +1913,17 @@
     state.tutorial.manualPositioning = false;
     state.tutorial.freezeTriedFrozenCell = false;
     state.tutorial.helpStage = 0;
-    state.tutorial.helpTooltipHidden = false;
+    if (typeof XOApp.restoreHelpTutorialVisibility === 'function') {
+      XOApp.restoreHelpTutorialVisibility();
+    } else {
+      state.tutorial.helpTooltipHidden = false;
+      els.tutorialTooltip.style.visibility = '';
+      els.tutorialTooltip.style.opacity = '';
+      if (state.tutorial.guideElement) {
+        state.tutorial.guideElement.style.visibility = '';
+        state.tutorial.guideElement.style.opacity = '';
+      }
+    }
     state.tutorial.settingsStage = 0;
     state.tutorial.modeStage = 0;
     state.tutorial.aiStage = 0;

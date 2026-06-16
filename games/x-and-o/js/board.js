@@ -399,6 +399,16 @@
     }
   }
 
+  function restoreHelpTutorialVisibility() {
+    state.tutorial.helpTooltipHidden = false;
+    els.tutorialTooltip.style.visibility = '';
+    els.tutorialTooltip.style.opacity = '';
+    if (state.tutorial.guideElement) {
+      state.tutorial.guideElement.style.visibility = '';
+      state.tutorial.guideElement.style.opacity = '';
+    }
+  }
+
   function hideHelpTutorialTooltip() {
     if (!state.tutorial.active || state.tutorial.helpStage !== 2) return;
     if (state.tutorial.helpTooltipHidden) return;
@@ -414,13 +424,7 @@
   function showHelpTutorialTooltip() {
     if (!state.tutorial.active || state.tutorial.helpStage !== 2) return;
     if (!state.tutorial.helpTooltipHidden) return;
-    state.tutorial.helpTooltipHidden = false;
-    els.tutorialTooltip.style.visibility = '';
-    els.tutorialTooltip.style.opacity = '';
-    if (state.tutorial.guideElement) {
-      state.tutorial.guideElement.style.visibility = '';
-      state.tutorial.guideElement.style.opacity = '';
-    }
+    restoreHelpTutorialVisibility();
   }
 
   function showHelpModal() {
@@ -465,7 +469,7 @@
       hideModal(els.helpModal);
       if (state.tutorial.active && state.tutorial.helpStage === 2) {
         state.tutorial.helpStage = 0;
-        state.tutorial.helpTooltipHidden = false;
+        restoreHelpTutorialVisibility();
         els.tutorialOverlay.classList.remove('modal-mode');
         XOApp.tutorialNext();
       }
@@ -1028,7 +1032,7 @@
         hideModal(els.helpModal);
         if (state.tutorial.active && state.tutorial.helpStage === 2) {
           state.tutorial.helpStage = 0;
-          state.tutorial.helpTooltipHidden = false;
+          restoreHelpTutorialVisibility();
           els.tutorialOverlay.classList.remove('modal-mode');
           XOApp.tutorialNext();
         }
@@ -1083,7 +1087,7 @@
         hideModal(els.helpModal);
         if (state.tutorial.active && state.tutorial.helpStage === 2) {
           state.tutorial.helpStage = 0;
-          state.tutorial.helpTooltipHidden = false;
+          restoreHelpTutorialVisibility();
           els.tutorialOverlay.classList.remove('modal-mode');
           XOApp.tutorialNext();
         }
@@ -1312,7 +1316,7 @@
       state.tutorial.allowedButton = null;
       state.tutorial.freezeTriedFrozenCell = false;
       state.tutorial.helpStage = 0;
-      state.tutorial.helpTooltipHidden = false;
+      restoreHelpTutorialVisibility();
       state.tutorial.settingsStage = 0;
       state.tutorial.modeStage = 0;
       state.tutorial.aiStage = 0;
@@ -1385,7 +1389,7 @@
         state.tutorial.manualPositioning = false;
         state.tutorial.freezeTriedFrozenCell = false;
         state.tutorial.helpStage = 0;
-        state.tutorial.helpTooltipHidden = false;
+        restoreHelpTutorialVisibility();
         state.tutorial.settingsStage = 0;
         state.tutorial.modeStage = 0;
         state.tutorial.aiStage = 0;
@@ -1430,6 +1434,7 @@
   XOApp.applyCollapseState = applyCollapseState;
   XOApp.hideHelpTutorialTooltip = hideHelpTutorialTooltip;
   XOApp.showHelpTutorialTooltip = showHelpTutorialTooltip;
+  XOApp.restoreHelpTutorialVisibility = restoreHelpTutorialVisibility;
   XOApp.helpPrevPage = helpPrevPage;
   XOApp.helpNextPage = helpNextPage;
 
