@@ -71,7 +71,7 @@
 
     if (window.innerWidth <= 800) {
       tooltipWidth = Math.min(tooltipWidth, window.innerWidth - 32);
-      tooltipHeight = 140;
+      tooltipHeight = 220;
     }
 
     var currentTransform = tooltip.style.transform;
@@ -563,13 +563,40 @@
             var gap = 0;
             var targetRect, targetEl;
             if (window.innerWidth <= 800) {
-              var boardEl = document.querySelector('#board');
-              if (boardEl) {
-                targetRect = boardEl.getBoundingClientRect();
-                targetEl = boardEl;
-                pos = 'bottom';
+              var mBoardEl = document.querySelector('#board');
+              if (mBoardEl) {
+                var mBoardRect = mBoardEl.getBoundingClientRect();
+                var mSpaceTop = mBoardRect.top;
+                var mSpaceBottom = window.innerHeight - mBoardRect.bottom;
+                var mEstTooltipH = 220;
+                var mSafeMargin = 32;
+                var mAllowTop = (cellRow !== 0) && (mSpaceTop >= mEstTooltipH + mSafeMargin);
+                var mAllowBottom = (cellRow !== 2) && (mSpaceBottom >= mEstTooltipH + mSafeMargin);
+                var mFinalPos;
+                if (mAllowTop && mAllowBottom) {
+                  mFinalPos = mSpaceTop >= mSpaceBottom ? 'top' : 'bottom';
+                } else if (mAllowTop) {
+                  mFinalPos = 'top';
+                } else if (mAllowBottom) {
+                  mFinalPos = 'bottom';
+                } else {
+                  var mFallbackAllowTop = cellRow !== 0;
+                  var mFallbackAllowBottom = cellRow !== 2;
+                  if (mFallbackAllowTop && mFallbackAllowBottom) {
+                    mFinalPos = mSpaceTop >= mSpaceBottom ? 'top' : 'bottom';
+                  } else if (mFallbackAllowTop) {
+                    mFinalPos = 'top';
+                  } else if (mFallbackAllowBottom) {
+                    mFinalPos = 'bottom';
+                  } else {
+                    mFinalPos = mSpaceTop >= mSpaceBottom ? 'top' : 'bottom';
+                  }
+                }
+                targetRect = mBoardRect;
+                targetEl = mBoardEl;
+                pos = mFinalPos;
                 fPos = true;
-                gap = 20;
+                gap = 16;
               }
             } else {
               targetRect = cell.getBoundingClientRect();
@@ -1318,12 +1345,40 @@
         }
       } else if (isPersistDemo) {
         if (window.innerWidth <= 800) {
-          var boardEl = document.querySelector('#board');
-          if (boardEl) {
-            rect = boardEl.getBoundingClientRect();
-            targetPosition = 'bottom';
-            targetEl = boardEl;
-            tooltipExtraGap = 20;
+          var persistBoardEl = document.querySelector('#board');
+          var pRow = state.tutorial.interactionCell[0];
+          if (persistBoardEl) {
+            var pBoardRect = persistBoardEl.getBoundingClientRect();
+            var spaceTop = pBoardRect.top;
+            var spaceBottom = window.innerHeight - pBoardRect.bottom;
+            var estTooltipH = 220;
+            var safeMargin = 32;
+            var allowTop = (pRow !== 0) && (spaceTop >= estTooltipH + safeMargin);
+            var allowBottom = (pRow !== 2) && (spaceBottom >= estTooltipH + safeMargin);
+            var finalPos;
+            if (allowTop && allowBottom) {
+              finalPos = spaceTop >= spaceBottom ? 'top' : 'bottom';
+            } else if (allowTop) {
+              finalPos = 'top';
+            } else if (allowBottom) {
+              finalPos = 'bottom';
+            } else {
+              var fallbackAllowTop = pRow !== 0;
+              var fallbackAllowBottom = pRow !== 2;
+              if (fallbackAllowTop && fallbackAllowBottom) {
+                finalPos = spaceTop >= spaceBottom ? 'top' : 'bottom';
+              } else if (fallbackAllowTop) {
+                finalPos = 'top';
+              } else if (fallbackAllowBottom) {
+                finalPos = 'bottom';
+              } else {
+                finalPos = spaceTop >= spaceBottom ? 'top' : 'bottom';
+              }
+            }
+            rect = pBoardRect;
+            targetPosition = finalPos;
+            targetEl = persistBoardEl;
+            tooltipExtraGap = 16;
             forcePosition = true;
           }
         } else {
