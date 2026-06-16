@@ -345,12 +345,6 @@
     hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnCancelFreeze');
     if (!targetEl) return;
-    var rect = targetEl.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnCancelFreeze';
     state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">取消固定</h3><p style="margin:0;">在选择目标格子前，你可以随时<strong>取消固定</strong>操作。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>固定按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次固定操作。</p>';
@@ -363,38 +357,45 @@
     els.tutorialTooltip.style.visibility = 'hidden';
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        var curTargetEl = document.querySelector('#btnCancelFreeze');
-        if (!curTargetEl) {
-          els.tutorialTooltip.style.visibility = '';
-          els.tutorialTooltip.style.transition = '';
-          return;
-        }
-        var curRect = curTargetEl.getBoundingClientRect();
-        var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
-        var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
-        var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
-        var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
-        if (curLeft < 16) curLeft = 16;
-        if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
-        var curTop = curRect.top - curTooltipHeight - sideGap - 8;
-        var curArrow = 'arrow-bottom';
-        if (curTop < 16) {
-          curTop = curRect.bottom + sideGap + 8;
-          curArrow = 'arrow-top';
-        }
-        if (curTop + curTooltipHeight > window.innerHeight - 16) {
-          curTop = window.innerHeight - curTooltipHeight - 16;
-        }
-        var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
-        arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
-        els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
-        els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
-        els.tutorialTooltip.style.left = curLeft + 'px';
-        els.tutorialTooltip.style.top = curTop + 'px';
-        els.tutorialTooltip.style.transform = 'none';
-        els.tutorialTooltip.style.visibility = '';
         requestAnimationFrame(function () {
-          els.tutorialTooltip.style.transition = '';
+          var curTargetEl = document.querySelector('#btnCancelFreeze');
+          if (!curTargetEl) {
+            els.tutorialTooltip.style.visibility = '';
+            els.tutorialTooltip.style.transition = '';
+            return;
+          }
+          var curRect = curTargetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, curRect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+          var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
+          var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
+          var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
+          if (curLeft < 16) curLeft = 16;
+          if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
+          var curTop = curRect.top - curTooltipHeight - sideGap - 8;
+          var curArrow = 'arrow-bottom';
+          if (curTop < 16) {
+            curTop = curRect.bottom + sideGap + 8;
+            curArrow = 'arrow-top';
+          }
+          if (curTop + curTooltipHeight > window.innerHeight - 16) {
+            curTop = window.innerHeight - curTooltipHeight - 16;
+          }
+          var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
+          arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
+          els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
+          els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+          els.tutorialTooltip.style.left = curLeft + 'px';
+          els.tutorialTooltip.style.top = curTop + 'px';
+          els.tutorialTooltip.style.transform = 'none';
+          els.tutorialTooltip.style.visibility = '';
+          requestAnimationFrame(function () {
+            els.tutorialTooltip.style.transition = '';
+          });
         });
       });
     });
@@ -429,12 +430,6 @@
     hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnCancelPersist');
     if (!targetEl) return;
-    var rect = targetEl.getBoundingClientRect();
-    var guide = document.createElement('div');
-    guide.className = 'tutorial-cell-guide';
-    setGuidePosition(guide, rect, 4);
-    document.body.appendChild(guide);
-    state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnCancelPersist';
     state.tutorial.manualPositioning = true;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">取消保留</h3><p style="margin:0;">在落下保留棋子前，你可以随时<strong>取消保留</strong>操作。<br><br>取消方式有两种：<br>• 点击下方的<strong>"取消"按钮</strong><br>• 再次点击<strong>保留按钮</strong><br><br>现在请点击<strong>闪烁的"取消"按钮</strong>，取消本次保留操作。</p>';
@@ -447,59 +442,66 @@
     els.tutorialTooltip.style.visibility = 'hidden';
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        var curTargetEl = document.querySelector('#btnCancelPersist');
-        if (!curTargetEl) {
-          els.tutorialTooltip.style.visibility = '';
-          els.tutorialTooltip.style.transition = '';
-          return;
-        }
-        var curRect = curTargetEl.getBoundingClientRect();
-        var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
-        var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
-        var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
-        var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
-        if (curLeft < 16) curLeft = 16;
-        if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
+        requestAnimationFrame(function () {
+          var curTargetEl = document.querySelector('#btnCancelPersist');
+          if (!curTargetEl) {
+            els.tutorialTooltip.style.visibility = '';
+            els.tutorialTooltip.style.transition = '';
+            return;
+          }
+          var curRect = curTargetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, curRect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+          var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
+          var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
+          var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
+          if (curLeft < 16) curLeft = 16;
+          if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
 
-        var safeMargin = 16;
-        var spaceTop = curRect.top - sideGap - 8 - safeMargin;
-        var spaceBottom = window.innerHeight - curRect.bottom - sideGap - 8 - safeMargin;
-        var allowTop = spaceTop >= curTooltipHeight;
-        var allowBottom = spaceBottom >= curTooltipHeight;
-        var curTop;
-        var curArrow;
-        if (allowTop && allowBottom) {
-          curTop = curRect.top - curTooltipHeight - sideGap - 8;
-          curArrow = 'arrow-bottom';
-        } else if (allowTop) {
-          curTop = curRect.top - curTooltipHeight - sideGap - 8;
-          curArrow = 'arrow-bottom';
-        } else if (allowBottom) {
-          curTop = curRect.bottom + sideGap + 8;
-          curArrow = 'arrow-top';
-        } else {
-          if (spaceTop >= spaceBottom) {
+          var safeMargin = 16;
+          var spaceTop = curRect.top - sideGap - 8 - safeMargin;
+          var spaceBottom = window.innerHeight - curRect.bottom - sideGap - 8 - safeMargin;
+          var allowTop = spaceTop >= curTooltipHeight;
+          var allowBottom = spaceBottom >= curTooltipHeight;
+          var curTop;
+          var curArrow;
+          if (allowTop && allowBottom) {
             curTop = curRect.top - curTooltipHeight - sideGap - 8;
             curArrow = 'arrow-bottom';
-          } else {
+          } else if (allowTop) {
+            curTop = curRect.top - curTooltipHeight - sideGap - 8;
+            curArrow = 'arrow-bottom';
+          } else if (allowBottom) {
             curTop = curRect.bottom + sideGap + 8;
             curArrow = 'arrow-top';
+          } else {
+            if (spaceTop >= spaceBottom) {
+              curTop = curRect.top - curTooltipHeight - sideGap - 8;
+              curArrow = 'arrow-bottom';
+            } else {
+              curTop = curRect.bottom + sideGap + 8;
+              curArrow = 'arrow-top';
+            }
           }
-        }
-        if (curTop < safeMargin) curTop = safeMargin;
-        if (curTop + curTooltipHeight > window.innerHeight - safeMargin) {
-          curTop = window.innerHeight - curTooltipHeight - safeMargin;
-        }
-        var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
-        arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
-        els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
-        els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
-        els.tutorialTooltip.style.left = curLeft + 'px';
-        els.tutorialTooltip.style.top = curTop + 'px';
-        els.tutorialTooltip.style.transform = 'none';
-        els.tutorialTooltip.style.visibility = '';
-        requestAnimationFrame(function () {
-          els.tutorialTooltip.style.transition = '';
+          if (curTop < safeMargin) curTop = safeMargin;
+          if (curTop + curTooltipHeight > window.innerHeight - safeMargin) {
+            curTop = window.innerHeight - curTooltipHeight - safeMargin;
+          }
+          var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
+          arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
+          els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
+          els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+          els.tutorialTooltip.style.left = curLeft + 'px';
+          els.tutorialTooltip.style.top = curTop + 'px';
+          els.tutorialTooltip.style.transform = 'none';
+          els.tutorialTooltip.style.visibility = '';
+          requestAnimationFrame(function () {
+            els.tutorialTooltip.style.transition = '';
+          });
         });
       });
     });
@@ -1837,6 +1839,7 @@
     state.tutorial.manualPositioning = false;
     state.tutorial.freezeTriedFrozenCell = false;
     state.tutorial.helpStage = 0;
+    state.tutorial.helpTooltipHidden = false;
     state.tutorial.settingsStage = 0;
     state.tutorial.modeStage = 0;
     state.tutorial.aiStage = 0;

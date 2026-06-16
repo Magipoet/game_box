@@ -399,11 +399,36 @@
     }
   }
 
+  function hideHelpTutorialTooltip() {
+    if (!state.tutorial.active || state.tutorial.helpStage !== 2) return;
+    if (state.tutorial.helpTooltipHidden) return;
+    state.tutorial.helpTooltipHidden = true;
+    els.tutorialTooltip.style.visibility = 'hidden';
+    els.tutorialTooltip.style.opacity = '0';
+    if (state.tutorial.guideElement) {
+      state.tutorial.guideElement.style.visibility = 'hidden';
+      state.tutorial.guideElement.style.opacity = '0';
+    }
+  }
+
+  function showHelpTutorialTooltip() {
+    if (!state.tutorial.active || state.tutorial.helpStage !== 2) return;
+    if (!state.tutorial.helpTooltipHidden) return;
+    state.tutorial.helpTooltipHidden = false;
+    els.tutorialTooltip.style.visibility = '';
+    els.tutorialTooltip.style.opacity = '';
+    if (state.tutorial.guideElement) {
+      state.tutorial.guideElement.style.visibility = '';
+      state.tutorial.guideElement.style.opacity = '';
+    }
+  }
+
   function showHelpModal() {
     helpState.current = 0;
     renderHelpPage();
     showModal(els.helpModal);
     els.helpPagesContainer.scrollTop = 0;
+    state.tutorial.helpTooltipHidden = false;
   }
 
   function renderHelpPage() {
@@ -426,6 +451,7 @@
   function helpPrevPage() {
     if (helpState.current > 0) {
       helpState.current--;
+      hideHelpTutorialTooltip();
       renderHelpPage();
     }
   }
@@ -433,11 +459,13 @@
   function helpNextPage() {
     if (helpState.current < helpState.totalPages - 1) {
       helpState.current++;
+      hideHelpTutorialTooltip();
       renderHelpPage();
     } else {
       hideModal(els.helpModal);
       if (state.tutorial.active && state.tutorial.helpStage === 2) {
         state.tutorial.helpStage = 0;
+        state.tutorial.helpTooltipHidden = false;
         els.tutorialOverlay.classList.remove('modal-mode');
         XOApp.tutorialNext();
       }
@@ -1000,6 +1028,7 @@
         hideModal(els.helpModal);
         if (state.tutorial.active && state.tutorial.helpStage === 2) {
           state.tutorial.helpStage = 0;
+          state.tutorial.helpTooltipHidden = false;
           els.tutorialOverlay.classList.remove('modal-mode');
           XOApp.tutorialNext();
         }
@@ -1007,6 +1036,10 @@
     });
     els.helpPrev.addEventListener('click', function () { helpPrevPage(); });
     els.helpNext.addEventListener('click', function () { helpNextPage(); });
+
+    els.helpPagesContainer.addEventListener('scroll', function () {
+      hideHelpTutorialTooltip();
+    });
 
     var HELP_SCROLL_STEP = 3;
 
@@ -1020,6 +1053,7 @@
 
     function tickHelpScroll() {
       els.helpPagesContainer.scrollTop += helpState.scrollDir * HELP_SCROLL_STEP;
+      hideHelpTutorialTooltip();
       helpState.scrollTimer = requestAnimationFrame(tickHelpScroll);
     }
 
@@ -1027,6 +1061,7 @@
       if (helpState.scrollDir === dir && helpState.scrollTimer) return;
       stopHelpScroll();
       helpState.scrollDir = dir;
+      hideHelpTutorialTooltip();
       helpState.scrollTimer = requestAnimationFrame(tickHelpScroll);
     }
 
@@ -1048,6 +1083,7 @@
         hideModal(els.helpModal);
         if (state.tutorial.active && state.tutorial.helpStage === 2) {
           state.tutorial.helpStage = 0;
+          state.tutorial.helpTooltipHidden = false;
           els.tutorialOverlay.classList.remove('modal-mode');
           XOApp.tutorialNext();
         }
@@ -1276,8 +1312,10 @@
       state.tutorial.allowedButton = null;
       state.tutorial.freezeTriedFrozenCell = false;
       state.tutorial.helpStage = 0;
+      state.tutorial.helpTooltipHidden = false;
       state.tutorial.settingsStage = 0;
       state.tutorial.modeStage = 0;
+      state.tutorial.aiStage = 0;
       if (state.tutorial.pendingAutoAdvance) {
         clearTimeout(state.tutorial.pendingAutoAdvance);
         state.tutorial.pendingAutoAdvance = null;
@@ -1347,8 +1385,10 @@
         state.tutorial.manualPositioning = false;
         state.tutorial.freezeTriedFrozenCell = false;
         state.tutorial.helpStage = 0;
+        state.tutorial.helpTooltipHidden = false;
         state.tutorial.settingsStage = 0;
         state.tutorial.modeStage = 0;
+        state.tutorial.aiStage = 0;
         if (state.tutorial.pendingAutoAdvance) {
           clearTimeout(state.tutorial.pendingAutoAdvance);
           state.tutorial.pendingAutoAdvance = null;
@@ -1388,6 +1428,10 @@
   XOApp.applyTheme = applyTheme;
   XOApp.toggleCollapse = toggleCollapse;
   XOApp.applyCollapseState = applyCollapseState;
+  XOApp.hideHelpTutorialTooltip = hideHelpTutorialTooltip;
+  XOApp.showHelpTutorialTooltip = showHelpTutorialTooltip;
+  XOApp.helpPrevPage = helpPrevPage;
+  XOApp.helpNextPage = helpNextPage;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
