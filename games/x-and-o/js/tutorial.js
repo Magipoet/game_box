@@ -1271,19 +1271,44 @@
       var tooltipExtraGap = 0;
       var forcePosition = false;
       var isPersistDemo = state.tutorial.persistStage >= 3 && state.tutorial.persistStage <= 8 && state.tutorial.interactionCell;
-      if ((step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) || isPersistDemo) {
+      if (step.target === '#btnUndoX' && state.tutorial.undoStage === 0 && state.tutorial.interactionCell) {
         var cellRow = state.tutorial.interactionCell[0];
         var cellCol = state.tutorial.interactionCell[1];
         var cell = document.querySelector('.cell[data-row="' + cellRow + '"][data-col="' + cellCol + '"]');
         if (cell) {
           rect = cell.getBoundingClientRect();
-          targetPosition = window.innerWidth <= 800 ? 'top' : 'right';
+          targetPosition = window.innerWidth <= 800 ? 'bottom' : 'right';
           targetEl = cell;
-          tooltipExtraGap = window.innerWidth <= 800 ? 80 : 20;
+          tooltipExtraGap = window.innerWidth <= 800 ? 20 : 20;
           forcePosition = true;
         } else if (targetEl) {
           rect = targetEl.getBoundingClientRect();
           targetPosition = step.position;
+        }
+      } else if (isPersistDemo) {
+        if (window.innerWidth <= 800) {
+          var boardEl = document.querySelector('#board');
+          if (boardEl) {
+            rect = boardEl.getBoundingClientRect();
+            targetPosition = 'bottom';
+            targetEl = boardEl;
+            tooltipExtraGap = 20;
+            forcePosition = true;
+          }
+        } else {
+          var pCellRow = state.tutorial.interactionCell[0];
+          var pCellCol = state.tutorial.interactionCell[1];
+          var pCell = document.querySelector('.cell[data-row="' + pCellRow + '"][data-col="' + pCellCol + '"]');
+          if (pCell) {
+            rect = pCell.getBoundingClientRect();
+            targetPosition = 'right';
+            targetEl = pCell;
+            tooltipExtraGap = 20;
+            forcePosition = true;
+          } else if (targetEl) {
+            rect = targetEl.getBoundingClientRect();
+            targetPosition = step.position;
+          }
         }
       } else if (targetEl) {
         rect = targetEl.getBoundingClientRect();
