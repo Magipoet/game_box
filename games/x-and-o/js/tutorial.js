@@ -1874,6 +1874,7 @@
     els.btnWinClose.textContent = '再来一局';
     localStorage.setItem('xando-tutorial-seen', 'true');
     XOApp.resetGame(MODE_NORMAL);
+    stopTutorialPositionLoop();
   }
 
   function initTutorial() {
@@ -1888,6 +1889,7 @@
       state.tutorial.currentStep = 0;
       state.tutorial.totalSteps = TUTORIAL_STEPS.length;
       els.tutorialOverlay.hidden = false;
+      startTutorialPositionLoop();
       renderTutorial();
     }
   }
@@ -1939,6 +1941,7 @@
   XOApp.moveDynamicStepTooltipDown = moveDynamicStepTooltipDown;
 
   var _tutorialScrollRafId = null;
+  var _tutorialPosLoopRafId = null;
 
   function updateTutorialPositionsOnScroll() {
     if (!state.tutorial.active) return;
@@ -1958,6 +1961,22 @@
     }
 
     updateTutorialHighlightPosition();
+  }
+
+  function startTutorialPositionLoop() {
+    if (_tutorialPosLoopRafId) return;
+    function loop() {
+      _tutorialPosLoopRafId = requestAnimationFrame(loop);
+      updateTutorialPositionsOnScroll();
+    }
+    _tutorialPosLoopRafId = requestAnimationFrame(loop);
+  }
+
+  function stopTutorialPositionLoop() {
+    if (_tutorialPosLoopRafId) {
+      cancelAnimationFrame(_tutorialPosLoopRafId);
+      _tutorialPosLoopRafId = null;
+    }
   }
 
   function onTutorialScroll() {
@@ -1983,4 +2002,6 @@
 
   XOApp.updateTutorialPositionsOnScroll = updateTutorialPositionsOnScroll;
   XOApp.bindModalScrollListeners = bindModalScrollListeners;
+  XOApp.startTutorialPositionLoop = startTutorialPositionLoop;
+  XOApp.stopTutorialPositionLoop = stopTutorialPositionLoop;
 })();
