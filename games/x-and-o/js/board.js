@@ -1244,7 +1244,10 @@
         XOApp.renderTutorial();
       }
       if (state.tutorial.waitingForInteraction && state.tutorial.interactionCell) {
-        setTimeout(XOApp.showTutorialCellGuide, 50);
+        var t = setTimeout(XOApp.showTutorialCellGuide, 50);
+        if (state.tutorial.guideTimeouts) {
+          state.tutorial.guideTimeouts.push(t);
+        }
       }
     });
 

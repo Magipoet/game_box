@@ -58,6 +58,7 @@
       preTutorialSettings: null,
       manualPositioning: false,
       guideTimeouts: [],
+      lastOnEnterStep: -1,
     },
   };
 

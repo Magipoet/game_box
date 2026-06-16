@@ -212,6 +212,7 @@
   }
 
   function showTutorialUndoGuide() {
+    hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnUndoX');
     if (!targetEl) return;
     var rect = targetEl.getBoundingClientRect();
@@ -236,6 +237,7 @@
   }
 
   function showTutorialFreezeBtnGuide() {
+    hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnFreezeX');
     if (!targetEl) return;
     var rect = targetEl.getBoundingClientRect();
@@ -339,6 +341,7 @@
   }
 
   function showTutorialCancelFreezeBtnGuide() {
+    hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnCancelFreeze');
     if (!targetEl) return;
     var rect = targetEl.getBoundingClientRect();
@@ -397,6 +400,7 @@
   }
 
   function showTutorialPersistBtnGuide() {
+    hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnPersistX');
     if (!targetEl) return;
     var rect = targetEl.getBoundingClientRect();
@@ -421,6 +425,7 @@
   }
 
   function showTutorialCancelPersistBtnGuide() {
+    hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnCancelPersist');
     if (!targetEl) return;
     var rect = targetEl.getBoundingClientRect();
@@ -454,14 +459,35 @@
         var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
         if (curLeft < 16) curLeft = 16;
         if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
-        var curTop = curRect.top - curTooltipHeight - sideGap - 8;
-        var curArrow = 'arrow-bottom';
-        if (curTop < 16) {
+
+        var safeMargin = 16;
+        var spaceTop = curRect.top - sideGap - 8 - safeMargin;
+        var spaceBottom = window.innerHeight - curRect.bottom - sideGap - 8 - safeMargin;
+        var allowTop = spaceTop >= curTooltipHeight;
+        var allowBottom = spaceBottom >= curTooltipHeight;
+        var curTop;
+        var curArrow;
+        if (allowTop && allowBottom) {
+          curTop = curRect.top - curTooltipHeight - sideGap - 8;
+          curArrow = 'arrow-bottom';
+        } else if (allowTop) {
+          curTop = curRect.top - curTooltipHeight - sideGap - 8;
+          curArrow = 'arrow-bottom';
+        } else if (allowBottom) {
           curTop = curRect.bottom + sideGap + 8;
           curArrow = 'arrow-top';
+        } else {
+          if (spaceTop >= spaceBottom) {
+            curTop = curRect.top - curTooltipHeight - sideGap - 8;
+            curArrow = 'arrow-bottom';
+          } else {
+            curTop = curRect.bottom + sideGap + 8;
+            curArrow = 'arrow-top';
+          }
         }
-        if (curTop + curTooltipHeight > window.innerHeight - 16) {
-          curTop = window.innerHeight - curTooltipHeight - 16;
+        if (curTop < safeMargin) curTop = safeMargin;
+        if (curTop + curTooltipHeight > window.innerHeight - safeMargin) {
+          curTop = window.innerHeight - curTooltipHeight - safeMargin;
         }
         var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
         arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
@@ -479,6 +505,7 @@
   }
 
   function showTutorialHelpBtnGuide() {
+    hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnHelp');
     if (!targetEl) return;
     var rect = targetEl.getBoundingClientRect();
@@ -494,6 +521,7 @@
   }
 
   function showTutorialSettingsBtnGuide() {
+    hideTutorialCellGuide();
     var targetEl = document.querySelector('#btnSettings');
     if (!targetEl) return;
     var rect = targetEl.getBoundingClientRect();
@@ -713,6 +741,7 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.mode-tile[data-mode="fun"]';
         var t1 = setTimeout(function () {
+          hideTutorialCellGuide();
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
@@ -990,6 +1019,7 @@
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
         var t2 = setTimeout(function () {
+          hideTutorialCellGuide();
           var targetEl = document.querySelector('#btnAI');
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
@@ -1017,6 +1047,7 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-ai-setting="gameMode"][data-value="pve"]';
         var t3 = setTimeout(function () {
+          hideTutorialCellGuide();
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
@@ -1130,6 +1161,7 @@
         }, 150);
         addGuideTimeout(ts2);
         var ts3 = setTimeout(function () {
+          hideTutorialCellGuide();
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
@@ -1179,6 +1211,7 @@
         }, 150);
         addGuideTimeout(ts5);
         var ts6 = setTimeout(function () {
+          hideTutorialCellGuide();
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
@@ -1206,6 +1239,7 @@
         state.tutorial.allowedButton = '.settings-tab[data-settings-tab="theme"]';
         XOApp.hideTutorialCellGuide();
         var ts7 = setTimeout(function () {
+          hideTutorialCellGuide();
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
@@ -1247,6 +1281,7 @@
         }, 150);
         addGuideTimeout(ts8);
         var ts9 = setTimeout(function () {
+          hideTutorialCellGuide();
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
@@ -1306,7 +1341,8 @@
 
     els.tutorialOverlay.classList.remove('button-interaction-mode');
 
-    if (typeof step.onEnter === 'function') {
+    if (typeof step.onEnter === 'function' && state.tutorial.lastOnEnterStep !== state.tutorial.currentStep) {
+      state.tutorial.lastOnEnterStep = state.tutorial.currentStep;
       step.onEnter();
     }
 
