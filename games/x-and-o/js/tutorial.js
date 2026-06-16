@@ -1064,7 +1064,7 @@
     {
       target: null,
       title: 'AI对局设置 - 人机对局',
-      content: '切换到<strong>人机对局</strong>后，下方会显示额外的设置选项：<br><br><strong>AI难度</strong>：<br>• <strong>初级</strong>：适合新手，AI会随机落子<br>• <strong>中级</strong>：AI具有一定策略性<br>• <strong>高级</strong>：AI采用最优策略，较难战胜<br><br><strong>先手选择</strong>：<br>• <strong>玩家先手（X）</strong>：玩家使用X方，先行落子<br>• <strong>AI先手（O）</strong>：AI使用O方，先行落子',
+      content: '切换到<strong>人机对局</strong>后，下方会显示额外的设置选项：<br><br><strong>AI难度</strong>：<span style="display:inline-block;margin-left:8px;">初级 · 中级 · 高级</span><br><br><strong>先手选择</strong>：<span style="display:inline-block;margin-left:8px;">玩家先手（X） · AI先手（O）</span>',
       position: 'center',
       onEnter: function () {
         XOApp.showModal(els.aiModal);
@@ -1075,12 +1075,11 @@
         state.tutorial.waitingForInteraction = false;
         state.tutorial.allowedButton = null;
         state.tutorial.manualPositioning = true;
-        var sideTooltipWidth = Math.min(window.innerWidth - 32, 260);
-        var sideTooltipHeight = 260;
-        var sideGap = 16;
         els.tutorialTooltip.style.transition = 'none';
-        els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
         els.tutorialTooltip.style.visibility = 'hidden';
+        els.tutorialTooltip.style.padding = '14px 18px';
+        els.tutorialTooltip.style.fontSize = '14px';
+        els.tutorialTooltip.style.lineHeight = '1.5';
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             var modalDialog = els.aiModal.querySelector('.modal-dialog');
@@ -1091,51 +1090,24 @@
               return;
             }
             var modalRect = modalDialog.getBoundingClientRect();
-            var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
-            var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
-            var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
-            var sideLeft = modalRect.left - curTooltipWidth - sideGap;
-            var sideArrow = 'arrow-right';
-            var isNarrowScreen = window.innerWidth < curTooltipWidth * 2 + sideGap * 2 + 100;
-            var useVerticalPosition = false;
-            if (sideLeft < 16) {
-              sideLeft = modalRect.right + sideGap;
-              sideArrow = 'arrow-left';
-              if (sideLeft + curTooltipWidth > window.innerWidth - 16) {
-                useVerticalPosition = true;
-              }
+            var tooltipWidth = Math.max(modalRect.width - 16, Math.min(window.innerWidth - 32, 480));
+            els.tutorialTooltip.style.width = tooltipWidth + 'px';
+            var tooltipRect = els.tutorialTooltip.getBoundingClientRect();
+            var tooltipHeight = tooltipRect.height;
+            var leftPos = modalRect.left + modalRect.width / 2 - tooltipWidth / 2;
+            if (leftPos < 16) leftPos = 16;
+            if (leftPos + tooltipWidth > window.innerWidth - 16) {
+              leftPos = window.innerWidth - tooltipWidth - 16;
             }
-            if (isNarrowScreen) {
-              useVerticalPosition = true;
-            }
-            if (useVerticalPosition) {
-              var vertLeft = modalRect.left + modalRect.width / 2 - curTooltipWidth / 2;
-              if (vertLeft < 16) vertLeft = 16;
-              if (vertLeft + curTooltipWidth > window.innerWidth - 16) {
-                vertLeft = window.innerWidth - curTooltipWidth - 16;
-              }
-              var targetTop = modalRect.top - curTooltipHeight - sideGap - 8;
-              var curArrow = 'arrow-bottom';
-              if (targetTop < 16) {
-                targetTop = modalRect.bottom + sideGap + 8;
-                curArrow = 'arrow-top';
-              }
-              if (targetTop + curTooltipHeight > window.innerHeight - 16) {
-                targetTop = window.innerHeight - curTooltipHeight - 16;
-              }
-              els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
-              els.tutorialTooltip.style.left = vertLeft + 'px';
-              els.tutorialTooltip.style.top = targetTop + 'px';
+            var topPos = modalRect.top - tooltipHeight - 12;
+            if (topPos < 16) {
+              topPos = modalRect.bottom + 12;
+              els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
             } else {
-              var sideTop = modalRect.top + modalRect.height / 2 - curTooltipHeight / 2;
-              if (sideTop < 16) sideTop = 16;
-              if (sideTop + curTooltipHeight > window.innerHeight - 16) {
-                sideTop = window.innerHeight - curTooltipHeight - 16;
-              }
-              els.tutorialTooltip.className = 'tutorial-tooltip ' + sideArrow;
-              els.tutorialTooltip.style.left = sideLeft + 'px';
-              els.tutorialTooltip.style.top = sideTop + 'px';
+              els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
             }
+            els.tutorialTooltip.style.left = leftPos + 'px';
+            els.tutorialTooltip.style.top = topPos + 'px';
             els.tutorialTooltip.style.transform = 'none';
             els.tutorialTooltip.style.visibility = '';
             requestAnimationFrame(function () {
@@ -1144,6 +1116,12 @@
             });
           });
         });
+      },
+      onExit: function () {
+        els.tutorialTooltip.style.padding = '';
+        els.tutorialTooltip.style.fontSize = '';
+        els.tutorialTooltip.style.lineHeight = '';
+        els.tutorialTooltip.style.width = '';
       },
     },
     {
@@ -1728,6 +1706,10 @@
       els.tutorialOverlay.classList.remove('modal-mode');
       els.tutorialOverlay.classList.remove('button-interaction-mode');
     }
+    var curStep = TUTORIAL_STEPS[state.tutorial.currentStep];
+    if (curStep && typeof curStep.onExit === 'function') {
+      curStep.onExit();
+    }
     state.tutorial.currentStep++;
     state.tutorial.manualPositioning = false;
     renderTutorial();
@@ -1772,6 +1754,10 @@
       XOApp.hideModal(els.settingsModal);
       XOApp.hideModal(els.modeModal);
       XOApp.hideModal(els.aiModal);
+      var prevStep = TUTORIAL_STEPS[state.tutorial.currentStep];
+      if (prevStep && typeof prevStep.onExit === 'function') {
+        prevStep.onExit();
+      }
       state.tutorial.currentStep--;
       renderTutorial();
     }
@@ -1937,9 +1923,17 @@
 
   window.addEventListener('scroll', onTutorialScroll, true);
 
-  document.querySelectorAll('.modal-dialog').forEach(function (dialog) {
-    dialog.addEventListener('scroll', onTutorialScroll, true);
-  });
+  function bindModalScrollListeners() {
+    var dialogs = document.querySelectorAll('.modal-dialog');
+    for (var i = 0; i < dialogs.length; i++) {
+      dialogs[i].addEventListener('scroll', onTutorialScroll, true);
+      dialogs[i].addEventListener('touchmove', onTutorialScroll, { passive: true, capture: true });
+    }
+  }
+  bindModalScrollListeners();
+
+  window.addEventListener('touchmove', onTutorialScroll, { passive: true, capture: true });
 
   XOApp.updateTutorialPositionsOnScroll = updateTutorialPositionsOnScroll;
+  XOApp.bindModalScrollListeners = bindModalScrollListeners;
 })();
