@@ -272,18 +272,31 @@
     var tooltipHeight = window.innerWidth <= 800 ? 160 : 200;
     var gap = 16;
     var left = rect.left + rect.width / 2 - tooltipWidth / 2;
-    var top = rect.top - tooltipHeight - gap - extraTopGap;
     if (left < 16) left = 16;
     if (left + tooltipWidth > window.innerWidth - 16) left = window.innerWidth - tooltipWidth - 16;
-    if (top < 16) {
-      top = rect.bottom + gap + extraTopGap;
-      els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
+
+    var spaceAbove = rect.top - gap - extraTopGap - 16;
+    var spaceBelow = window.innerHeight - rect.bottom - gap - extraTopGap - 16;
+    var top;
+    if (spaceAbove >= tooltipHeight || spaceAbove >= spaceBelow) {
+      top = rect.top - tooltipHeight - gap - extraTopGap;
+      if (top < 16) {
+        top = Math.max(16, rect.bottom + gap + extraTopGap);
+        els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
+      } else {
+        els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
+      }
     } else {
-      els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
+      top = rect.bottom + gap + extraTopGap;
+      if (top + tooltipHeight > window.innerHeight - 16) {
+        top = Math.min(window.innerHeight - tooltipHeight - 16, rect.top - tooltipHeight - gap - extraTopGap);
+        els.tutorialTooltip.className = 'tutorial-tooltip arrow-bottom';
+      } else {
+        els.tutorialTooltip.className = 'tutorial-tooltip arrow-top';
+      }
     }
-    if (top + tooltipHeight > window.innerHeight - 16) {
-      top = window.innerHeight - tooltipHeight - 16;
-    }
+    if (top < 16) top = 16;
+    if (top + tooltipHeight > window.innerHeight - 16) top = window.innerHeight - tooltipHeight - 16;
     var arrowOffsetX = (rect.left + rect.width / 2) - left - 6;
     arrowOffsetX = Math.max(20, Math.min(tooltipWidth - 20, arrowOffsetX));
     els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
@@ -1338,7 +1351,7 @@
           targetPosition = window.innerWidth <= 800 ? 'bottom' : 'right';
           targetEl = cell;
           tooltipExtraGap = window.innerWidth <= 800 ? 20 : 20;
-          forcePosition = true;
+          forcePosition = false;
         } else if (targetEl) {
           rect = targetEl.getBoundingClientRect();
           targetPosition = step.position;
@@ -1379,7 +1392,7 @@
             targetPosition = finalPos;
             targetEl = persistBoardEl;
             tooltipExtraGap = 16;
-            forcePosition = true;
+            forcePosition = false;
           }
         } else {
           var pCellRow = state.tutorial.interactionCell[0];
@@ -1390,7 +1403,7 @@
             targetPosition = 'right';
             targetEl = pCell;
             tooltipExtraGap = 20;
-            forcePosition = true;
+            forcePosition = false;
           } else if (targetEl) {
             rect = targetEl.getBoundingClientRect();
             targetPosition = step.position;
@@ -1799,4 +1812,42 @@
   }
 
   XOApp.moveDynamicStepTooltipDown = moveDynamicStepTooltipDown;
+
+  var _tutorialScrollRafId = null;
+
+  function updateTutorialPositionsOnScroll() {
+    if (!state.tutorial.active) return;
+
+    if (state.tutorial.guideElement) {
+      var targetEl = null;
+      if (state.tutorial.interactionCell) {
+        targetEl = els.board.querySelector('.cell[data-row="' + state.tutorial.interactionCell[0] + '"][data-col="' + state.tutorial.interactionCell[1] + '"]');
+      } else if (state.tutorial.allowedButton) {
+        targetEl = document.querySelector(state.tutorial.allowedButton);
+      }
+
+      if (targetEl) {
+        var rect = targetEl.getBoundingClientRect();
+        var padding = 4;
+        state.tutorial.guideElement.style.left = (rect.left - padding) + 'px';
+        state.tutorial.guideElement.style.top = (rect.top - padding) + 'px';
+        state.tutorial.guideElement.style.width = (rect.width + padding * 2) + 'px';
+        state.tutorial.guideElement.style.height = (rect.height + padding * 2) + 'px';
+      }
+    }
+
+    updateTutorialHighlightPosition();
+  }
+
+  function onTutorialScroll() {
+    if (_tutorialScrollRafId) return;
+    _tutorialScrollRafId = requestAnimationFrame(function () {
+      _tutorialScrollRafId = null;
+      updateTutorialPositionsOnScroll();
+    });
+  }
+
+  window.addEventListener('scroll', onTutorialScroll, true);
+
+  XOApp.updateTutorialPositionsOnScroll = updateTutorialPositionsOnScroll;
 })();
