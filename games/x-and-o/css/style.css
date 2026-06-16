@@ -1449,6 +1449,8 @@ html, body {
   position: fixed;
   left: 0;
   top: 0;
+  --tx: 0px;
+  --ty: 0px;
   border: 3px dashed #3b82f6;
   border-radius: 8px;
   background: rgba(59, 130, 246, 0.25);
@@ -1457,16 +1459,17 @@ html, body {
   z-index: 2001;
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
   will-change: transform;
+  transform: translate(var(--tx), var(--ty)) scale(1);
 }
 
 @keyframes tutorial-pulse {
   0%, 100% {
     opacity: 0.7;
-    transform: scale(1);
+    transform: translate(var(--tx), var(--ty)) scale(1);
   }
   50% {
     opacity: 1;
-    transform: scale(1.08);
+    transform: translate(var(--tx), var(--ty)) scale(1.08);
   }
 }
 

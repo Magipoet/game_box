@@ -18,7 +18,8 @@
     padding = padding || 4;
     guideEl.style.width = (targetRect.width + padding * 2) + 'px';
     guideEl.style.height = (targetRect.height + padding * 2) + 'px';
-    guideEl.style.transform = 'translate(' + (targetRect.left - padding) + 'px, ' + (targetRect.top - padding) + 'px)';
+    guideEl.style.setProperty('--tx', (targetRect.left - padding) + 'px');
+    guideEl.style.setProperty('--ty', (targetRect.top - padding) + 'px');
   }
 
   function addGuideTimeout(id) {
