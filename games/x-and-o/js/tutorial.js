@@ -553,6 +553,37 @@
       els.tutorialOverlay.classList.add('interaction-mode');
       XOApp.render();
       setTimeout(showTutorialCellGuide, 100);
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var cellRow = xMove.cell[0];
+          var cellCol = xMove.cell[1];
+          var cell = els.board.querySelector('.cell[data-row="' + cellRow + '"][data-col="' + cellCol + '"]');
+          if (cell) {
+            var pos, fPos = false;
+            var gap = 0;
+            var targetRect, targetEl;
+            if (window.innerWidth <= 800) {
+              var boardEl = document.querySelector('#board');
+              if (boardEl) {
+                targetRect = boardEl.getBoundingClientRect();
+                targetEl = boardEl;
+                pos = 'bottom';
+                fPos = true;
+                gap = 20;
+              }
+            } else {
+              targetRect = cell.getBoundingClientRect();
+              targetEl = cell;
+              pos = 'right';
+              gap = 20;
+              fPos = true;
+            }
+            if (targetRect) {
+              positionTutorialTooltip(targetRect, pos, targetEl, fPos, gap);
+            }
+          }
+        });
+      });
     }
 
     function doOMove() {
