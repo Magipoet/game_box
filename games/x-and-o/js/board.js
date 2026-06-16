@@ -409,6 +409,13 @@
     }
   }
 
+  function clearSettingsPeekMode() {
+    var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+    if (settingsDialog) {
+      settingsDialog.classList.remove('settings-peek-mode');
+    }
+  }
+
   function hideHelpTutorialTooltip() {
     if (!state.tutorial.active || state.tutorial.helpStage !== 2) return;
     if (state.tutorial.helpTooltipHidden) return;
@@ -1224,7 +1231,17 @@
           state.settings[setting] = value;
           updateOptionButtons();
           applySettings();
-          XOApp.tutorialNext();
+          var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+          if (settingsDialog) {
+            settingsDialog.classList.add('settings-peek-mode');
+          }
+          state.tutorial.pendingAutoAdvance = setTimeout(function () {
+            if (settingsDialog) {
+              settingsDialog.classList.remove('settings-peek-mode');
+            }
+            state.tutorial.pendingAutoAdvance = null;
+            XOApp.tutorialNext();
+          }, 1800);
           return;
         }
 
@@ -1236,7 +1253,17 @@
           state.settings[setting] = value;
           updateOptionButtons();
           applySettings();
-          XOApp.tutorialNext();
+          var settingsDialog2 = els.settingsModal.querySelector('.modal-dialog');
+          if (settingsDialog2) {
+            settingsDialog2.classList.add('settings-peek-mode');
+          }
+          state.tutorial.pendingAutoAdvance = setTimeout(function () {
+            if (settingsDialog2) {
+              settingsDialog2.classList.remove('settings-peek-mode');
+            }
+            state.tutorial.pendingAutoAdvance = null;
+            XOApp.tutorialNext();
+          }, 1800);
           return;
         }
 
@@ -1248,7 +1275,17 @@
           state.settings[setting] = value;
           updateOptionButtons();
           applySettings();
-          XOApp.tutorialNext();
+          var settingsDialog3 = els.settingsModal.querySelector('.modal-dialog');
+          if (settingsDialog3) {
+            settingsDialog3.classList.add('settings-peek-mode');
+          }
+          state.tutorial.pendingAutoAdvance = setTimeout(function () {
+            if (settingsDialog3) {
+              settingsDialog3.classList.remove('settings-peek-mode');
+            }
+            state.tutorial.pendingAutoAdvance = null;
+            XOApp.tutorialNext();
+          }, 2000);
           return;
         }
 
@@ -1318,6 +1355,7 @@
       state.tutorial.helpStage = 0;
       restoreHelpTutorialVisibility();
       state.tutorial.settingsStage = 0;
+      clearSettingsPeekMode();
       state.tutorial.modeStage = 0;
       state.tutorial.aiStage = 0;
       if (state.tutorial.pendingAutoAdvance) {
@@ -1391,6 +1429,7 @@
         state.tutorial.helpStage = 0;
         restoreHelpTutorialVisibility();
         state.tutorial.settingsStage = 0;
+        clearSettingsPeekMode();
         state.tutorial.modeStage = 0;
         state.tutorial.aiStage = 0;
         if (state.tutorial.pendingAutoAdvance) {
@@ -1435,6 +1474,7 @@
   XOApp.hideHelpTutorialTooltip = hideHelpTutorialTooltip;
   XOApp.showHelpTutorialTooltip = showHelpTutorialTooltip;
   XOApp.restoreHelpTutorialVisibility = restoreHelpTutorialVisibility;
+  XOApp.clearSettingsPeekMode = clearSettingsPeekMode;
   XOApp.helpPrevPage = helpPrevPage;
   XOApp.helpNextPage = helpNextPage;
 

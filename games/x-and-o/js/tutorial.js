@@ -1278,6 +1278,10 @@
         els.tutorialOverlay.classList.add('modal-mode');
         state.tutorial.settingsStage = 2;
         state.tutorial.waitingForInteraction = false;
+        var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+        if (settingsDialog) {
+          settingsDialog.classList.remove('settings-peek-mode');
+        }
       },
     },
     {
@@ -1292,6 +1296,10 @@
         state.tutorial.settingsStage = 3;
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-setting="boardSize"][data-value="large"]';
+        var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+        if (settingsDialog) {
+          settingsDialog.classList.remove('settings-peek-mode');
+        }
         var ts1 = setTimeout(function () {
           if (!XOApp.collapseState['board-settings']) {
             XOApp.collapseState['board-settings'] = true;
@@ -1316,15 +1324,21 @@
         addGuideTimeout(ts2);
         var ts3 = setTimeout(function () {
           hideTutorialCellGuide();
-          var targetEl = document.querySelector(state.tutorial.allowedButton);
-          if (targetEl) {
-            var rect = targetEl.getBoundingClientRect();
-            var guide = document.createElement('div');
-            guide.className = 'tutorial-cell-guide';
-            setGuidePosition(guide, rect, 4);
-            document.body.appendChild(guide);
-            state.tutorial.guideElement = guide;
-          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var targetEl = document.querySelector(state.tutorial.allowedButton);
+                if (targetEl) {
+                  var rect = targetEl.getBoundingClientRect();
+                  var guide = document.createElement('div');
+                  guide.className = 'tutorial-cell-guide';
+                  setGuidePosition(guide, rect, 4);
+                  document.body.appendChild(guide);
+                  state.tutorial.guideElement = guide;
+                }
+              });
+            });
+          });
         }, 400);
         addGuideTimeout(ts3);
       },
@@ -1342,6 +1356,10 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-setting="pieceSize"][data-value="large"]';
         XOApp.hideTutorialCellGuide();
+        var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+        if (settingsDialog) {
+          settingsDialog.classList.remove('settings-peek-mode');
+        }
         var ts4 = setTimeout(function () {
           if (!XOApp.collapseState['board-settings']) {
             XOApp.collapseState['board-settings'] = true;
@@ -1366,15 +1384,21 @@
         addGuideTimeout(ts5);
         var ts6 = setTimeout(function () {
           hideTutorialCellGuide();
-          var targetEl = document.querySelector(state.tutorial.allowedButton);
-          if (targetEl) {
-            var rect = targetEl.getBoundingClientRect();
-            var guide = document.createElement('div');
-            guide.className = 'tutorial-cell-guide';
-            setGuidePosition(guide, rect, 4);
-            document.body.appendChild(guide);
-            state.tutorial.guideElement = guide;
-          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var targetEl = document.querySelector(state.tutorial.allowedButton);
+                if (targetEl) {
+                  var rect = targetEl.getBoundingClientRect();
+                  var guide = document.createElement('div');
+                  guide.className = 'tutorial-cell-guide';
+                  setGuidePosition(guide, rect, 4);
+                  document.body.appendChild(guide);
+                  state.tutorial.guideElement = guide;
+                }
+              });
+            });
+          });
         }, 400);
         addGuideTimeout(ts6);
       },
@@ -1392,17 +1416,27 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.settings-tab[data-settings-tab="theme"]';
         XOApp.hideTutorialCellGuide();
+        var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+        if (settingsDialog) {
+          settingsDialog.classList.remove('settings-peek-mode');
+        }
         var ts7 = setTimeout(function () {
           hideTutorialCellGuide();
-          var targetEl = document.querySelector(state.tutorial.allowedButton);
-          if (targetEl) {
-            var rect = targetEl.getBoundingClientRect();
-            var guide = document.createElement('div');
-            guide.className = 'tutorial-cell-guide';
-            setGuidePosition(guide, rect, 4);
-            document.body.appendChild(guide);
-            state.tutorial.guideElement = guide;
-          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var targetEl = document.querySelector(state.tutorial.allowedButton);
+                if (targetEl) {
+                  var rect = targetEl.getBoundingClientRect();
+                  var guide = document.createElement('div');
+                  guide.className = 'tutorial-cell-guide';
+                  setGuidePosition(guide, rect, 4);
+                  document.body.appendChild(guide);
+                  state.tutorial.guideElement = guide;
+                }
+              });
+            });
+          });
         }, 100);
         addGuideTimeout(ts7);
       },
@@ -1420,6 +1454,10 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-setting="theme"][data-value="orange-sea"]';
         XOApp.hideTutorialCellGuide();
+        var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+        if (settingsDialog) {
+          settingsDialog.classList.remove('settings-peek-mode');
+        }
         var ts8 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
@@ -1436,15 +1474,21 @@
         addGuideTimeout(ts8);
         var ts9 = setTimeout(function () {
           hideTutorialCellGuide();
-          var targetEl = document.querySelector(state.tutorial.allowedButton);
-          if (targetEl) {
-            var rect = targetEl.getBoundingClientRect();
-            var guide = document.createElement('div');
-            guide.className = 'tutorial-cell-guide';
-            setGuidePosition(guide, rect, 4);
-            document.body.appendChild(guide);
-            state.tutorial.guideElement = guide;
-          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var targetEl = document.querySelector(state.tutorial.allowedButton);
+                if (targetEl) {
+                  var rect = targetEl.getBoundingClientRect();
+                  var guide = document.createElement('div');
+                  guide.className = 'tutorial-cell-guide';
+                  setGuidePosition(guide, rect, 4);
+                  document.body.appendChild(guide);
+                  state.tutorial.guideElement = guide;
+                }
+              });
+            });
+          });
         }, 400);
         addGuideTimeout(ts9);
       },
@@ -1460,6 +1504,10 @@
         els.tutorialOverlay.classList.remove('button-interaction-mode');
         state.tutorial.settingsStage = 0;
         state.tutorial.waitingForInteraction = false;
+        var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
+        if (settingsDialog) {
+          settingsDialog.classList.remove('settings-peek-mode');
+        }
         XOApp.hideTutorialCellGuide();
         if (state.tutorial.preTutorialSettings) {
           state.settings.boardSize = state.tutorial.preTutorialSettings.boardSize;
@@ -1925,6 +1973,12 @@
       }
     }
     state.tutorial.settingsStage = 0;
+    if (typeof XOApp.clearSettingsPeekMode === 'function') {
+      XOApp.clearSettingsPeekMode();
+    } else {
+      var sd = els.settingsModal.querySelector('.modal-dialog');
+      if (sd) sd.classList.remove('settings-peek-mode');
+    }
     state.tutorial.modeStage = 0;
     state.tutorial.aiStage = 0;
     state.tutorial._dynamicStepMovedDown = false;
@@ -1976,6 +2030,9 @@
       state.tutorial.active = true;
       state.tutorial.currentStep = 0;
       state.tutorial.totalSteps = TUTORIAL_STEPS.length;
+      if (typeof XOApp.clearSettingsPeekMode === 'function') {
+        XOApp.clearSettingsPeekMode();
+      }
       els.tutorialOverlay.hidden = false;
       startTutorialPositionLoop();
       renderTutorial();
@@ -2031,7 +2088,7 @@
   var _tutorialScrollRafId = null;
   var _tutorialPosLoopRafId = null;
 
-  function updateTutorialPositionsOnScroll() {
+  function _doUpdateTutorialPositions() {
     if (!state.tutorial.active) return;
 
     if (state.tutorial.guideElement) {
@@ -2049,6 +2106,18 @@
     }
 
     updateTutorialHighlightPosition();
+  }
+
+  function updateTutorialPositionsOnScroll() {
+    if (!state.tutorial.active) return;
+    _doUpdateTutorialPositions();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          _doUpdateTutorialPositions();
+        });
+      });
+    });
   }
 
   function startTutorialPositionLoop() {
