@@ -821,9 +821,11 @@
           state.tutorial.allowedButton = null;
           XOApp.hideTutorialCellGuide();
           els.tutorialOverlay.classList.remove('button-interaction-mode');
-          setTimeout(function () {
-            XOApp.tutorialNext();
-          }, 500);
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              XOApp.tutorialNext();
+            });
+          });
         }
       });
     });

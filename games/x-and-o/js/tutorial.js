@@ -1074,6 +1074,76 @@
         state.tutorial.aiStage = 3;
         state.tutorial.waitingForInteraction = false;
         state.tutorial.allowedButton = null;
+        state.tutorial.manualPositioning = true;
+        var sideTooltipWidth = Math.min(window.innerWidth - 32, 260);
+        var sideTooltipHeight = 260;
+        var sideGap = 16;
+        els.tutorialTooltip.style.transition = 'none';
+        els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+        els.tutorialTooltip.style.visibility = 'hidden';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            var modalDialog = els.aiModal.querySelector('.modal-dialog');
+            if (!modalDialog) {
+              els.tutorialTooltip.style.visibility = '';
+              els.tutorialTooltip.style.transition = '';
+              state.tutorial.manualPositioning = false;
+              return;
+            }
+            var modalRect = modalDialog.getBoundingClientRect();
+            var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+            var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
+            var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
+            var sideLeft = modalRect.left - curTooltipWidth - sideGap;
+            var sideArrow = 'arrow-right';
+            var isNarrowScreen = window.innerWidth < curTooltipWidth * 2 + sideGap * 2 + 100;
+            var useVerticalPosition = false;
+            if (sideLeft < 16) {
+              sideLeft = modalRect.right + sideGap;
+              sideArrow = 'arrow-left';
+              if (sideLeft + curTooltipWidth > window.innerWidth - 16) {
+                useVerticalPosition = true;
+              }
+            }
+            if (isNarrowScreen) {
+              useVerticalPosition = true;
+            }
+            if (useVerticalPosition) {
+              var vertLeft = modalRect.left + modalRect.width / 2 - curTooltipWidth / 2;
+              if (vertLeft < 16) vertLeft = 16;
+              if (vertLeft + curTooltipWidth > window.innerWidth - 16) {
+                vertLeft = window.innerWidth - curTooltipWidth - 16;
+              }
+              var targetTop = modalRect.top - curTooltipHeight - sideGap - 8;
+              var curArrow = 'arrow-bottom';
+              if (targetTop < 16) {
+                targetTop = modalRect.bottom + sideGap + 8;
+                curArrow = 'arrow-top';
+              }
+              if (targetTop + curTooltipHeight > window.innerHeight - 16) {
+                targetTop = window.innerHeight - curTooltipHeight - 16;
+              }
+              els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
+              els.tutorialTooltip.style.left = vertLeft + 'px';
+              els.tutorialTooltip.style.top = targetTop + 'px';
+            } else {
+              var sideTop = modalRect.top + modalRect.height / 2 - curTooltipHeight / 2;
+              if (sideTop < 16) sideTop = 16;
+              if (sideTop + curTooltipHeight > window.innerHeight - 16) {
+                sideTop = window.innerHeight - curTooltipHeight - 16;
+              }
+              els.tutorialTooltip.className = 'tutorial-tooltip ' + sideArrow;
+              els.tutorialTooltip.style.left = sideLeft + 'px';
+              els.tutorialTooltip.style.top = sideTop + 'px';
+            }
+            els.tutorialTooltip.style.transform = 'none';
+            els.tutorialTooltip.style.visibility = '';
+            requestAnimationFrame(function () {
+              els.tutorialTooltip.style.transition = '';
+              state.tutorial.manualPositioning = false;
+            });
+          });
+        });
       },
     },
     {
@@ -1866,6 +1936,10 @@
   }
 
   window.addEventListener('scroll', onTutorialScroll, true);
+
+  document.querySelectorAll('.modal-dialog').forEach(function (dialog) {
+    dialog.addEventListener('scroll', onTutorialScroll, true);
+  });
 
   XOApp.updateTutorialPositionsOnScroll = updateTutorialPositionsOnScroll;
 })();
