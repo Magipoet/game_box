@@ -57,6 +57,7 @@
       pendingAutoAdvance: null,
       preTutorialSettings: null,
       manualPositioning: false,
+      guideTimeouts: [],
     },
   };
 

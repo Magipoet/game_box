@@ -14,6 +14,24 @@
     usePersist,
   } = window.XOGame;
 
+  function setGuidePosition(guideEl, targetRect, padding) {
+    padding = padding || 4;
+    guideEl.style.width = (targetRect.width + padding * 2) + 'px';
+    guideEl.style.height = (targetRect.height + padding * 2) + 'px';
+    guideEl.style.transform = 'translate(' + (targetRect.left - padding) + 'px, ' + (targetRect.top - padding) + 'px)';
+  }
+
+  function addGuideTimeout(id) {
+    state.tutorial.guideTimeouts.push(id);
+  }
+
+  function clearAllGuideTimeouts() {
+    for (var i = 0; i < state.tutorial.guideTimeouts.length; i++) {
+      clearTimeout(state.tutorial.guideTimeouts[i]);
+    }
+    state.tutorial.guideTimeouts = [];
+  }
+
   function showTutorialCellGuide() {
     hideTutorialCellGuide();
     if (!state.tutorial.interactionCell) return;
@@ -22,11 +40,7 @@
     var rect = cell.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
   }
@@ -47,6 +61,7 @@
   }
 
   function hideTutorialCellGuide() {
+    clearAllGuideTimeouts();
     if (state.tutorial.guideElement) {
       state.tutorial.guideElement.remove();
       state.tutorial.guideElement = null;
@@ -201,11 +216,7 @@
     var rect = targetEl.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnUndoX';
@@ -229,11 +240,7 @@
     var rect = targetEl.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnFreezeX';
@@ -259,11 +266,7 @@
     var rect = cell.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">固定能力</h3><p style="margin:0;">固定能力已激活！<br><br>现在请点击棋盘上<strong>闪烁的格子</strong>，将该格子设为固定状态。</p>';
@@ -340,11 +343,7 @@
     var rect = targetEl.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnCancelFreeze';
@@ -402,11 +401,7 @@
     var rect = targetEl.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnPersistX';
@@ -430,11 +425,7 @@
     var rect = targetEl.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnCancelPersist';
@@ -492,11 +483,7 @@
     var rect = targetEl.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnHelp';
@@ -511,11 +498,7 @@
     var rect = targetEl.getBoundingClientRect();
     var guide = document.createElement('div');
     guide.className = 'tutorial-cell-guide';
-    var padding = 4;
-    guide.style.left = (rect.left - padding) + 'px';
-    guide.style.top = (rect.top - padding) + 'px';
-    guide.style.width = (rect.width + padding * 2) + 'px';
-    guide.style.height = (rect.height + padding * 2) + 'px';
+    setGuidePosition(guide, rect, 4);
     document.body.appendChild(guide);
     state.tutorial.guideElement = guide;
     state.tutorial.allowedButton = '#btnSettings';
@@ -551,11 +534,12 @@
     function showXMoveGuide() {
       var idx = state.tutorial.persistStepIndex;
       if (idx >= xMoves.length) {
-        setTimeout(function () {
+        var sp1 = setTimeout(function () {
           els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留效果演示完成</h3><p style="margin:0;">观察到：<br>• 普通棋子3个回合后消失<br>• <strong>保留棋子5个回合后才消失</strong>（从左下角闪烁后消失）<br><br>善用保留能力可锁定关键位置，形成多子攻势！点击"下一步"继续教程。</p>';
           state.tutorial.waitingForInteraction = false;
           els.tutorialOverlay.classList.remove('interaction-mode');
         }, 800);
+        addGuideTimeout(sp1);
         return;
       }
       var xMove = xMoves[idx];
@@ -565,7 +549,8 @@
       els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">保留效果演示</h3><p style="margin:0;">保留棋子在<strong>左下角 (2,0)</strong>，带 <strong>⏳</strong> 图标。<br><br>' + xMove.text + '</p>';
       els.tutorialOverlay.classList.add('interaction-mode');
       XOApp.render();
-      setTimeout(showTutorialCellGuide, 100);
+      var sp2 = setTimeout(showTutorialCellGuide, 100);
+      addGuideTimeout(sp2);
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
           var cellRow = xMove.cell[0];
@@ -635,7 +620,8 @@
       var oMove = oMoves[idx];
       state.game = makeMove(state.game, oMove[0], oMove[1]);
       XOApp.render();
-      setTimeout(showXMoveGuide, 500);
+      var sp3 = setTimeout(showXMoveGuide, 500);
+      addGuideTimeout(sp3);
     }
 
     state.tutorial.persistAutoNextOMove = doOMove;
@@ -670,7 +656,8 @@
         state.tutorial.interactionCell = [2, 2];
         state.tutorial.isWinStep = true;
         XOApp.render();
-        setTimeout(showTutorialCellGuide, 100);
+        var st1 = setTimeout(showTutorialCellGuide, 100);
+        addGuideTimeout(st1);
       },
     },
     {
@@ -696,7 +683,8 @@
         state.tutorial.animateDisappear = true;
         state.tutorial.disappearCell = [0, 0];
         XOApp.render();
-        setTimeout(showTutorialCellGuide, 100);
+        var st2 = setTimeout(showTutorialCellGuide, 100);
+        addGuideTimeout(st2);
       },
     },
     {
@@ -723,21 +711,18 @@
         state.tutorial.modeStage = 2;
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.mode-tile[data-mode="fun"]';
-        setTimeout(function () {
+        var t1 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
             var guide = document.createElement('div');
             guide.className = 'tutorial-cell-guide';
-            var padding = 4;
-            guide.style.left = (rect.left - padding) + 'px';
-            guide.style.top = (rect.top - padding) + 'px';
-            guide.style.width = (rect.width + padding * 2) + 'px';
-            guide.style.height = (rect.height + padding * 2) + 'px';
+            setGuidePosition(guide, rect, 4);
             document.body.appendChild(guide);
             state.tutorial.guideElement = guide;
           }
         }, 100);
+        addGuideTimeout(t1);
       },
     },
     {
@@ -778,7 +763,8 @@
           state.tutorial.waitingForInteraction = true;
           state.tutorial.interactionCell = [2, 2];
           XOApp.render();
-          setTimeout(showTutorialCellGuide, 100);
+          var st3 = setTimeout(showTutorialCellGuide, 100);
+          addGuideTimeout(st3);
         }
       },
     },
@@ -798,7 +784,8 @@
         state.tutorial.freezeStage = 1;
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
-        setTimeout(showTutorialFreezeBtnGuide, 100);
+        var st4 = setTimeout(showTutorialFreezeBtnGuide, 100);
+        addGuideTimeout(st4);
       },
     },
     {
@@ -821,7 +808,8 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.interactionCell = [1, 1];
         XOApp.render();
-        setTimeout(showTutorialFreezeCellGuide, 100);
+        var st5 = setTimeout(showTutorialFreezeCellGuide, 100);
+        addGuideTimeout(st5);
       },
     },
     {
@@ -853,7 +841,8 @@
         state.tutorial.interactionCell = [1, 1];
         state.tutorial.freezeTriedFrozenCell = false;
         XOApp.render();
-        setTimeout(showTutorialCellGuide, 100);
+        var st6 = setTimeout(showTutorialCellGuide, 100);
+        addGuideTimeout(st6);
       },
     },
     {
@@ -879,7 +868,8 @@
         state.tutorial.animateFreezeDisappear = true;
         state.tutorial.freezeDisappearCell = [1, 1];
         XOApp.render();
-        setTimeout(showTutorialCellGuide, 100);
+        var st7 = setTimeout(showTutorialCellGuide, 100);
+        addGuideTimeout(st7);
       },
     },
     {
@@ -897,7 +887,8 @@
         state.tutorial.freezeStage = 5;
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
-        setTimeout(showTutorialFreezeBtnGuide, 100);
+        var st8 = setTimeout(showTutorialFreezeBtnGuide, 100);
+        addGuideTimeout(st8);
       },
     },
     {
@@ -919,7 +910,8 @@
         }
         state.tutorial.freezeStage = 6;
         state.tutorial.waitingForInteraction = true;
-        setTimeout(XOApp.showTutorialCancelFreezeBtnGuide, 100);
+        var st9 = setTimeout(XOApp.showTutorialCancelFreezeBtnGuide, 100);
+        addGuideTimeout(st9);
       },
     },
     {
@@ -933,7 +925,8 @@
         state.tutorial.persistStage = 1;
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
-        setTimeout(showTutorialPersistBtnGuide, 100);
+        var st10 = setTimeout(showTutorialPersistBtnGuide, 100);
+        addGuideTimeout(st10);
       },
     },
     {
@@ -951,7 +944,8 @@
         state.tutorial.interactionCell = [2, 0];
         els.tutorialOverlay.classList.add('interaction-mode');
         XOApp.render();
-        setTimeout(showTutorialCellGuide, 100);
+        var st11 = setTimeout(showTutorialCellGuide, 100);
+        addGuideTimeout(st11);
       },
     },
     {
@@ -964,7 +958,8 @@
         state.tutorial.persistStage = 10;
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
-        setTimeout(showTutorialPersistBtnGuide, 100);
+        var st12 = setTimeout(showTutorialPersistBtnGuide, 100);
+        addGuideTimeout(st12);
       },
     },
     {
@@ -980,7 +975,8 @@
         }
         state.tutorial.persistStage = 11;
         state.tutorial.waitingForInteraction = true;
-        setTimeout(XOApp.showTutorialCancelPersistBtnGuide, 100);
+        var st13 = setTimeout(XOApp.showTutorialCancelPersistBtnGuide, 100);
+        addGuideTimeout(st13);
       },
     },
     {
@@ -992,22 +988,19 @@
         state.tutorial.aiStage = 1;
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
-        setTimeout(function () {
+        var t2 = setTimeout(function () {
           var targetEl = document.querySelector('#btnAI');
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
             var guide = document.createElement('div');
             guide.className = 'tutorial-cell-guide';
-            var padding = 4;
-            guide.style.left = (rect.left - padding) + 'px';
-            guide.style.top = (rect.top - padding) + 'px';
-            guide.style.width = (rect.width + padding * 2) + 'px';
-            guide.style.height = (rect.height + padding * 2) + 'px';
+            setGuidePosition(guide, rect, 4);
             document.body.appendChild(guide);
             state.tutorial.guideElement = guide;
             state.tutorial.allowedButton = '#btnAI';
           }
         }, 100);
+        addGuideTimeout(t2);
       },
     },
     {
@@ -1022,21 +1015,18 @@
         state.tutorial.aiStage = 2;
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-ai-setting="gameMode"][data-value="pve"]';
-        setTimeout(function () {
+        var t3 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
             var guide = document.createElement('div');
             guide.className = 'tutorial-cell-guide';
-            var padding = 4;
-            guide.style.left = (rect.left - padding) + 'px';
-            guide.style.top = (rect.top - padding) + 'px';
-            guide.style.width = (rect.width + padding * 2) + 'px';
-            guide.style.height = (rect.height + padding * 2) + 'px';
+            setGuidePosition(guide, rect, 4);
             document.body.appendChild(guide);
             state.tutorial.guideElement = guide;
           }
         }, 100);
+        addGuideTimeout(t3);
       },
     },
     {
@@ -1063,7 +1053,8 @@
         state.tutorial.helpStage = 1;
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
-        setTimeout(showTutorialHelpBtnGuide, 100);
+        var st14 = setTimeout(showTutorialHelpBtnGuide, 100);
+        addGuideTimeout(st14);
       },
     },
     {
@@ -1087,7 +1078,8 @@
         state.tutorial.settingsStage = 1;
         state.tutorial.waitingForInteraction = true;
         XOApp.render();
-        setTimeout(showTutorialSettingsBtnGuide, 100);
+        var st15 = setTimeout(showTutorialSettingsBtnGuide, 100);
+        addGuideTimeout(st15);
       },
     },
     {
@@ -1114,14 +1106,15 @@
         state.tutorial.settingsStage = 3;
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-setting="boardSize"][data-value="large"]';
-        setTimeout(function () {
+        var ts1 = setTimeout(function () {
           if (!XOApp.collapseState['board-settings']) {
             XOApp.collapseState['board-settings'] = true;
             localStorage.setItem('xando-collapse-board-settings', 'false');
             XOApp.applyCollapseState();
           }
         }, 50);
-        setTimeout(function () {
+        addGuideTimeout(ts1);
+        var ts2 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var settingsPage = document.querySelector('.settings-page[data-settings-page="basic"]');
@@ -1134,21 +1127,19 @@
             }
           }
         }, 150);
-        setTimeout(function () {
+        addGuideTimeout(ts2);
+        var ts3 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
             var guide = document.createElement('div');
             guide.className = 'tutorial-cell-guide';
-            var padding = 4;
-            guide.style.left = (rect.left - padding) + 'px';
-            guide.style.top = (rect.top - padding) + 'px';
-            guide.style.width = (rect.width + padding * 2) + 'px';
-            guide.style.height = (rect.height + padding * 2) + 'px';
+            setGuidePosition(guide, rect, 4);
             document.body.appendChild(guide);
             state.tutorial.guideElement = guide;
           }
         }, 400);
+        addGuideTimeout(ts3);
       },
     },
     {
@@ -1164,14 +1155,15 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-setting="pieceSize"][data-value="large"]';
         XOApp.hideTutorialCellGuide();
-        setTimeout(function () {
+        var ts4 = setTimeout(function () {
           if (!XOApp.collapseState['board-settings']) {
             XOApp.collapseState['board-settings'] = true;
             localStorage.setItem('xando-collapse-board-settings', 'false');
             XOApp.applyCollapseState();
           }
         }, 50);
-        setTimeout(function () {
+        addGuideTimeout(ts4);
+        var ts5 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var settingsPage = document.querySelector('.settings-page[data-settings-page="basic"]');
@@ -1184,21 +1176,19 @@
             }
           }
         }, 150);
-        setTimeout(function () {
+        addGuideTimeout(ts5);
+        var ts6 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
             var guide = document.createElement('div');
             guide.className = 'tutorial-cell-guide';
-            var padding = 4;
-            guide.style.left = (rect.left - padding) + 'px';
-            guide.style.top = (rect.top - padding) + 'px';
-            guide.style.width = (rect.width + padding * 2) + 'px';
-            guide.style.height = (rect.height + padding * 2) + 'px';
+            setGuidePosition(guide, rect, 4);
             document.body.appendChild(guide);
             state.tutorial.guideElement = guide;
           }
         }, 400);
+        addGuideTimeout(ts6);
       },
     },
     {
@@ -1214,21 +1204,18 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.settings-tab[data-settings-tab="theme"]';
         XOApp.hideTutorialCellGuide();
-        setTimeout(function () {
+        var ts7 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
             var guide = document.createElement('div');
             guide.className = 'tutorial-cell-guide';
-            var padding = 4;
-            guide.style.left = (rect.left - padding) + 'px';
-            guide.style.top = (rect.top - padding) + 'px';
-            guide.style.width = (rect.width + padding * 2) + 'px';
-            guide.style.height = (rect.height + padding * 2) + 'px';
+            setGuidePosition(guide, rect, 4);
             document.body.appendChild(guide);
             state.tutorial.guideElement = guide;
           }
         }, 100);
+        addGuideTimeout(ts7);
       },
     },
     {
@@ -1244,7 +1231,7 @@
         state.tutorial.waitingForInteraction = true;
         state.tutorial.allowedButton = '.option-btn[data-setting="theme"][data-value="orange-sea"]';
         XOApp.hideTutorialCellGuide();
-        setTimeout(function () {
+        var ts8 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var settingsPage = document.querySelector('.settings-page[data-settings-page="theme"]');
@@ -1257,21 +1244,19 @@
             }
           }
         }, 150);
-        setTimeout(function () {
+        addGuideTimeout(ts8);
+        var ts9 = setTimeout(function () {
           var targetEl = document.querySelector(state.tutorial.allowedButton);
           if (targetEl) {
             var rect = targetEl.getBoundingClientRect();
             var guide = document.createElement('div');
             guide.className = 'tutorial-cell-guide';
-            var padding = 4;
-            guide.style.left = (rect.left - padding) + 'px';
-            guide.style.top = (rect.top - padding) + 'px';
-            guide.style.width = (rect.width + padding * 2) + 'px';
-            guide.style.height = (rect.height + padding * 2) + 'px';
+            setGuidePosition(guide, rect, 4);
             document.body.appendChild(guide);
             state.tutorial.guideElement = guide;
           }
         }, 400);
+        addGuideTimeout(ts9);
       },
     },
     {
@@ -1828,11 +1813,7 @@
 
       if (targetEl) {
         var rect = targetEl.getBoundingClientRect();
-        var padding = 4;
-        state.tutorial.guideElement.style.left = (rect.left - padding) + 'px';
-        state.tutorial.guideElement.style.top = (rect.top - padding) + 'px';
-        state.tutorial.guideElement.style.width = (rect.width + padding * 2) + 'px';
-        state.tutorial.guideElement.style.height = (rect.height + padding * 2) + 'px';
+        setGuidePosition(state.tutorial.guideElement, rect, 4);
       }
     }
 
