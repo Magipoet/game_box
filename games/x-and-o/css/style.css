@@ -269,10 +269,13 @@ html, body {
   box-sizing: border-box;
 }
 
-.top-left-spacer {
+.top-left-actions {
   flex: 1;
   min-width: 0;
-  visibility: hidden;
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  flex-shrink: 0;
 }
 
 .top-title {
@@ -318,8 +321,8 @@ html, body {
 }
 
 .icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -1364,7 +1367,7 @@ html, body {
   .top-bar {
     height: 72px;
     padding: 14px 8px 0 8px;
-    gap: 4px;
+    gap: 6px;
   }
 
   .title-main {
@@ -1372,12 +1375,16 @@ html, body {
   }
 
   .icon-btn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .top-actions {
-    gap: 0;
+    gap: 2px;
+  }
+
+  .top-left-actions {
+    gap: 2px;
   }
 
   .main-area {
@@ -1512,11 +1519,11 @@ html, body {
   .top-bar {
     height: 68px;
     padding: 12px 6px 0 6px;
-    gap: 2px;
+    gap: 4px;
   }
 
   .title-main {
-    font-size: 19px;
+    font-size: 20px;
   }
 
   .title-mode {
@@ -1524,17 +1531,17 @@ html, body {
   }
 
   .icon-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
   }
 
   .icon-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
 
   .top-title {
-    max-width: 44%;
+    max-width: 48%;
   }
 }
 
