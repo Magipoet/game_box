@@ -1231,14 +1231,13 @@
           state.settings[setting] = value;
           updateOptionButtons();
           applySettings();
-          var settingsDialog = els.settingsModal.querySelector('.modal-dialog');
-          if (settingsDialog) {
-            settingsDialog.classList.add('settings-peek-mode');
-          }
+          XOApp.hideModal(els.settingsModal);
+          els.tutorialOverlay.classList.remove('modal-mode');
+          els.tutorialOverlay.classList.remove('button-interaction-mode');
+          els.tutorialTooltip.style.visibility = 'hidden';
+          state.tutorial.manualPositioning = false;
           state.tutorial.pendingAutoAdvance = setTimeout(function () {
-            if (settingsDialog) {
-              settingsDialog.classList.remove('settings-peek-mode');
-            }
+            els.tutorialTooltip.style.visibility = '';
             state.tutorial.pendingAutoAdvance = null;
             XOApp.tutorialNext();
           }, 1800);
@@ -1253,14 +1252,13 @@
           state.settings[setting] = value;
           updateOptionButtons();
           applySettings();
-          var settingsDialog2 = els.settingsModal.querySelector('.modal-dialog');
-          if (settingsDialog2) {
-            settingsDialog2.classList.add('settings-peek-mode');
-          }
+          XOApp.hideModal(els.settingsModal);
+          els.tutorialOverlay.classList.remove('modal-mode');
+          els.tutorialOverlay.classList.remove('button-interaction-mode');
+          els.tutorialTooltip.style.visibility = 'hidden';
+          state.tutorial.manualPositioning = false;
           state.tutorial.pendingAutoAdvance = setTimeout(function () {
-            if (settingsDialog2) {
-              settingsDialog2.classList.remove('settings-peek-mode');
-            }
+            els.tutorialTooltip.style.visibility = '';
             state.tutorial.pendingAutoAdvance = null;
             XOApp.tutorialNext();
           }, 1800);
@@ -1275,14 +1273,13 @@
           state.settings[setting] = value;
           updateOptionButtons();
           applySettings();
-          var settingsDialog3 = els.settingsModal.querySelector('.modal-dialog');
-          if (settingsDialog3) {
-            settingsDialog3.classList.add('settings-peek-mode');
-          }
+          XOApp.hideModal(els.settingsModal);
+          els.tutorialOverlay.classList.remove('modal-mode');
+          els.tutorialOverlay.classList.remove('button-interaction-mode');
+          els.tutorialTooltip.style.visibility = 'hidden';
+          state.tutorial.manualPositioning = false;
           state.tutorial.pendingAutoAdvance = setTimeout(function () {
-            if (settingsDialog3) {
-              settingsDialog3.classList.remove('settings-peek-mode');
-            }
+            els.tutorialTooltip.style.visibility = '';
             state.tutorial.pendingAutoAdvance = null;
             XOApp.tutorialNext();
           }, 2000);
