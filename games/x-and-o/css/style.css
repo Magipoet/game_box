@@ -240,6 +240,7 @@ html, body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.5s ease, color 0.4s ease;
 }
 
 .app {
@@ -493,6 +494,7 @@ html, body {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: var(--cell-spacing);
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), gap 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.5s ease, box-shadow 0.4s ease;
 }
 
 .cell {
@@ -549,6 +551,7 @@ html, body {
   height: calc(var(--piece-size-ratio) * 100%);
   line-height: 1;
   transform-origin: center;
+  transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.4s ease, opacity 0.3s ease;
 }
 
 .piece svg {

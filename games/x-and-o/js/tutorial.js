@@ -1282,6 +1282,12 @@
         if (settingsDialog) {
           settingsDialog.classList.remove('settings-peek-mode');
         }
+        XOApp.resetGame(MODE_NORMAL);
+        var demoMovesForSettings = [[0, 0], [1, 1], [0, 2], [2, 0], [1, 0], [2, 2]];
+        for (var dms = 0; dms < demoMovesForSettings.length; dms++) {
+          state.game = window.XOGame.makeMove(state.game, demoMovesForSettings[dms][0], demoMovesForSettings[dms][1]);
+        }
+        XOApp.render();
       },
     },
     {
@@ -1794,6 +1800,10 @@
       clearTimeout(state.tutorial.pendingAutoAdvance);
       state.tutorial.pendingAutoAdvance = null;
     }
+    if (state.tutorial.pendingAutoAdvance2) {
+      clearTimeout(state.tutorial.pendingAutoAdvance2);
+      state.tutorial.pendingAutoAdvance2 = null;
+    }
     if (state.tutorial.waitingForInteraction) {
       if (state.tutorial.interactionCell) {
         XOApp.handleCellClick(state.tutorial.interactionCell[0], state.tutorial.interactionCell[1]);
@@ -1849,6 +1859,10 @@
         clearTimeout(state.tutorial.pendingAutoAdvance);
         state.tutorial.pendingAutoAdvance = null;
       }
+      if (state.tutorial.pendingAutoAdvance2) {
+        clearTimeout(state.tutorial.pendingAutoAdvance2);
+        state.tutorial.pendingAutoAdvance2 = null;
+      }
       state.tutorial.waitingForInteraction = false;
       state.tutorial.interactionCell = null;
       state.tutorial.isWinStep = false;
@@ -1895,6 +1909,10 @@
     if (state.tutorial.pendingAutoAdvance) {
       clearTimeout(state.tutorial.pendingAutoAdvance);
       state.tutorial.pendingAutoAdvance = null;
+    }
+    if (state.tutorial.pendingAutoAdvance2) {
+      clearTimeout(state.tutorial.pendingAutoAdvance2);
+      state.tutorial.pendingAutoAdvance2 = null;
     }
     state.tutorial.active = false;
     state.tutorial.waitingForInteraction = false;

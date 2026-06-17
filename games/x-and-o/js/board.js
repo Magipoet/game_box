@@ -1230,17 +1230,20 @@
           XOApp.hideTutorialCellGuide();
           state.settings[setting] = value;
           updateOptionButtons();
-          applySettings();
           XOApp.hideModal(els.settingsModal);
           els.tutorialOverlay.classList.remove('modal-mode');
           els.tutorialOverlay.classList.remove('button-interaction-mode');
           els.tutorialTooltip.style.visibility = 'hidden';
           state.tutorial.manualPositioning = false;
           state.tutorial.pendingAutoAdvance = setTimeout(function () {
+            applySettings();
+          }, 250);
+          state.tutorial.pendingAutoAdvance2 = setTimeout(function () {
             els.tutorialTooltip.style.visibility = '';
             state.tutorial.pendingAutoAdvance = null;
+            state.tutorial.pendingAutoAdvance2 = null;
             XOApp.tutorialNext();
-          }, 1800);
+          }, 2050);
           return;
         }
 
@@ -1251,17 +1254,20 @@
           XOApp.hideTutorialCellGuide();
           state.settings[setting] = value;
           updateOptionButtons();
-          applySettings();
           XOApp.hideModal(els.settingsModal);
           els.tutorialOverlay.classList.remove('modal-mode');
           els.tutorialOverlay.classList.remove('button-interaction-mode');
           els.tutorialTooltip.style.visibility = 'hidden';
           state.tutorial.manualPositioning = false;
           state.tutorial.pendingAutoAdvance = setTimeout(function () {
+            applySettings();
+          }, 250);
+          state.tutorial.pendingAutoAdvance2 = setTimeout(function () {
             els.tutorialTooltip.style.visibility = '';
             state.tutorial.pendingAutoAdvance = null;
+            state.tutorial.pendingAutoAdvance2 = null;
             XOApp.tutorialNext();
-          }, 1800);
+          }, 2050);
           return;
         }
 
@@ -1272,17 +1278,20 @@
           XOApp.hideTutorialCellGuide();
           state.settings[setting] = value;
           updateOptionButtons();
-          applySettings();
           XOApp.hideModal(els.settingsModal);
           els.tutorialOverlay.classList.remove('modal-mode');
           els.tutorialOverlay.classList.remove('button-interaction-mode');
           els.tutorialTooltip.style.visibility = 'hidden';
           state.tutorial.manualPositioning = false;
           state.tutorial.pendingAutoAdvance = setTimeout(function () {
+            applySettings();
+          }, 250);
+          state.tutorial.pendingAutoAdvance2 = setTimeout(function () {
             els.tutorialTooltip.style.visibility = '';
             state.tutorial.pendingAutoAdvance = null;
+            state.tutorial.pendingAutoAdvance2 = null;
             XOApp.tutorialNext();
-          }, 2000);
+          }, 2250);
           return;
         }
 
