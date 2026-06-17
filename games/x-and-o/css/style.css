@@ -263,12 +263,24 @@ html, body {
   height: 80px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding-top: 16px;
+  justify-content: space-between;
+  padding: 16px 12px 0 12px;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.top-left-spacer {
+  flex: 1;
+  min-width: 0;
+  visibility: hidden;
 }
 
 .top-title {
+  flex: 0 1 auto;
+  max-width: 50%;
+  min-width: 0;
   text-align: center;
+  overflow: hidden;
 }
 
 .title-main {
@@ -276,6 +288,10 @@ html, body {
   font-size: 28px;
   font-weight: bold;
   color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .title-mode {
@@ -283,6 +299,9 @@ html, body {
   font-size: 12px;
   color: var(--color-text-secondary);
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .title-mode.fun-mode {
@@ -290,11 +309,12 @@ html, body {
 }
 
 .top-actions {
-  position: absolute;
-  right: 0;
-  top: 20px;
+  flex: 1;
+  min-width: 0;
   display: flex;
   gap: 2px;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .icon-btn {
@@ -1343,15 +1363,21 @@ html, body {
 
   .top-bar {
     height: 72px;
+    padding: 14px 8px 0 8px;
+    gap: 4px;
   }
 
   .title-main {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .icon-btn {
     width: 36px;
     height: 36px;
+  }
+
+  .top-actions {
+    gap: 0;
   }
 
   .main-area {
@@ -1479,6 +1505,36 @@ html, body {
   .settings-dialog.settings-peek-mode ~ .tutorial-tooltip {
     top: auto !important;
     bottom: calc(45vh + 8px) !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .top-bar {
+    height: 68px;
+    padding: 12px 6px 0 6px;
+    gap: 2px;
+  }
+
+  .title-main {
+    font-size: 19px;
+  }
+
+  .title-mode {
+    font-size: 11px;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .icon-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .top-title {
+    max-width: 44%;
   }
 }
 
