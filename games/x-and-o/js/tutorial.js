@@ -1323,22 +1323,11 @@
         }, 150);
         addGuideTimeout(ts2);
         var ts3 = setTimeout(function () {
-          hideTutorialCellGuide();
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                var targetEl = document.querySelector(state.tutorial.allowedButton);
-                if (targetEl) {
-                  var rect = targetEl.getBoundingClientRect();
-                  var guide = document.createElement('div');
-                  guide.className = 'tutorial-cell-guide';
-                  setGuidePosition(guide, rect, 4);
-                  document.body.appendChild(guide);
-                  state.tutorial.guideElement = guide;
-                }
-              });
-            });
-          });
+          XOApp.showTutorialSettingBtnGuide(
+            state.tutorial.allowedButton,
+            '基本设置 - 棋盘大小',
+            '这里有两个设置标签页。当前是<strong>基本设置</strong>页面。<br><br><strong>棋盘大小</strong>：可选择"标准款"或"大款"，大款棋盘更适合大屏设备。<br><br>请点击<strong>"大款"</strong>按钮试试效果，观察棋盘变大。'
+          );
         }, 400);
         addGuideTimeout(ts3);
       },
@@ -1383,22 +1372,11 @@
         }, 150);
         addGuideTimeout(ts5);
         var ts6 = setTimeout(function () {
-          hideTutorialCellGuide();
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                var targetEl = document.querySelector(state.tutorial.allowedButton);
-                if (targetEl) {
-                  var rect = targetEl.getBoundingClientRect();
-                  var guide = document.createElement('div');
-                  guide.className = 'tutorial-cell-guide';
-                  setGuidePosition(guide, rect, 4);
-                  document.body.appendChild(guide);
-                  state.tutorial.guideElement = guide;
-                }
-              });
-            });
-          });
+          XOApp.showTutorialSettingBtnGuide(
+            state.tutorial.allowedButton,
+            '基本设置 - 棋子大小',
+            '棋盘变大了！现在来试试<strong>棋子大小</strong>设置。<br><br>棋子大小有三个选项：<br>• <strong>小（33%）</strong>：小巧精致<br>• <strong>标准（50%）</strong>：默认大小<br>• <strong>大（66%）</strong>：醒目霸气<br><br>请点击<strong>"大（66%）"</strong>按钮，观察棋子变大。'
+          );
         }, 400);
         addGuideTimeout(ts6);
       },
@@ -1421,22 +1399,11 @@
           settingsDialog.classList.remove('settings-peek-mode');
         }
         var ts7 = setTimeout(function () {
-          hideTutorialCellGuide();
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                var targetEl = document.querySelector(state.tutorial.allowedButton);
-                if (targetEl) {
-                  var rect = targetEl.getBoundingClientRect();
-                  var guide = document.createElement('div');
-                  guide.className = 'tutorial-cell-guide';
-                  setGuidePosition(guide, rect, 4);
-                  document.body.appendChild(guide);
-                  state.tutorial.guideElement = guide;
-                }
-              });
-            });
-          });
+          XOApp.showTutorialSettingBtnGuide(
+            state.tutorial.allowedButton,
+            '主题选择',
+            '基本设置了解完毕！现在来看看<strong>主题选择</strong>。<br><br>请点击<strong>"主题选择"</strong>标签页，查看丰富的主题配色。'
+          );
         }, 100);
         addGuideTimeout(ts7);
       },
@@ -1473,22 +1440,11 @@
         }, 150);
         addGuideTimeout(ts8);
         var ts9 = setTimeout(function () {
-          hideTutorialCellGuide();
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                var targetEl = document.querySelector(state.tutorial.allowedButton);
-                if (targetEl) {
-                  var rect = targetEl.getBoundingClientRect();
-                  var guide = document.createElement('div');
-                  guide.className = 'tutorial-cell-guide';
-                  setGuidePosition(guide, rect, 4);
-                  document.body.appendChild(guide);
-                  state.tutorial.guideElement = guide;
-                }
-              });
-            });
-          });
+          XOApp.showTutorialSettingBtnGuide(
+            state.tutorial.allowedButton,
+            '主题配色',
+            '哇！有 <strong>7 种精美主题</strong>可选：<br>• <strong>经典</strong>：清爽白底<br>• <strong>橘子海</strong>：暖橙渐变<br>• <strong>日落</strong>：火红夕阳<br>• <strong>深海</strong>：蓝绿调<br>• <strong>森林</strong>：清新绿意<br>• <strong>午夜</strong>：暗色科幻<br>• <strong>糖果</strong>：粉色甜美<br><br>请点击<strong>"橘子海"</strong>主题，感受温暖的氛围！'
+          );
         }, 400);
         addGuideTimeout(ts9);
       },
@@ -2085,8 +2041,108 @@
 
   XOApp.moveDynamicStepTooltipDown = moveDynamicStepTooltipDown;
 
+  function showTutorialSettingBtnGuide(buttonSelector, stageTitle, stageContent) {
+    hideTutorialCellGuide();
+    var targetEl = document.querySelector(buttonSelector);
+    if (!targetEl) return;
+    state.tutorial.allowedButton = buttonSelector;
+    state.tutorial.manualPositioning = true;
+    els.tutorialContent.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;">' + stageTitle + '</h3><p style="margin:0;">' + stageContent + '</p>';
+    els.tutorialOverlay.classList.add('interaction-mode');
+    var sideTooltipWidth = Math.min(window.innerWidth - 32, 400);
+    var sideTooltipHeight = 120;
+    var sideGap = 10;
+    els.tutorialTooltip.style.transition = 'none';
+    els.tutorialTooltip.style.width = sideTooltipWidth + 'px';
+    els.tutorialTooltip.style.visibility = 'hidden';
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var curTargetEl = document.querySelector(buttonSelector);
+          if (!curTargetEl) {
+            els.tutorialTooltip.style.visibility = '';
+            els.tutorialTooltip.style.transition = '';
+            return;
+          }
+          var curRect = curTargetEl.getBoundingClientRect();
+          var guide = document.createElement('div');
+          guide.className = 'tutorial-cell-guide';
+          setGuidePosition(guide, curRect, 4);
+          document.body.appendChild(guide);
+          state.tutorial.guideElement = guide;
+          var curTooltipRect = els.tutorialTooltip.getBoundingClientRect();
+          var curTooltipHeight = curTooltipRect.height || sideTooltipHeight;
+          var curTooltipWidth = curTooltipRect.width || sideTooltipWidth;
+          var curLeft = curRect.left + curRect.width / 2 - curTooltipWidth / 2;
+          if (curLeft < 16) curLeft = 16;
+          if (curLeft + curTooltipWidth > window.innerWidth - 16) curLeft = window.innerWidth - curTooltipWidth - 16;
+
+          var safeMargin = 16;
+          var spaceTop = curRect.top - sideGap - 8 - safeMargin;
+          var spaceBottom = window.innerHeight - curRect.bottom - sideGap - 8 - safeMargin;
+          var allowTop = spaceTop >= curTooltipHeight;
+          var allowBottom = spaceBottom >= curTooltipHeight;
+          var curTop;
+          var curArrow;
+          if (allowTop && allowBottom) {
+            curTop = curRect.top - curTooltipHeight - sideGap - 8;
+            curArrow = 'arrow-bottom';
+          } else if (allowTop) {
+            curTop = curRect.top - curTooltipHeight - sideGap - 8;
+            curArrow = 'arrow-bottom';
+          } else if (allowBottom) {
+            curTop = curRect.bottom + sideGap + 8;
+            curArrow = 'arrow-top';
+          } else {
+            if (spaceTop >= spaceBottom) {
+              curTop = curRect.top - curTooltipHeight - sideGap - 8;
+              curArrow = 'arrow-bottom';
+            } else {
+              curTop = curRect.bottom + sideGap + 8;
+              curArrow = 'arrow-top';
+            }
+          }
+          if (curTop < safeMargin) curTop = safeMargin;
+          if (curTop + curTooltipHeight > window.innerHeight - safeMargin) {
+            curTop = window.innerHeight - curTooltipHeight - safeMargin;
+          }
+          var arrowOffsetX = (curRect.left + curRect.width / 2) - curLeft - 6;
+          arrowOffsetX = Math.max(20, Math.min(curTooltipWidth - 20, arrowOffsetX));
+          els.tutorialTooltip.className = 'tutorial-tooltip ' + curArrow;
+          els.tutorialTooltip.style.setProperty('--arrow-offset-x', arrowOffsetX + 'px');
+          els.tutorialTooltip.style.left = curLeft + 'px';
+          els.tutorialTooltip.style.top = curTop + 'px';
+          els.tutorialTooltip.style.transform = 'none';
+          els.tutorialTooltip.style.visibility = '';
+          requestAnimationFrame(function () {
+            els.tutorialTooltip.style.transition = '';
+          });
+        });
+      });
+    });
+  }
+
+  XOApp.showTutorialSettingBtnGuide = showTutorialSettingBtnGuide;
+
   var _tutorialScrollRafId = null;
   var _tutorialPosLoopRafId = null;
+
+  function _isElementVisibleInScrollContainer(el) {
+    if (!el) return false;
+    var parent = el.parentElement;
+    while (parent) {
+      var overflowY = window.getComputedStyle(parent).overflowY;
+      if (overflowY === 'auto' || overflowY === 'scroll') {
+        var parentRect = parent.getBoundingClientRect();
+        var elRect = el.getBoundingClientRect();
+        var visible = elRect.bottom > parentRect.top && elRect.top < parentRect.bottom
+          && elRect.right > parentRect.left && elRect.left < parentRect.right;
+        return visible;
+      }
+      parent = parent.parentElement;
+    }
+    return true;
+  }
 
   function _doUpdateTutorialPositions() {
     if (!state.tutorial.active) return;
@@ -2101,7 +2157,13 @@
 
       if (targetEl) {
         var rect = targetEl.getBoundingClientRect();
-        setGuidePosition(state.tutorial.guideElement, rect, 4);
+        var visible = _isElementVisibleInScrollContainer(targetEl);
+        if (visible) {
+          state.tutorial.guideElement.style.display = '';
+          setGuidePosition(state.tutorial.guideElement, rect, 4);
+        } else {
+          state.tutorial.guideElement.style.display = 'none';
+        }
       }
     }
 
