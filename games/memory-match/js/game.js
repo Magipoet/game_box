@@ -319,14 +319,14 @@ function renderLevelSelectMap() {
 }
 
 function enterLevel(levelIndex, mode) {
-    if (typeof isTutorialActive !== 'undefined' && isTutorialActive && currentTutorialStep === 0 && levelIndex === 0) {
+    if (typeof isTutorialActive !== 'undefined' && isTutorialActive && currentTutorialStep === 1 && levelIndex === 0) {
         if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
         if (gameScreen) gameScreen.classList.remove('hidden');
         resetStats();
         createTutorialBoard();
         setupTutorialCards();
-        currentTutorialStep = 1;
-        updateTutorialStep(1);
+        currentTutorialStep = 2;
+        updateTutorialStep(2);
         return;
     }
     
@@ -785,8 +785,8 @@ function disableCards() {
                 setTimeout(endTutorial, 500);
             } else if (typeof currentTutorialStep !== 'undefined' && tutorialSteps[currentTutorialStep].action === 'timed-mode-demo') {
                 setTimeout(() => {
-                    currentTutorialStep = 11;
-                    updateTutorialStep(11);
+                    currentTutorialStep = 12;
+                    updateTutorialStep(12);
                 }, 500);
             }
         } else {

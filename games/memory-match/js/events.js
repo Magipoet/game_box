@@ -83,10 +83,10 @@ if (tutorialBombCloseBtn) {
         if (guideContent) {
             guideContent.classList.remove('hidden');
         }
-        if (isTutorialActive && currentTutorialStep === 7) {
+        if (isTutorialActive && currentTutorialStep === 8) {
             resetAllCardsForBombDemo();
-            currentTutorialStep = 8;
-            updateTutorialStep(8);
+            currentTutorialStep = 9;
+            updateTutorialStep(9);
         }
     });
 }
@@ -198,8 +198,8 @@ tutorialNextBtn.addEventListener('click', (e) => {
         if (!firstCard || firstCard.id !== 1) {
             autoFlipCard(tutorialMismatchCard1, 1);
         }
-        currentTutorialStep = 4;
-        updateTutorialStep(4);
+        currentTutorialStep = 5;
+        updateTutorialStep(5);
         return;
     }
     
@@ -209,8 +209,8 @@ tutorialNextBtn.addEventListener('click', (e) => {
         autoFlipCard(tutorialMismatchCard2, 3);
         tutorialMismatchedSuccess = true;
         setTimeout(() => {
-            currentTutorialStep = 5;
-            updateTutorialStep(5);
+            currentTutorialStep = 6;
+            updateTutorialStep(6);
         }, 1000);
         return;
     }
@@ -220,8 +220,8 @@ tutorialNextBtn.addEventListener('click', (e) => {
         hideTutorialArrow();
         autoFlipCard(tutorialBombCard1, 2);
         tutorialBombShown = true;
-        currentTutorialStep = 7;
-        updateTutorialStep(7);
+        currentTutorialStep = 8;
+        updateTutorialStep(8);
         return;
     }
     
@@ -240,8 +240,8 @@ tutorialNextBtn.addEventListener('click', (e) => {
         stopCountdown();
         showLevelSelectScreen(true, true);
         setTimeout(() => {
-            currentTutorialStep = 9;
-            updateTutorialStep(9);
+            currentTutorialStep = 10;
+            updateTutorialStep(10);
         }, 200);
         return;
     }
@@ -267,16 +267,16 @@ tutorialNextBtn.addEventListener('click', (e) => {
         updateTotalStarsDisplay();
         updateCurrentLevelStars();
         
-        currentTutorialStep = 10;
-        updateTutorialStep(10);
+        currentTutorialStep = 11;
+        updateTutorialStep(11);
         return;
     }
     
     if (step.action === 'timed-mode-demo') {
         hideTutorialHighlight();
         hideTutorialArrow();
-        currentTutorialStep = 11;
-        updateTutorialStep(11);
+        currentTutorialStep = 12;
+        updateTutorialStep(12);
         return;
     }
     
@@ -299,8 +299,8 @@ tutorialNextBtn.addEventListener('click', (e) => {
         updateTotalStarsDisplay();
         updateCurrentLevelStars();
         
-        currentTutorialStep = 12;
-        updateTutorialStep(12);
+        currentTutorialStep = 13;
+        updateTutorialStep(13);
         return;
     }
     
@@ -313,7 +313,21 @@ tutorialNextBtn.addEventListener('click', (e) => {
 tutorialPrevBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (currentTutorialStep > 0) {
-        if (currentTutorialStep === 12) {
+        if (currentTutorialStep === 13) {
+            currentTutorialStep = 12;
+            
+            gameMode = GAME_MODES.TIMED;
+            currentLevel = 0;
+            resetStats();
+            createBoard();
+            updateModeButtons();
+            updateDifficultyButtons();
+            updateBestScoreDisplay();
+            updateTotalStarsDisplay();
+            updateCurrentLevelStars();
+            
+            updateTutorialStep(12);
+        } else if (currentTutorialStep === 12) {
             currentTutorialStep = 11;
             
             gameMode = GAME_MODES.TIMED;
@@ -330,20 +344,6 @@ tutorialPrevBtn.addEventListener('click', (e) => {
         } else if (currentTutorialStep === 11) {
             currentTutorialStep = 10;
             
-            gameMode = GAME_MODES.TIMED;
-            currentLevel = 0;
-            resetStats();
-            createBoard();
-            updateModeButtons();
-            updateDifficultyButtons();
-            updateBestScoreDisplay();
-            updateTotalStarsDisplay();
-            updateCurrentLevelStars();
-            
-            updateTutorialStep(10);
-        } else if (currentTutorialStep === 10) {
-            currentTutorialStep = 9;
-            
             stopTimer();
             stopCountdown();
             
@@ -358,10 +358,10 @@ tutorialPrevBtn.addEventListener('click', (e) => {
             window.scrollTo({ top: 0, behavior: 'auto' });
             
             setTimeout(() => {
-                updateTutorialStep(9);
+                updateTutorialStep(10);
             }, 150);
-        } else if (currentTutorialStep === 9) {
-            currentTutorialStep = 8;
+        } else if (currentTutorialStep === 10) {
+            currentTutorialStep = 9;
             
             gameMode = GAME_MODES.NORMAL;
             currentLevel = 0;
@@ -372,31 +372,31 @@ tutorialPrevBtn.addEventListener('click', (e) => {
             resetTutorialBombCards();
             
             setTimeout(() => {
-                updateTutorialStep(8);
+                updateTutorialStep(9);
             }, 100);
-        } else if (currentTutorialStep === 8) {
-            currentTutorialStep = 7;
+        } else if (currentTutorialStep === 9) {
+            currentTutorialStep = 8;
             if (gameScreen) gameScreen.classList.remove('hidden');
             if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
+            resetTutorialBombCards();
+            updateTutorialStep(8);
+        } else if (currentTutorialStep === 8) {
+            currentTutorialStep = 7;
             resetTutorialBombCards();
             updateTutorialStep(7);
         } else if (currentTutorialStep === 7) {
             currentTutorialStep = 6;
-            resetTutorialBombCards();
             updateTutorialStep(6);
-        } else if (currentTutorialStep === 6) {
-            currentTutorialStep = 5;
-            updateTutorialStep(5);
-        } else if (currentTutorialStep >= 4 && currentTutorialStep <= 5) {
-            currentTutorialStep = 3;
+        } else if (currentTutorialStep >= 5 && currentTutorialStep <= 6) {
+            currentTutorialStep = 4;
             resetTutorialMismatchCards();
-            updateTutorialStep(3);
-        } else if (currentTutorialStep >= 2 && currentTutorialStep <= 3) {
-            currentTutorialStep = 1;
+            updateTutorialStep(4);
+        } else if (currentTutorialStep >= 3 && currentTutorialStep <= 4) {
+            currentTutorialStep = 2;
             resetTutorialMatchCards();
-            updateTutorialStep(1);
-        } else if (currentTutorialStep === 1) {
-            currentTutorialStep = 0;
+            updateTutorialStep(2);
+        } else if (currentTutorialStep === 2) {
+            currentTutorialStep = 1;
             stopTimer();
             stopCountdown();
             if (gameScreen) gameScreen.classList.add('hidden');
@@ -407,7 +407,10 @@ tutorialPrevBtn.addEventListener('click', (e) => {
             renderLevelSelectMap();
             window.scrollTo({ top: 0, behavior: 'auto' });
             resetTutorialCards();
-            setTimeout(() => { updateTutorialStep(0); }, 150);
+            setTimeout(() => { updateTutorialStep(1); }, 150);
+        } else if (currentTutorialStep === 1) {
+            currentTutorialStep = 0;
+            updateTutorialStep(0);
         } else {
             currentTutorialStep--;
             updateTutorialStep(currentTutorialStep);
@@ -450,12 +453,12 @@ document.addEventListener('click', (e) => {
         if (guideContent) {
             guideContent.classList.remove('hidden');
         }
-        if (isTutorialActive && currentTutorialStep === 7) {
+        if (isTutorialActive && currentTutorialStep === 8) {
             if (gameScreen) gameScreen.classList.remove('hidden');
             if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
             resetAllCardsForBombDemo();
-            currentTutorialStep = 8;
-            updateTutorialStep(8);
+            currentTutorialStep = 9;
+            updateTutorialStep(9);
         }
     }
     
@@ -483,13 +486,13 @@ document.addEventListener('click', (e) => {
 
 if (levelModeNormalBtn) levelModeNormalBtn.addEventListener('click', () => {
     if (typeof isTutorialActive !== 'undefined' && isTutorialActive && typeof currentTutorialStep !== 'undefined') {
-        if (currentTutorialStep === 10) {
+        if (currentTutorialStep === 11) {
             tutorialLevelNormalClicked = true;
             switchLevelSelectMode(GAME_MODES.NORMAL);
             playSound('match');
             setTimeout(() => {
-                currentTutorialStep = 11;
-                updateTutorialStep(11);
+                currentTutorialStep = 12;
+                updateTutorialStep(12);
             }, 300);
             return;
         }
@@ -498,7 +501,7 @@ if (levelModeNormalBtn) levelModeNormalBtn.addEventListener('click', () => {
 });
 if (levelModeTimedBtn) levelModeTimedBtn.addEventListener('click', () => {
     if (typeof isTutorialActive !== 'undefined' && isTutorialActive && typeof currentTutorialStep !== 'undefined') {
-        if (currentTutorialStep === 9) {
+        if (currentTutorialStep === 10) {
             tutorialLevelTimedClicked = true;
             playSound('match');
             
@@ -518,8 +521,8 @@ if (levelModeTimedBtn) levelModeTimedBtn.addEventListener('click', () => {
             updateTotalStarsDisplay();
             updateCurrentLevelStars();
             
-            currentTutorialStep = 10;
-            updateTutorialStep(10);
+            currentTutorialStep = 11;
+            updateTutorialStep(11);
             return;
         }
     }
@@ -527,13 +530,13 @@ if (levelModeTimedBtn) levelModeTimedBtn.addEventListener('click', () => {
 });
 if (backToLevelsBtn) backToLevelsBtn.addEventListener('click', () => {
     if (typeof isTutorialActive !== 'undefined' && isTutorialActive) {
-        if (typeof currentTutorialStep !== 'undefined' && currentTutorialStep === 8) {
+        if (typeof currentTutorialStep !== 'undefined' && currentTutorialStep === 9) {
             stopTimer();
             stopCountdown();
             showLevelSelectScreen(true, true);
             setTimeout(() => {
-                currentTutorialStep = 9;
-                updateTutorialStep(9);
+                currentTutorialStep = 10;
+                updateTutorialStep(10);
             }, 200);
             return;
         }

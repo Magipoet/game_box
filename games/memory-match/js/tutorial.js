@@ -22,7 +22,14 @@ function checkAndShowTutorial() {
 const tutorialSteps = [
     {
         title: '🎮 欢迎来到记忆配对游戏！',
-        text: '游戏目标是将所有相同图案的卡片配对完成即可通关。让我带你一步步了解如何操作。请点击下方高亮的"第1关"进入游戏开始教程。',
+        text: '游戏目标是将所有相同图案的卡片配对完成即可通关。让我带你一步步了解如何操作。点击"下一步"开始教程。',
+        action: 'welcome',
+        showNext: true,
+        position: 'center'
+    },
+    {
+        title: '👆 进入游戏',
+        text: '请点击下方高亮的"第1关"进入游戏开始教程。',
         action: 'select-level-1',
         showNext: false,
         position: 'center'
@@ -112,6 +119,24 @@ const tutorialSteps = [
         position: 'center'
     }
 ];
+
+function disablePageScroll() {
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+}
+
+function enablePageScroll() {
+    document.body.style.overflow = '';
+    window.removeEventListener('wheel', preventScroll, { passive: false });
+    window.removeEventListener('touchmove', preventScroll, { passive: false });
+}
+
+function preventScroll(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+}
 
 function showTutorialGuide() {
     tutorialGuide.classList.remove('hidden');
@@ -409,12 +434,18 @@ function executeTutorialAction(stepIndex) {
     
     hideTutorialHighlight();
     hideTutorialArrow();
+    enablePageScroll();
+    
+    if (step.action === 'welcome') {
+        updateTutorialGuidePosition('center');
+    }
     
     if (step.action === 'wait-flip-match-1') {
         if (tutorialMatchCard1) {
             showTutorialHighlight(tutorialMatchCard1);
             showTutorialArrow(tutorialMatchCard1, 'top');
             updateTutorialGuidePositionNearElement(tutorialMatchCard1);
+            disablePageScroll();
         }
     }
     
@@ -423,6 +454,7 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(tutorialMatchCard2);
             showTutorialArrow(tutorialMatchCard2, 'top');
             updateTutorialGuidePositionNearElement(tutorialMatchCard2);
+            disablePageScroll();
         }
     }
     
@@ -431,6 +463,7 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(tutorialMismatchCard1);
             showTutorialArrow(tutorialMismatchCard1, 'top');
             updateTutorialGuidePositionNearElement(tutorialMismatchCard1);
+            disablePageScroll();
         }
     }
     
@@ -439,6 +472,7 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(tutorialMismatchCard2);
             showTutorialArrow(tutorialMismatchCard2, 'top');
             updateTutorialGuidePositionNearElement(tutorialMismatchCard2);
+            disablePageScroll();
         }
     }
     
@@ -448,6 +482,7 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(tutorialBombCard1);
             showTutorialArrow(tutorialBombCard1, 'top');
             updateTutorialGuidePositionNearElement(tutorialBombCard1);
+            disablePageScroll();
         }
     }
     
@@ -463,6 +498,7 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(tutorialBombCard2);
             showTutorialArrow(tutorialBombCard2, 'top');
             updateTutorialGuidePositionNearElement(tutorialBombCard2);
+            disablePageScroll();
         }
     }
     
@@ -471,6 +507,7 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(backToLevelsBtn);
             showTutorialArrow(backToLevelsBtn, 'bottom');
             updateTutorialGuidePositionNearElement(backToLevelsBtn, 'bottom');
+            disablePageScroll();
         }
     }
     
@@ -479,12 +516,14 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(levelModeTimedBtn);
             showTutorialArrow(levelModeTimedBtn, 'bottom');
             updateTutorialGuidePositionNearElement(levelModeTimedBtn, 'bottom');
+            disablePageScroll();
         }
     }
     
     if (step.action === 'timed-mode-demo') {
         if (gameBoard) {
             updateTutorialGuidePositionNearElement(gameBoard, 'left');
+            disablePageScroll();
         } else {
             updateTutorialGuidePosition('center');
         }
@@ -504,6 +543,7 @@ function executeTutorialAction(stepIndex) {
             showTutorialHighlight(levelNode);
             showTutorialArrow(levelNode, 'bottom');
             updateTutorialGuidePositionNearElement(levelNode, 'top');
+            disablePageScroll();
         } else {
             updateTutorialGuidePosition('center');
         }
@@ -513,8 +553,8 @@ function executeTutorialAction(stepIndex) {
         clearTutorialAutoAdvanceTimer();
         tutorialAutoAdvanceTimer = setTimeout(() => {
             if (isTutorialActive && currentTutorialStep === stepIndex) {
-                currentTutorialStep = 6;
-                updateTutorialStep(6);
+                currentTutorialStep = 7;
+                updateTutorialStep(7);
             }
         }, 2500);
     }
@@ -548,6 +588,7 @@ function startTutorial() {
     saveProgress();
     
     clearTutorialAutoAdvanceTimer();
+    enablePageScroll();
     
     isTutorialActive = true;
     currentTutorialStep = 0;
@@ -669,6 +710,7 @@ function endTutorial() {
     hideTutorialGuide();
     markTutorialAsSeen();
     clearTutorialAutoAdvanceTimer();
+    enablePageScroll();
     
     gameMode = GAME_MODES.NORMAL;
     saveGameMode();
@@ -687,8 +729,8 @@ function handleTutorialCardClick(card) {
         if (card !== tutorialMatchCard1) return true;
         hideTutorialHighlight();
         hideTutorialArrow();
-        currentTutorialStep = 2;
-        updateTutorialStep(2);
+        currentTutorialStep = 3;
+        updateTutorialStep(3);
         return false;
     }
     
@@ -699,8 +741,8 @@ function handleTutorialCardClick(card) {
         tutorialMatchedSuccess = true;
         
         setTimeout(() => {
-            currentTutorialStep = 3;
-            updateTutorialStep(3);
+            currentTutorialStep = 4;
+            updateTutorialStep(4);
         }, 1000);
         return false;
     }
@@ -709,8 +751,8 @@ function handleTutorialCardClick(card) {
         if (card !== tutorialMismatchCard1) return true;
         hideTutorialHighlight();
         hideTutorialArrow();
-        currentTutorialStep = 4;
-        updateTutorialStep(4);
+        currentTutorialStep = 5;
+        updateTutorialStep(5);
         return false;
     }
     
@@ -721,8 +763,8 @@ function handleTutorialCardClick(card) {
         tutorialMismatchedSuccess = true;
         
         setTimeout(() => {
-            currentTutorialStep = 5;
-            updateTutorialStep(5);
+            currentTutorialStep = 6;
+            updateTutorialStep(6);
         }, 1000);
         return false;
     }
@@ -741,8 +783,8 @@ function handleTutorialCardClick(card) {
         hideTutorialArrow();
         tutorialBombShown = true;
         setTimeout(() => {
-            currentTutorialStep = 7;
-            updateTutorialStep(7);
+            currentTutorialStep = 8;
+            updateTutorialStep(8);
         }, 0);
         return false;
     }
