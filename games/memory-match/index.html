@@ -12,17 +12,43 @@
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/tutorial.css">
     <link rel="stylesheet" href="css/dark.css">
+    <link rel="stylesheet" href="css/level-select.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="header-title">
-                <div class="header-left">
-                    <div class="mode-toggle" id="mode-toggle">
-                        <button id="mode-normal" class="mode-btn active">常规</button>
-                        <button id="mode-timed" class="mode-btn">限时</button>
+        <div id="level-select-screen" class="level-select-screen">
+            <div class="level-select-header">
+                <div class="level-select-header-left">
+                    <div class="level-select-total-stars">
+                        <span class="stars-icon">⭐</span>
+                        <span id="level-select-total-stars" class="stars-count">0</span>
+                    </div>
+                    <div class="level-select-stamina" id="level-select-stamina-bar">
+                        <span class="stamina-icon">⚡</span>
+                        <span class="stamina-text" id="level-select-stamina-text">30/30</span>
                     </div>
                 </div>
+                <h1 class="level-select-title">🎴 记忆配对</h1>
+                <div class="level-select-buttons">
+                    <button id="level-select-sound-btn" class="icon-btn" title="音效开关">🔊</button>
+                    <button id="level-select-settings-btn" class="icon-btn" title="设置">⚙️</button>
+                    <button id="level-select-help-btn" class="icon-btn" title="游戏说明">?</button>
+                </div>
+            </div>
+            <div class="level-select-mode-toggle">
+                <button id="level-mode-normal" class="level-mode-btn active">常规模式</button>
+                <button id="level-mode-timed" class="level-mode-btn">限时模式</button>
+            </div>
+            <button id="scroll-to-current-btn" class="scroll-to-current-btn hidden"><span id="scroll-arrow">↓</span> 返回当前关</button>
+            <div id="level-select-map" class="level-select-map"></div>
+        </div>
+
+        <div id="game-screen" class="game-screen hidden">
+            <div class="game-back-bar">
+                <button id="back-to-levels-btn" class="back-btn">← 关卡选择</button>
+            </div>
+        <header>
+            <div class="header-title">
                 <h1>🎴 记忆配对游戏</h1>
                 <div class="header-buttons">
                     <button id="sound-btn" class="icon-btn" title="音效开关">🔊</button>
@@ -37,6 +63,10 @@
                 <button id="pause-btn" class="pause-btn" title="暂停游戏">⏸️</button>
             </div>
             <div class="stats">
+                <div class="stat-item game-stamina" id="game-stamina-bar">
+                    <span class="stamina-icon">⚡</span>
+                    <span class="stamina-text" id="game-stamina-text">30/30</span>
+                </div>
                 <div class="stat-item">
                     <span class="label">步数:</span>
                     <span id="moves" class="value">0</span>
@@ -83,6 +113,7 @@
             <button id="restart-btn" class="btn">🔄 新游戏</button>
             <button id="reset-progress-btn" class="btn btn-reset">🔁 重置进度</button>
         </footer>
+        </div>
 
         <div id="help-modal" class="modal hidden">
             <div class="modal-content">
@@ -315,6 +346,8 @@
                     <span class="step-dot" data-step="9"></span>
                     <span class="step-dot" data-step="10"></span>
                     <span class="step-dot" data-step="11"></span>
+                    <span class="step-dot" data-step="12"></span>
+                    <span class="step-dot" data-step="13"></span>
                 </div>
                 <h3 id="tutorial-guide-title" class="tutorial-guide-title"></h3>
                 <p id="tutorial-guide-text" class="tutorial-guide-text"></p>
@@ -378,6 +411,20 @@
                 <div class="modal-buttons">
                     <button id="resume-btn" class="btn">▶️ 继续游戏</button>
                     <button id="pause-restart-btn" class="btn btn-secondary">🔄 重新开始</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="stamina-insufficient-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>⚡ 体力不足</h2>
+                <div class="win-stats">
+                    <p>当前体力不足以挑战关卡！</p>
+                    <p>每关需要消耗 <strong>5</strong> 点体力</p>
+                    <p>距离下一点体力恢复还需：<span id="stamina-recover-time">00:00</span></p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="stamina-close-btn" class="btn">我知道了</button>
                 </div>
             </div>
         </div>

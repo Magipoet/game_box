@@ -57,21 +57,7 @@ if (closeTimeUpModalBtn) closeTimeUpModalBtn.addEventListener('click', hideTimeU
 if (timeupRetryBtn) timeupRetryBtn.addEventListener('click', () => { hideTimeUpModal(); restartGame(); });
 if (timeupCloseBtn) timeupCloseBtn.addEventListener('click', hideTimeUpModal);
 
-if (modeNormalBtn) modeNormalBtn.addEventListener('click', (e) => {
-    if (isTutorialActive) {
-        e.stopPropagation();
-        return;
-    }
-    setGameMode(GAME_MODES.NORMAL);
-});
-if (modeTimedBtn) modeTimedBtn.addEventListener('click', (e) => {
-    if (isTutorialActive) {
-        handleTutorialTimedModeClick();
-        e.stopPropagation();
-        return;
-    }
-    setGameMode(GAME_MODES.TIMED);
-});
+
 
 if (pauseBtn) pauseBtn.addEventListener('click', pauseGame);
 if (resumeBtn) resumeBtn.addEventListener('click', resumeGame);
@@ -247,17 +233,74 @@ tutorialNextBtn.addEventListener('click', (e) => {
         return;
     }
     
-    if (step.action === 'wait-timed-mode-click') {
+    if (step.action === 'goto-level-select') {
         hideTutorialHighlight();
         hideTutorialArrow();
-        handleTutorialTimedModeClick();
-        
+        stopTimer();
+        stopCountdown();
+        showLevelSelectScreen(true, true);
+        setTimeout(() => {
+            currentTutorialStep = 9;
+            updateTutorialStep(9);
+        }, 200);
         return;
     }
     
-    if (step.action === 'wait-timed-card-click') {
-        handleTutorialTimedNextClick();
+    if (step.action === 'click-timed-mode') {
+        hideTutorialHighlight();
+        hideTutorialArrow();
+        tutorialLevelTimedClicked = true;
         
+        saveCurrentLevelForMode(currentLevel, gameMode);
+        gameMode = GAME_MODES.TIMED;
+        saveGameMode();
+        currentLevel = 0;
+        
+        if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
+        if (gameScreen) gameScreen.classList.remove('hidden');
+        
+        resetStats();
+        createBoard();
+        updateModeButtons();
+        updateDifficultyButtons();
+        updateBestScoreDisplay();
+        updateTotalStarsDisplay();
+        updateCurrentLevelStars();
+        
+        currentTutorialStep = 10;
+        updateTutorialStep(10);
+        return;
+    }
+    
+    if (step.action === 'timed-mode-demo') {
+        hideTutorialHighlight();
+        hideTutorialArrow();
+        currentTutorialStep = 11;
+        updateTutorialStep(11);
+        return;
+    }
+    
+    if (step.action === 'back-to-normal-game') {
+        hideTutorialHighlight();
+        hideTutorialArrow();
+        
+        gameMode = GAME_MODES.NORMAL;
+        saveGameMode();
+        currentLevel = 0;
+        saveCurrentLevelForMode(currentLevel, gameMode);
+        
+        stopTimer();
+        stopCountdown();
+        resetStats();
+        createBoard();
+        updateModeButtons();
+        updateDifficultyButtons();
+        updateBestScoreDisplay();
+        updateTotalStarsDisplay();
+        updateCurrentLevelStars();
+        
+        currentTutorialStep = 12;
+        updateTutorialStep(12);
         return;
     }
     
@@ -270,42 +313,105 @@ tutorialNextBtn.addEventListener('click', (e) => {
 tutorialPrevBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (currentTutorialStep > 0) {
-        if (currentTutorialStep === 10) {
+        if (currentTutorialStep === 12) {
+            currentTutorialStep = 11;
+            
+            gameMode = GAME_MODES.TIMED;
+            currentLevel = 0;
+            resetStats();
+            createBoard();
+            updateModeButtons();
+            updateDifficultyButtons();
+            updateBestScoreDisplay();
+            updateTotalStarsDisplay();
+            updateCurrentLevelStars();
+            
+            updateTutorialStep(11);
+        } else if (currentTutorialStep === 11) {
+            currentTutorialStep = 10;
+            
+            gameMode = GAME_MODES.TIMED;
+            currentLevel = 0;
+            resetStats();
+            createBoard();
+            updateModeButtons();
+            updateDifficultyButtons();
+            updateBestScoreDisplay();
+            updateTotalStarsDisplay();
+            updateCurrentLevelStars();
+            
+            updateTutorialStep(10);
+        } else if (currentTutorialStep === 10) {
             currentTutorialStep = 9;
+            
+            stopTimer();
+            stopCountdown();
+            
+            if (gameScreen) gameScreen.classList.add('hidden');
+            if (levelSelectScreen) levelSelectScreen.classList.remove('hidden');
+            
+            levelSelectActiveTab = GAME_MODES.NORMAL;
+            updateLevelSelectModeButtons();
+            updateLevelSelectTotalStars();
+            renderLevelSelectMap();
+            
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            
+            setTimeout(() => {
+                updateTutorialStep(9);
+            }, 150);
         } else if (currentTutorialStep === 9) {
             currentTutorialStep = 8;
-            clearTutorialTimedDemoTimer();
-            tutorialTimedModeActive = false;
-            tutorialTimedCardClicked = false;
+            
             gameMode = GAME_MODES.NORMAL;
-            saveGameMode();
-            stopCountdown();
-            updateModeButtons();
-            timeRemaining = 0;
-            if (countdownDisplay) countdownDisplay.textContent = '00:00';
-            resetTutorialMatchCards();
+            currentLevel = 0;
+            
+            if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
+            if (gameScreen) gameScreen.classList.remove('hidden');
+            
+            resetTutorialBombCards();
+            
+            setTimeout(() => {
+                updateTutorialStep(8);
+            }, 100);
         } else if (currentTutorialStep === 8) {
             currentTutorialStep = 7;
+            if (gameScreen) gameScreen.classList.remove('hidden');
+            if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
             resetTutorialBombCards();
+            updateTutorialStep(7);
         } else if (currentTutorialStep === 7) {
             currentTutorialStep = 6;
             resetTutorialBombCards();
+            updateTutorialStep(6);
         } else if (currentTutorialStep === 6) {
             currentTutorialStep = 5;
+            updateTutorialStep(5);
         } else if (currentTutorialStep >= 4 && currentTutorialStep <= 5) {
             currentTutorialStep = 3;
             resetTutorialMismatchCards();
+            updateTutorialStep(3);
         } else if (currentTutorialStep >= 2 && currentTutorialStep <= 3) {
             currentTutorialStep = 1;
             resetTutorialMatchCards();
+            updateTutorialStep(1);
         } else if (currentTutorialStep === 1) {
             currentTutorialStep = 0;
+            stopTimer();
+            stopCountdown();
+            if (gameScreen) gameScreen.classList.add('hidden');
+            if (levelSelectScreen) levelSelectScreen.classList.remove('hidden');
+            levelSelectActiveTab = GAME_MODES.NORMAL;
+            updateLevelSelectModeButtons();
+            updateLevelSelectTotalStars();
+            renderLevelSelectMap();
+            window.scrollTo({ top: 0, behavior: 'auto' });
             resetTutorialCards();
+            setTimeout(() => { updateTutorialStep(0); }, 150);
         } else {
             currentTutorialStep--;
+            updateTutorialStep(currentTutorialStep);
         }
-        
-        updateTutorialStep(currentTutorialStep);
     }
 });
 
@@ -345,6 +451,8 @@ document.addEventListener('click', (e) => {
             guideContent.classList.remove('hidden');
         }
         if (isTutorialActive && currentTutorialStep === 7) {
+            if (gameScreen) gameScreen.classList.remove('hidden');
+            if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
             resetAllCardsForBombDemo();
             currentTutorialStep = 8;
             updateTutorialStep(8);
@@ -359,7 +467,10 @@ document.addEventListener('click', (e) => {
             if (e.target.closest('.tutorial-guide-buttons')) return;
             if (e.target.closest('.card')) return;
             if (e.target.closest('.modal')) return;
-            if (e.target.closest('.mode-btn')) return;
+            
+            if (step.action === 'goto-level-select' || step.action === 'click-timed-mode' || step.action === 'click-normal-mode' || step.action === 'timed-mode-demo') {
+                return;
+            }
             
             if (step.action === 'free-play') {
                 endTutorial();
@@ -369,5 +480,118 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+if (levelModeNormalBtn) levelModeNormalBtn.addEventListener('click', () => {
+    if (typeof isTutorialActive !== 'undefined' && isTutorialActive && typeof currentTutorialStep !== 'undefined') {
+        if (currentTutorialStep === 10) {
+            tutorialLevelNormalClicked = true;
+            switchLevelSelectMode(GAME_MODES.NORMAL);
+            playSound('match');
+            setTimeout(() => {
+                currentTutorialStep = 11;
+                updateTutorialStep(11);
+            }, 300);
+            return;
+        }
+    }
+    switchLevelSelectMode(GAME_MODES.NORMAL);
+});
+if (levelModeTimedBtn) levelModeTimedBtn.addEventListener('click', () => {
+    if (typeof isTutorialActive !== 'undefined' && isTutorialActive && typeof currentTutorialStep !== 'undefined') {
+        if (currentTutorialStep === 9) {
+            tutorialLevelTimedClicked = true;
+            playSound('match');
+            
+            saveCurrentLevelForMode(currentLevel, gameMode);
+            gameMode = GAME_MODES.TIMED;
+            saveGameMode();
+            currentLevel = 0;
+            
+            if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
+            if (gameScreen) gameScreen.classList.remove('hidden');
+            
+            resetStats();
+            createBoard();
+            updateModeButtons();
+            updateDifficultyButtons();
+            updateBestScoreDisplay();
+            updateTotalStarsDisplay();
+            updateCurrentLevelStars();
+            
+            currentTutorialStep = 10;
+            updateTutorialStep(10);
+            return;
+        }
+    }
+    switchLevelSelectMode(GAME_MODES.TIMED);
+});
+if (backToLevelsBtn) backToLevelsBtn.addEventListener('click', () => {
+    if (typeof isTutorialActive !== 'undefined' && isTutorialActive) {
+        if (typeof currentTutorialStep !== 'undefined' && currentTutorialStep === 8) {
+            stopTimer();
+            stopCountdown();
+            showLevelSelectScreen(true, true);
+            setTimeout(() => {
+                currentTutorialStep = 9;
+                updateTutorialStep(9);
+            }, 200);
+            return;
+        }
+        return;
+    }
+    const doBack = () => {
+        stopTimer();
+        stopCountdown();
+        showLevelSelectScreen();
+    };
+    if (!gameWon && (gameStarted || moves > 0)) {
+        showConfirmModal();
+        confirmYesBtn.onclick = () => {
+            doBack();
+            hideConfirmModal();
+        };
+        confirmNoBtn.onclick = hideConfirmModal;
+        confirmYesBtn.textContent = '确定';
+        confirmModal.querySelector('h3').textContent = '⚠️ 确认返回';
+        confirmModal.querySelector('p').textContent = '当前进度将丢失，确定返回关卡选择吗？';
+    } else {
+        doBack();
+    }
+});
+if (levelSelectSoundBtn) levelSelectSoundBtn.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.sound), soundEnabled);
+    updateLevelSelectSoundButton();
+    if (soundBtn) soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+    if (soundEnabled) playSound('click');
+});
+if (levelSelectSettingsBtn) levelSelectSettingsBtn.addEventListener('click', () => {
+    settingsModal.classList.remove('hidden');
+    switchSettingsTab('basic');
+});
+if (levelSelectHelpBtn) levelSelectHelpBtn.addEventListener('click', () => {
+    helpModal.classList.remove('hidden');
+});
+
+const staminaCloseBtn = document.getElementById('stamina-close-btn');
+if (staminaCloseBtn) {
+    staminaCloseBtn.addEventListener('click', hideStaminaInsufficientModal);
+}
+
+if (staminaInsufficientModal) {
+    staminaInsufficientModal.addEventListener('click', (e) => {
+        if (e.target === staminaInsufficientModal) {
+            hideStaminaInsufficientModal();
+        }
+    });
+    
+    setInterval(() => {
+        if (!staminaInsufficientModal.classList.contains('hidden')) {
+            if (staminaRecoverTimeText) {
+                staminaRecoverTimeText.textContent = getStaminaRecoverTimeText();
+            }
+        }
+    }, 1000);
+}
 
 document.addEventListener('DOMContentLoaded', initGame);

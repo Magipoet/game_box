@@ -74,6 +74,24 @@ function loadGameData() {
     if (savedTutorial !== null) {
         tutorialHasBeenSeen = savedTutorial === 'true';
     }
+    
+    const savedStamina = localStorage.getItem(getStorageKey(STORAGE_KEYS.stamina));
+    if (savedStamina !== null) {
+        currentStamina = parseInt(savedStamina);
+        if (isNaN(currentStamina) || currentStamina < 0 || currentStamina > STAMINA_CONFIG.MAX_STAMINA) {
+            currentStamina = STAMINA_CONFIG.MAX_STAMINA;
+        }
+    }
+    
+    const savedLastRecoverTime = localStorage.getItem(getStorageKey(STORAGE_KEYS.lastStaminaRecoverTime));
+    if (savedLastRecoverTime !== null) {
+        lastStaminaRecoverTime = parseInt(savedLastRecoverTime);
+        if (isNaN(lastStaminaRecoverTime)) {
+            lastStaminaRecoverTime = Date.now();
+        }
+    }
+    
+    recoverOfflineStamina();
     checkAndUnlockHiddenLevels();
     applyTheme(currentTheme);
 }
@@ -113,8 +131,14 @@ function getUnlockedLevelsForMode() {
 
 function resetAllProgress() {
     unlockedLevels = { 0: true };
+    unlockedTimedLevels = { 0: true };
     saveProgress();
+    saveTimedProgress();
     currentLevel = 0;
+    currentStamina = STAMINA_CONFIG.MAX_STAMINA;
+    lastStaminaRecoverTime = Date.now();
+    saveStamina();
+    updateStaminaDisplay();
 }
 
 function resetCurrentLevelProgress() {
@@ -240,4 +264,111 @@ function getStarCriteriaText(levelIndex) {
 function saveCurrentLevelForMode(level, mode) {
     const key = mode === GAME_MODES.TIMED ? STORAGE_KEYS.timedCurrentLevel : STORAGE_KEYS.normalCurrentLevel;
     localStorage.setItem(getStorageKey(key), level.toString());
+}
+
+function saveStamina() {
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.stamina), currentStamina.toString());
+    localStorage.setItem(getStorageKey(STORAGE_KEYS.lastStaminaRecoverTime), lastStaminaRecoverTime.toString());
+}
+
+function recoverOfflineStamina() {
+    const now = Date.now();
+    const elapsed = now - lastStaminaRecoverTime;
+    if (elapsed >= STAMINA_CONFIG.RECOVER_INTERVAL_MS && currentStamina < STAMINA_CONFIG.MAX_STAMINA) {
+        const recoverAmount = Math.floor(elapsed / STAMINA_CONFIG.RECOVER_INTERVAL_MS);
+        const actualRecover = Math.min(recoverAmount, STAMINA_CONFIG.MAX_STAMINA - currentStamina);
+        currentStamina += actualRecover;
+        lastStaminaRecoverTime += actualRecover * STAMINA_CONFIG.RECOVER_INTERVAL_MS;
+        saveStamina();
+    }
+}
+
+function updateStaminaDisplay() {
+    if (levelSelectStaminaText) {
+        levelSelectStaminaText.textContent = `${currentStamina}/${STAMINA_CONFIG.MAX_STAMINA}`;
+    }
+    if (gameStaminaText) {
+        gameStaminaText.textContent = `${currentStamina}/${STAMINA_CONFIG.MAX_STAMINA}`;
+    }
+}
+
+function startStaminaRecoveryTimer() {
+    if (staminaRecoverTimer) {
+        clearInterval(staminaRecoverTimer);
+    }
+    
+    staminaRecoverTimer = setInterval(() => {
+        const now = Date.now();
+        const elapsed = now - lastStaminaRecoverTime;
+        if (elapsed >= STAMINA_CONFIG.RECOVER_INTERVAL_MS && currentStamina < STAMINA_CONFIG.MAX_STAMINA) {
+            currentStamina++;
+            lastStaminaRecoverTime = now;
+            saveStamina();
+            updateStaminaDisplay();
+        }
+    }, 1000);
+}
+
+function consumeStamina(amount) {
+    if (typeof staminaDeductedThisSession !== 'undefined' && staminaDeductedThisSession) {
+        return true;
+    }
+    if (currentStamina >= amount) {
+        const wasFull = currentStamina === STAMINA_CONFIG.MAX_STAMINA;
+        currentStamina -= amount;
+        if (wasFull) {
+            lastStaminaRecoverTime = Date.now();
+        }
+        saveStamina();
+        updateStaminaDisplay();
+        if (typeof staminaDeductedThisSession !== 'undefined') {
+            staminaDeductedThisSession = true;
+        }
+        return true;
+    }
+    return false;
+}
+
+function resetStaminaDeductionFlag() {
+    staminaDeductedThisSession = false;
+}
+
+function rewardStaminaByStars(stars) {
+    const rewardAmount = STAMINA_CONFIG.STAR_REWARDS[stars] || 0;
+    if (rewardAmount > 0) {
+        const actualReward = Math.min(rewardAmount, STAMINA_CONFIG.MAX_STAMINA - currentStamina);
+        if (actualReward > 0) {
+            currentStamina += actualReward;
+            saveStamina();
+            updateStaminaDisplay();
+        }
+    }
+}
+
+function getStaminaRecoverTimeText() {
+    if (currentStamina >= STAMINA_CONFIG.MAX_STAMINA) {
+        return '已满';
+    }
+    const now = Date.now();
+    const elapsed = now - lastStaminaRecoverTime;
+    const remaining = STAMINA_CONFIG.RECOVER_INTERVAL_MS - (elapsed % STAMINA_CONFIG.RECOVER_INTERVAL_MS);
+    const seconds = Math.ceil(remaining / 1000);
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function showStaminaInsufficientModal() {
+    if (staminaRecoverTimeText) {
+        staminaRecoverTimeText.textContent = getStaminaRecoverTimeText();
+    }
+    if (staminaInsufficientModal) {
+        staminaInsufficientModal.classList.remove('hidden');
+    }
+}
+
+function hideStaminaInsufficientModal() {
+    if (staminaInsufficientModal) {
+        staminaInsufficientModal.classList.add('hidden');
+    }
 }

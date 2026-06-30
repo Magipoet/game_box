@@ -55,9 +55,8 @@ let tutorialBombCard1 = null;
 let tutorialBombCard2 = null;
 let tutorialBombShown = false;
 let tutorialAutoAdvanceTimer = null;
-let tutorialTimedModeActive = false;
-let tutorialTimedCardClicked = false;
-let tutorialTimedDemoTimer = null;
+let tutorialLevelTimedClicked = false;
+let tutorialLevelNormalClicked = false;
 
 const gameBoard = document.getElementById('game-board');
 const movesDisplay = document.getElementById('moves');
@@ -142,3 +141,33 @@ const resumeBtn = document.getElementById('resume-btn');
 const pauseRestartBtn = document.getElementById('pause-restart-btn');
 const pauseMovesEl = document.getElementById('pause-moves');
 const pausePairsEl = document.getElementById('pause-pairs');
+
+const levelSelectScreen = document.getElementById('level-select-screen');
+const gameScreen = document.getElementById('game-screen');
+const levelSelectMap = document.getElementById('level-select-map');
+const levelSelectTotalStarsEl = document.getElementById('level-select-total-stars');
+const levelModeNormalBtn = document.getElementById('level-mode-normal');
+const levelModeTimedBtn = document.getElementById('level-mode-timed');
+const backToLevelsBtn = document.getElementById('back-to-levels-btn');
+const levelSelectSoundBtn = document.getElementById('level-select-sound-btn');
+const levelSelectSettingsBtn = document.getElementById('level-select-settings-btn');
+const levelSelectHelpBtn = document.getElementById('level-select-help-btn');
+
+let levelSelectActiveTab = null;
+
+let currentStamina = STAMINA_CONFIG.MAX_STAMINA;
+let lastStaminaRecoverTime = Date.now();
+let staminaRecoverTimer = null;
+let staminaDeductedThisSession = false;
+
+const scrollToCurrentBtn = document.getElementById('scroll-to-current-btn');
+const scrollArrow = document.getElementById('scroll-arrow');
+
+const levelSelectStaminaBar = document.getElementById('level-select-stamina-bar');
+const levelSelectStaminaFill = document.getElementById('level-select-stamina-fill');
+const levelSelectStaminaText = document.getElementById('level-select-stamina-text');
+const gameStaminaBar = document.getElementById('game-stamina-bar');
+const gameStaminaFill = document.getElementById('game-stamina-fill');
+const gameStaminaText = document.getElementById('game-stamina-text');
+const staminaInsufficientModal = document.getElementById('stamina-insufficient-modal');
+const staminaRecoverTimeText = document.getElementById('stamina-recover-time');

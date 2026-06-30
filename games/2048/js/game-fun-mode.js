@@ -165,13 +165,6 @@ Game2048.prototype.processTeleportPortal = function(direction, originalBoard) {
   if (this.teleportPortalPosition === null) return;
 
   const [pr, pc] = this.teleportPortalPosition;
-  const portalCell = this.board.getCell(pr, pc);
-
-  if (portalCell.hasValue()) {
-    this.teleportPortalCooldown = COOLDOWN_MOVES;
-    this.teleportPortalPosition = null;
-    return;
-  }
 
   let cellToTeleport = null;
   let teleportRow = -1;
@@ -673,24 +666,45 @@ Game2048.prototype.updateChainPairAfterMerge = function(mergePositions, original
     let targetFound = false;
     const [tr, tc] = this.chainPair.targetPos;
     const targetCell = this.board.getCell(tr, tc);
-    if ((targetCell.isNumber() || targetCell.isFrozenNumber()) && !targetCell.isChain()) {
+    if ((targetCell.isNumber() || targetCell.isFrozenNumber()) && !targetCell.isChain() && targetCell.value === oldTargetValue) {
       targetFound = true;
     }
 
     if (!targetFound) {
-      for (let i = 0; i < BOARD_SIZE; i++) {
-        for (let j = 0; j < BOARD_SIZE; j++) {
-          const cell = this.board.getCell(i, j);
-          if ((cell.isNumber() || cell.isFrozenNumber()) && !cell.isChain() && cell.value === oldTargetValue) {
-            const dist = Math.abs(i - oldTargetPos[0]) + Math.abs(j - oldTargetPos[1]);
-            if (dist <= 2) {
-              this.chainPair.targetPos = [i, j];
-              targetFound = true;
-              break;
+      const [cr, cc] = currentChainPos;
+      const [oldCr, oldCc] = oldChainPos;
+      const dRow = oldTargetPos[0] - oldCr;
+      const dCol = oldTargetPos[1] - oldCc;
+      const expectedTr = cr + dRow;
+      const expectedTc = cc + dCol;
+
+      if (expectedTr >= 0 && expectedTr < BOARD_SIZE && expectedTc >= 0 && expectedTc < BOARD_SIZE) {
+        const expectedCell = this.board.getCell(expectedTr, expectedTc);
+        if ((expectedCell.isNumber() || expectedCell.isFrozenNumber()) && !expectedCell.isChain() && expectedCell.value === oldTargetValue) {
+          this.chainPair.targetPos = [expectedTr, expectedTc];
+          targetFound = true;
+        }
+      }
+
+      if (!targetFound) {
+        let minDist = Infinity;
+        let bestPos = null;
+        for (let i = 0; i < BOARD_SIZE; i++) {
+          for (let j = 0; j < BOARD_SIZE; j++) {
+            const cell = this.board.getCell(i, j);
+            if ((cell.isNumber() || cell.isFrozenNumber()) && !cell.isChain() && cell.value === oldTargetValue) {
+              const dist = Math.abs(i - cr) + Math.abs(j - cc);
+              if (dist < minDist) {
+                minDist = dist;
+                bestPos = [i, j];
+              }
             }
           }
         }
-        if (targetFound) break;
+        if (bestPos && minDist <= 2) {
+          this.chainPair.targetPos = bestPos;
+          targetFound = true;
+        }
       }
     }
 
@@ -860,24 +874,40 @@ Game2048.prototype.checkLineBlocked = function(line, cellIdx, isLeftOrUp) {
   const cellValue = cell.value;
 
   if (isLeftOrUp) {
-    for (let i = 0; i < cellIdx; i++) {
+    let blockerIdx = -1;
+    for (let i = cellIdx - 1; i >= 0; i--) {
       const c = line[i];
       if (c.isWoodBlock()) {
-        return true;
+        blockerIdx = i;
+        break;
       }
-      if (c.hasValue() && c.value !== cellValue) {
-        return true;
+      if (c.hasValue()) {
+        if (c.value !== cellValue) {
+          blockerIdx = i;
+        }
+        break;
       }
     }
+    if (blockerIdx !== -1 && blockerIdx === cellIdx - 1) {
+      return true;
+    }
   } else {
+    let blockerIdx = -1;
     for (let i = cellIdx + 1; i < line.length; i++) {
       const c = line[i];
       if (c.isWoodBlock()) {
-        return true;
+        blockerIdx = i;
+        break;
       }
-      if (c.hasValue() && c.value !== cellValue) {
-        return true;
+      if (c.hasValue()) {
+        if (c.value !== cellValue) {
+          blockerIdx = i;
+        }
+        break;
       }
+    }
+    if (blockerIdx !== -1 && blockerIdx === cellIdx + 1) {
+      return true;
     }
   }
 

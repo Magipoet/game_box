@@ -688,7 +688,13 @@ class Game2048 {
         const cell1 = this.board.getCell(i, j);
         const cell2 = this.board.getCell(i, j + 1);
         if (cell1.hasValue() && cell2.hasValue() && cell1.value === cell2.value) {
-          return false;
+          if (this.canMergeWithChainRules && typeof this.canMergeWithChainRules === 'function') {
+            if (this.canMergeWithChainRules(cell1, cell2, i, j, i, j + 1)) {
+              return false;
+            }
+          } else {
+            return false;
+          }
         }
       }
     }
@@ -698,7 +704,13 @@ class Game2048 {
         const cell1 = this.board.getCell(i, j);
         const cell2 = this.board.getCell(i + 1, j);
         if (cell1.hasValue() && cell2.hasValue() && cell1.value === cell2.value) {
-          return false;
+          if (this.canMergeWithChainRules && typeof this.canMergeWithChainRules === 'function') {
+            if (this.canMergeWithChainRules(cell1, cell2, i, j, i + 1, j)) {
+              return false;
+            }
+          } else {
+            return false;
+          }
         }
       }
     }

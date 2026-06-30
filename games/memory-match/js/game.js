@@ -1,5 +1,100 @@
 function initGame() {
     loadGameData();
+    if (!levelSelectActiveTab) {
+        levelSelectActiveTab = gameMode;
+    }
+    startStaminaRecoveryTimer();
+    updateStaminaDisplay();
+    showLevelSelectScreen();
+}
+
+let levelScrollListenerBound = false;
+
+function updateScrollToCurrentBtnPosition() {
+    if (!scrollToCurrentBtn || scrollToCurrentBtn.classList.contains('hidden')) {
+        return;
+    }
+    const container = document.querySelector('.container');
+    if (!container) return;
+    const containerRect = container.getBoundingClientRect();
+    const btnWidth = scrollToCurrentBtn.offsetWidth;
+    const leftOffset = 20;
+    
+    const maxLeft = containerRect.right - btnWidth - leftOffset;
+    const targetLeft = containerRect.left + leftOffset;
+    scrollToCurrentBtn.style.left = Math.min(targetLeft, maxLeft) + 'px';
+}
+
+function checkCurrentLevelVisibility() {
+    if (!scrollToCurrentBtn || !levelSelectScreen || levelSelectScreen.classList.contains('hidden')) {
+        return;
+    }
+    const currentNode = levelSelectMap.querySelector('.level-node.current');
+    if (!currentNode) {
+        scrollToCurrentBtn.classList.add('hidden');
+        return;
+    }
+    const rect = currentNode.getBoundingClientRect();
+    const headerHeight = 100;
+    const isVisible = rect.top >= headerHeight && rect.bottom <= window.innerHeight - 20;
+    scrollToCurrentBtn.classList.toggle('hidden', isVisible);
+    
+    if (!isVisible) {
+        const nodeCenterY = rect.top + rect.height / 2;
+        const viewportCenterY = window.innerHeight / 2;
+        if (scrollArrow) {
+            if (nodeCenterY < viewportCenterY) {
+                scrollArrow.textContent = '↑';
+            } else {
+                scrollArrow.textContent = '↓';
+            }
+        }
+        updateScrollToCurrentBtnPosition();
+    }
+}
+
+function scrollToCurrentLevel() {
+    const currentNode = levelSelectMap.querySelector('.level-node.current');
+    if (!currentNode) return;
+    currentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showLevelSelectScreen(bypassTutorialCheck = false, scrollToTop = false) {
+    if (!bypassTutorialCheck && typeof isTutorialActive !== 'undefined' && isTutorialActive) {
+        return;
+    }
+    if (levelSelectScreen) levelSelectScreen.classList.remove('hidden');
+    if (gameScreen) gameScreen.classList.add('hidden');
+    renderLevelSelectMap();
+    updateLevelSelectModeButtons();
+    updateLevelSelectTotalStars();
+    updateLevelSelectSoundButton();
+    updateStaminaDisplay();
+
+    if (scrollToCurrentBtn && !levelScrollListenerBound) {
+        window.addEventListener('scroll', checkCurrentLevelVisibility, { passive: true });
+        window.addEventListener('resize', () => {
+            checkCurrentLevelVisibility();
+            updateScrollToCurrentBtnPosition();
+        });
+        scrollToCurrentBtn.addEventListener('click', scrollToCurrentLevel);
+        levelScrollListenerBound = true;
+    }
+
+    setTimeout(() => {
+        if (scrollToTop) {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        } else {
+            scrollToCurrentLevel();
+        }
+        checkCurrentLevelVisibility();
+        updateScrollToCurrentBtnPosition();
+    }, 50);
+}
+
+function showGameScreen() {
+    if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
+    if (gameScreen) gameScreen.classList.remove('hidden');
     createBoard();
     resetStats();
     updateDifficultyButtons();
@@ -7,7 +102,284 @@ function initGame() {
     updateTotalStarsDisplay();
     updateCurrentLevelStars();
     updateModeButtons();
-    checkAndShowTutorial();
+    updateStaminaDisplay();
+}
+
+function renderLevelSelectMap() {
+    if (!levelSelectMap) return;
+
+    const displayMode = levelSelectActiveTab;
+    const currentUnlocked = displayMode === GAME_MODES.TIMED ? unlockedTimedLevels : unlockedLevels;
+    const starsMap = displayMode === GAME_MODES.TIMED ? timedLevelStars : levelStars;
+    const levelCount = gameLevels.length;
+    const nodeHeight = 130;
+
+    let currentLevelIndex = -1;
+    for (let i = 0; i < levelCount; i++) {
+        if (currentUnlocked[i] && !starsMap[i]) {
+            currentLevelIndex = i;
+            break;
+        }
+    }
+    if (currentLevelIndex === -1) {
+        let maxUnlocked = -1;
+        for (let i = 0; i < levelCount; i++) {
+            if (currentUnlocked[i]) maxUnlocked = i;
+        }
+        currentLevelIndex = maxUnlocked;
+    }
+
+    const wrapper = levelSelectMap.parentElement.classList.contains('level-select-map-wrapper')
+        ? levelSelectMap.parentElement
+        : null;
+
+    if (!wrapper) {
+        const newWrapper = document.createElement('div');
+        newWrapper.className = 'level-select-map-wrapper';
+        levelSelectMap.parentNode.insertBefore(newWrapper, levelSelectMap);
+        newWrapper.appendChild(levelSelectMap);
+    }
+
+    const mapWrapper = levelSelectMap.parentElement;
+    const decos = mapWrapper.querySelectorAll('.map-decoration');
+    decos.forEach(d => d.remove());
+
+    const decorEmojis = ['🌿', '🍃', '🌸', '✨', '🌟', '☁️', '🦋'];
+    for (let i = 0; i < 12; i++) {
+        const deco = document.createElement('div');
+        deco.className = 'map-decoration';
+        const isLeft = i % 2 === 0;
+        deco.style.left = isLeft ? (2 + Math.random() * 8) + '%' : (90 + Math.random() * 8) + '%';
+        deco.style.top = (5 + i * (levelCount * nodeHeight) / 12 + Math.random() * 30) + 'px';
+        deco.style.fontSize = (20 + Math.random() * 20) + 'px';
+        deco.style.opacity = 0.3 + Math.random() * 0.4;
+        const decoType = i % 3;
+        if (decoType === 0) deco.classList.add('map-deco-cloud');
+        else if (decoType === 1) deco.classList.add('map-deco-star');
+        deco.style.animationDelay = (Math.random() * 3) + 's';
+        deco.textContent = decorEmojis[Math.floor(Math.random() * decorEmojis.length)];
+        mapWrapper.insertBefore(deco, levelSelectMap);
+    }
+
+    levelSelectMap.innerHTML = '';
+    levelSelectMap.style.height = (levelCount * nodeHeight + 60) + 'px';
+
+    const totalHeight = levelCount * nodeHeight;
+    const svgWidth = 100;
+    const svgHeight = totalHeight;
+    const pathSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    pathSvg.setAttribute('class', 'level-path-svg');
+    pathSvg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+    pathSvg.setAttribute('preserveAspectRatio', 'none');
+    pathSvg.style.position = 'absolute';
+    pathSvg.style.top = '0';
+    pathSvg.style.left = '0';
+    pathSvg.style.width = '100%';
+    pathSvg.style.height = svgHeight + 'px';
+    pathSvg.style.zIndex = '1';
+    pathSvg.style.pointerEvents = 'none';
+
+    const positions = [];
+    for (let i = 0; i < levelCount; i++) {
+        const posInGroup = i % 4;
+        let xPercent;
+        if (posInGroup === 0) xPercent = 12;
+        else if (posInGroup === 1) xPercent = 50;
+        else if (posInGroup === 2) xPercent = 88;
+        else xPercent = 50;
+        positions.push({
+            x: xPercent,
+            y: i * nodeHeight + nodeHeight / 2 + 10
+        });
+    }
+
+    let pathD = '';
+    for (let i = 0; i < levelCount; i++) {
+        const pos = positions[i];
+        const x = pos.x;
+        const y = pos.y;
+        if (i === 0) {
+            pathD += `M ${x} ${y}`;
+        } else {
+            const prev = positions[i - 1];
+            const midY = (prev.y + y) / 2;
+            pathD += ` C ${prev.x} ${midY}, ${x} ${midY}, ${x} ${y}`;
+        }
+    }
+
+    const pathBg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    pathBg.setAttribute('d', pathD);
+    pathBg.setAttribute('fill', 'none');
+    pathBg.setAttribute('stroke', 'rgba(76, 175, 80, 0.25)');
+    pathBg.setAttribute('stroke-width', '18');
+    pathBg.setAttribute('stroke-linecap', 'round');
+    pathBg.setAttribute('stroke-linejoin', 'round');
+    pathSvg.appendChild(pathBg);
+
+    const pathMain = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    pathMain.setAttribute('d', pathD);
+    pathMain.setAttribute('fill', 'none');
+    pathMain.setAttribute('stroke', 'url(#pathGradient)');
+    pathMain.setAttribute('stroke-width', '10');
+    pathMain.setAttribute('stroke-linecap', 'round');
+    pathMain.setAttribute('stroke-linejoin', 'round');
+    pathSvg.appendChild(pathMain);
+
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    gradient.setAttribute('id', 'pathGradient');
+    gradient.setAttribute('x1', '0%');
+    gradient.setAttribute('y1', '0%');
+    gradient.setAttribute('x2', '0%');
+    gradient.setAttribute('y2', '100%');
+    const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop1.setAttribute('offset', '0%');
+    stop1.setAttribute('stop-color', '#a8e6cf');
+    const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop2.setAttribute('offset', '50%');
+    stop2.setAttribute('stop-color', '#6bcb77');
+    const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop3.setAttribute('offset', '100%');
+    stop3.setAttribute('stop-color', '#4caf50');
+    gradient.appendChild(stop1);
+    gradient.appendChild(stop2);
+    gradient.appendChild(stop3);
+    defs.appendChild(gradient);
+    pathSvg.appendChild(defs);
+
+    levelSelectMap.appendChild(pathSvg);
+
+    gameLevels.forEach((level, index) => {
+        const node = document.createElement('div');
+        const isUnlocked = !!currentUnlocked[index];
+        const isCurrent = isUnlocked && index === currentLevelIndex;
+        const stars = getStarsForLevel(index, displayMode);
+        const posInGroup = index % 4;
+        const topPos = index * nodeHeight + 10;
+
+        node.className = 'level-node';
+        if (isUnlocked) node.classList.add('unlocked');
+        else node.classList.add('locked');
+        if (isCurrent && isUnlocked) node.classList.add('current');
+        if (level.hidden) node.classList.add('hidden-level');
+        if (posInGroup === 0) node.classList.add('level-pos-left');
+        else if (posInGroup === 2) node.classList.add('level-pos-right');
+        else node.classList.add('level-pos-middle');
+
+        node.style.top = topPos + 'px';
+
+        node.dataset.level = index;
+
+        let bombBadge = '';
+        if (level.bomb > 0 && isUnlocked) {
+            bombBadge = `<span class="level-node-bomb-badge">💣${level.bomb}</span>`;
+        }
+
+        let hiddenIcon = '';
+        if (level.hidden) {
+            hiddenIcon = `<span class="level-node-hidden-text">🔮</span>`;
+        }
+
+        let lockedTooltip = '';
+        if (!isUnlocked) {
+            if (level.hidden) {
+                lockedTooltip = `<div class="level-locked-tooltip">需要${level.starsRequired}⭐</div>`;
+            } else {
+                lockedTooltip = `<div class="level-locked-tooltip">通关上一关解锁</div>`;
+            }
+        }
+
+        const circleContent = isUnlocked
+            ? (index + 1)
+            : `<span class="level-node-locked-icon">🔒</span>`;
+
+        node.innerHTML = `
+            ${bombBadge}
+            ${hiddenIcon}
+            <div class="level-node-circle">${circleContent}</div>
+            <div class="level-node-stars">
+                ${[1, 2, 3].map(i => `<span class="level-node-star ${i <= stars ? 'filled' : 'empty'}">⭐</span>`).join('')}
+            </div>
+            <span class="level-node-number">第${index + 1}关</span>
+            <span class="level-node-dims">${level.cols}×${level.rows}${level.bomb > 0 ? ' 💣' : ''}</span>
+            ${lockedTooltip}
+        `;
+
+        if (isUnlocked) {
+            node.addEventListener('click', (e) => {
+                if (typeof isTutorialActive !== 'undefined' && isTutorialActive) {
+                    e.stopPropagation();
+                }
+                enterLevel(index, displayMode);
+            });
+        }
+
+        levelSelectMap.appendChild(node);
+    });
+}
+
+function enterLevel(levelIndex, mode) {
+    if (typeof isTutorialActive !== 'undefined' && isTutorialActive && currentTutorialStep === 0 && levelIndex === 0) {
+        if (levelSelectScreen) levelSelectScreen.classList.add('hidden');
+        if (gameScreen) gameScreen.classList.remove('hidden');
+        resetStats();
+        createTutorialBoard();
+        setupTutorialCards();
+        currentTutorialStep = 1;
+        updateTutorialStep(1);
+        return;
+    }
+    
+    resetStaminaDeductionFlag();
+    if (!consumeStamina(STAMINA_CONFIG.COST_PER_LEVEL)) {
+        showStaminaInsufficientModal();
+        return;
+    }
+    
+    if (mode !== gameMode) {
+        saveCurrentLevelForMode(currentLevel, gameMode);
+        gameMode = mode;
+        saveGameMode();
+    }
+    currentLevel = levelIndex;
+    saveCurrentLevelForMode(currentLevel, gameMode);
+    showGameScreen();
+    if (!checkAndShowTutorial()) {
+        checkAndShowBombIntro();
+    }
+}
+
+function updateLevelSelectModeButtons() {
+    if (levelModeNormalBtn) {
+        levelModeNormalBtn.classList.toggle('active', levelSelectActiveTab === GAME_MODES.NORMAL);
+    }
+    if (levelModeTimedBtn) {
+        levelModeTimedBtn.classList.toggle('active', levelSelectActiveTab === GAME_MODES.TIMED);
+    }
+}
+
+function updateLevelSelectTotalStars() {
+    if (levelSelectTotalStarsEl) {
+        levelSelectTotalStarsEl.textContent = getTotalStars(levelSelectActiveTab);
+    }
+}
+
+function updateLevelSelectSoundButton() {
+    if (levelSelectSoundBtn) {
+        levelSelectSoundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+    }
+}
+
+function switchLevelSelectMode(mode) {
+    if (levelSelectActiveTab === mode) return;
+    levelSelectActiveTab = mode;
+    updateLevelSelectModeButtons();
+    updateLevelSelectTotalStars();
+    renderLevelSelectMap();
+    setTimeout(() => {
+        scrollToCurrentLevel();
+        checkCurrentLevelVisibility();
+    }, 50);
 }
 
 function updateModeButtons() {
@@ -98,37 +470,37 @@ function updateDifficultyButtons() {
             const lvl = parseInt(option.dataset.level);
             if (!currentUnlocked[lvl]) return;
             closeLevelDropdown();
+            
+            const doSwitchAndEnter = () => {
+                if (!consumeStamina(STAMINA_CONFIG.COST_PER_LEVEL)) {
+                    showStaminaInsufficientModal();
+                    return;
+                }
+                saveCurrentLevelForMode(currentLevel, gameMode);
+                gameMode = displayMode;
+                saveGameMode();
+                currentLevel = lvl;
+                saveCurrentLevelForMode(currentLevel, gameMode);
+                updateDifficultyButtons();
+                updateBestScoreDisplay();
+                restartGame();
+                updateModeButtons();
+                checkAndShowBombIntro();
+            };
+            
             if (displayMode !== gameMode) {
                 if (!gameWon && (gameStarted || moves > 0)) {
                     showConfirmModal();
                     confirmYesBtn.onclick = () => {
-                        saveCurrentLevelForMode(currentLevel, gameMode);
-                        gameMode = displayMode;
-                        saveGameMode();
-                        currentLevel = lvl;
-                        saveCurrentLevelForMode(currentLevel, gameMode);
-                        updateDifficultyButtons();
-                        updateBestScoreDisplay();
-                        restartGame();
-                        updateModeButtons();
+                        doSwitchAndEnter();
                         hideConfirmModal();
-                        checkAndShowBombIntro();
                     };
                     confirmNoBtn.onclick = hideConfirmModal;
                     confirmYesBtn.textContent = '确定';
                     confirmModal.querySelector('h3').textContent = '⚠️ 确认切换模式';
                     confirmModal.querySelector('p').textContent = '当前进度将丢失，确定切换吗？';
                 } else {
-                    saveCurrentLevelForMode(currentLevel, gameMode);
-                    gameMode = displayMode;
-                    saveGameMode();
-                    currentLevel = lvl;
-                    saveCurrentLevelForMode(currentLevel, gameMode);
-                    updateDifficultyButtons();
-                    updateBestScoreDisplay();
-                    restartGame();
-                    updateModeButtons();
-                    checkAndShowBombIntro();
+                    doSwitchAndEnter();
                 }
             } else {
                 changeLevel(lvl);
@@ -223,10 +595,6 @@ function flipCard(e) {
             startCountdown();
         }
         gameStarted = true;
-        
-        if (isTutorialActive && tutorialTimedCardClicked) {
-            completeTimedModeDemo();
-        }
     }
     
     card.flipped = true;
@@ -413,7 +781,14 @@ function disableCards() {
     
     if (matchedPairs === regularPairs) {
         if (isTutorialActive) {
-            setTimeout(endTutorial, 500);
+            if (typeof currentTutorialStep !== 'undefined' && tutorialSteps[currentTutorialStep].action === 'free-play') {
+                setTimeout(endTutorial, 500);
+            } else if (typeof currentTutorialStep !== 'undefined' && tutorialSteps[currentTutorialStep].action === 'timed-mode-demo') {
+                setTimeout(() => {
+                    currentTutorialStep = 11;
+                    updateTutorialStep(11);
+                }, 500);
+            }
         } else {
             setTimeout(showWinModal, 500);
         }
@@ -496,7 +871,12 @@ function startCountdown() {
         if (timeRemaining <= 0) {
             stopCountdown();
             stopTimer();
-            showTimeUpModal();
+            if (isTutorialActive && typeof currentTutorialStep !== 'undefined' && tutorialSteps[currentTutorialStep].action === 'timed-mode-demo') {
+                timeRemaining = level.timeLimit;
+                startCountdown();
+            } else {
+                showTimeUpModal();
+            }
         }
     }, 1000);
 }
@@ -573,6 +953,8 @@ function showWinModal() {
     
     const earnedStars = calculateStars(currentLevel, gameMode === GAME_MODES.TIMED ? effectiveMoves : moves);
     const isNewStarRecord = saveStars(currentLevel, earnedStars, gameMode);
+    
+    rewardStaminaByStars(earnedStars);
     
     updateGameStats();
     checkAchievements();
@@ -746,6 +1128,11 @@ function restartGame() {
 function nextLevel() {
     const currentUnlocked = getUnlockedLevelsForMode();
     if (currentLevel < gameLevels.length - 1 && currentUnlocked[currentLevel + 1]) {
+        if (!consumeStamina(STAMINA_CONFIG.COST_PER_LEVEL)) {
+            hideWinModal();
+            showStaminaInsufficientModal();
+            return;
+        }
         currentLevel++;
         saveCurrentLevelForMode(currentLevel, gameMode);
         updateDifficultyButtons();
@@ -757,7 +1144,9 @@ function nextLevel() {
 
 function selectLevel() {
     hideWinModal();
-    levelDropdown.classList.toggle('hidden');
+    stopTimer();
+    stopCountdown();
+    showLevelSelectScreen();
 }
 
 function toggleLevelDropdown() {
@@ -782,6 +1171,11 @@ function changeLevel(levelIndex) {
     }
     
     const doChange = () => {
+        if (!consumeStamina(STAMINA_CONFIG.COST_PER_LEVEL)) {
+            closeLevelDropdown();
+            showStaminaInsufficientModal();
+            return;
+        }
         currentLevel = levelIndex;
         saveCurrentLevelForMode(currentLevel, gameMode);
         updateDifficultyButtons();
@@ -810,6 +1204,10 @@ function setGameMode(mode) {
     
     const oldMode = gameMode;
     const switchModeLogic = () => {
+        if (!consumeStamina(STAMINA_CONFIG.COST_PER_LEVEL)) {
+            showStaminaInsufficientModal();
+            return;
+        }
         saveCurrentLevelForMode(currentLevel, oldMode);
         gameMode = mode;
         saveGameMode();

@@ -72,6 +72,18 @@ const achievementList = [
     { id: 'ACH014', name: '收藏家', icon: '🏆', desc: '解锁全部成就' }
 ];
 
+const STAMINA_CONFIG = {
+    MAX_STAMINA: 30,
+    RECOVER_INTERVAL_MS: 60 * 1000,
+    COST_PER_LEVEL: 5,
+    STAR_REWARDS: {
+        3: 5,
+        2: 3,
+        1: 1,
+        0: 0
+    }
+};
+
 const STORAGE_KEYS = {
     progress: 'memoryGameProgress',
     bestScores: 'memoryGameBestScores',
@@ -87,5 +99,7 @@ const STORAGE_KEYS = {
     sound: 'memoryGameSound',
     gameMode: 'memoryGameMode',
     bombIntroSeen: 'memoryGameBombIntroSeen',
-    tutorialSeen: 'memoryGameTutorialSeen'
+    tutorialSeen: 'memoryGameTutorialSeen',
+    stamina: 'memoryGameStamina',
+    lastStaminaRecoverTime: 'memoryGameLastStaminaRecoverTime'
 };

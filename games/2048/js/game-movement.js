@@ -120,11 +120,7 @@ Game2048.prototype.processRowLeft = function(row, mergePositions, rowIdx, colIdx
           let mergedValue = workingRow[i].value * 2;
           let remainingMoves = workingRow[i].remainingMoves || 0;
           remainingMoves = Math.max(0, remainingMoves - 1);
-          if (remainingMoves > 0) {
-            workingRow[i] = Cell.frozenNumber(mergedValue, remainingMoves);
-          } else {
-            workingRow[i] = Cell.number(mergedValue);
-          }
+          workingRow[i] = Cell.frozenNumber(mergedValue, remainingMoves);
           workingRow[j] = Cell.empty();
           scoreAdded += mergedValue;
           this.iceBlockHadMerge = true;
@@ -338,6 +334,12 @@ Game2048.prototype.processRowLeft = function(row, mergePositions, rowIdx, colIdx
     }
   }
 
+  for (let i = 0; i < result.length; i++) {
+    if (result[i].isFrozenNumber() && result[i].remainingMoves === 0) {
+      result[i] = Cell.number(result[i].value);
+    }
+  }
+
   return { cells: result, scoreAdded };
 };
 
@@ -383,11 +385,7 @@ Game2048.prototype.processRowRight = function(row, mergePositions, rowIdx, colId
           let mergedValue = workingRow[i].value * 2;
           let remainingMoves = workingRow[i].remainingMoves || 0;
           remainingMoves = Math.max(0, remainingMoves - 1);
-          if (remainingMoves > 0) {
-            workingRow[i] = Cell.frozenNumber(mergedValue, remainingMoves);
-          } else {
-            workingRow[i] = Cell.number(mergedValue);
-          }
+          workingRow[i] = Cell.frozenNumber(mergedValue, remainingMoves);
           workingRow[j] = Cell.empty();
           additionalScore += mergedValue;
           this.iceBlockHadMerge = true;
